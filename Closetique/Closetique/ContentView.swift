@@ -5,82 +5,128 @@
 //  Created by Studente on 01/07/25.
 //
 
-import SwiftUI
+
 import CoreData
+import SwiftUI
 
-struct ContentView: View {
-    @Environment(\.managedObjectContext) private var viewContext
+    struct ContentView: View {
+        @State private var selectedTab: Int = 0
 
-    @FetchRequest(
-        sortDescriptors: [NSSortDescriptor(keyPath: \Item.timestamp, ascending: true)],
-        animation: .default)
-    private var items: FetchedResults<Item>
+        var body: some View {
+            VStack(spacing: 0) {
+                // Questa parte cambia in base al tab selezionato
+                Group {
+                    switch selectedTab {
+                    case 0:
+                        HomepageView()
+                        /*
+                    case 1:
+                        FavoritesView()
+                         */
+                    case 2:
+                        CameraView()
+                         
+                    case 3:
+                        WardrobeView()
+                        /*
+                    case 4:
+                        CategoriesView()
+                         */
+                    default:
+                        HomepageView()
+                    }
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                
+                // La TabBar resta sempre sotto
+                CustomTabBar(selectedTab: $selectedTab)
+            }
+            .edgesIgnoringSafeArea(.bottom)
+        }
+    }
+struct CustomTabBar: View {
+    @Binding var selectedTab: Int
+    let tabColor = Color(red: 112/255, green: 41/255, blue: 99/255) // Byzantium
 
     var body: some View {
-        NavigationView {
-            List {
-                ForEach(items) { item in
-                    NavigationLink {
-                        Text("Item at \(item.timestamp!, formatter: itemFormatter)")
-                    } label: {
-                        Text(item.timestamp!, formatter: itemFormatter)
-                    }
-                }
-                .onDelete(perform: deleteItems)
-            }
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
-                }
-                ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
-                    }
-                }
-            }
-            Text("Select an item")
+        HStack {
+            Spacer()
+            // Home
+            TabBarItem(
+                systemName: "house",
+                isSelected: selectedTab == 0,
+                tabColor: tabColor
+            ) { selectedTab = 0 }
+
+            Spacer()
+            // Star (favorites)
+            TabBarItem(
+                systemName: "star",
+                isSelected: selectedTab == 1,
+                tabColor: tabColor
+            ) { selectedTab = 1 }
+
+            Spacer()
+            // Camera (ora normale)
+            TabBarItem(
+                systemName: "camera",
+                isSelected: selectedTab == 2,
+                tabColor: tabColor
+            ) { selectedTab = 2 }
+
+            Spacer()
+            // Closet (armadio)
+            TabBarItem(
+                systemName: "square.split.2x1",
+                isSelected: selectedTab == 3,
+                tabColor: tabColor
+            ) { selectedTab = 3 }
+
+            Spacer()
+            // Categories (dots grid)
+            TabBarItem(
+                systemName: "circle.grid.3x3",
+                isSelected: selectedTab == 4,
+                tabColor: tabColor
+            ) { selectedTab = 4 }
+            Spacer()
         }
+        .frame(height: 80)
+        .background(Color.white.shadow(color: .black.opacity(0.04), radius: 8, x: 0, y: -2))
     }
+}
 
-    private func addItem() {
-        withAnimation {
-            let newItem = Item(context: viewContext)
-            newItem.timestamp = Date()
+struct TabBarItem: View {
+    let systemName: String
+    let isSelected: Bool
+    let tabColor: Color
+    let action: () -> Void
 
-            do {
-                try viewContext.save()
-            } catch {
-                // Replace this implementation with code to handle the error appropriately.
-                // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-                let nsError = error as NSError
-                fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
-            }
-        }
-    }
-
-    private func deleteItems(offsets: IndexSet) {
-        withAnimation {
-            offsets.map { items[$0] }.forEach(viewContext.delete)
-
-            do {
-                try viewContext.save()
-            } catch {
-                // Replace this implementation with code to handle the error appropriately.
-                // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-                let nsError = error as NSError
-                fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
+    var body: some View {
+        Button(action: action) {
+            VStack {
+                Image(systemName: systemName)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 34, height: 34)
+                    .foregroundColor(isSelected ? tabColor : Color(.systemGray4))
+                if isSelected {
+                    Rectangle()
+                        .fill(tabColor)
+                        .frame(height: 4)
+                        .cornerRadius(2)
+                        .padding(.top, -6)
+                } else {
+                    Rectangle()
+                        .fill(Color.clear)
+                        .frame(height: 4)
+                        .cornerRadius(2)
+                        .padding(.top, -6)
+                }
             }
         }
     }
 }
-
-private let itemFormatter: DateFormatter = {
-    let formatter = DateFormatter()
-    formatter.dateStyle = .short
-    formatter.timeStyle = .medium
-    return formatter
-}()
-
 #Preview {
     ContentView().environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
 }
