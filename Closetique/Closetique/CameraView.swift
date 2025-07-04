@@ -9,6 +9,7 @@ import SwiftUI
 import UIKit
 
 struct CameraView: View {
+    @Binding var items: [ClothingItem]
     @State private var showImagePicker = false
     @State private var imageSource: UIImagePickerController.SourceType = .camera
     @State private var pickedImage: UIImage?
@@ -101,11 +102,18 @@ struct CameraView: View {
             self.showPreview = true
         }
     }
-
+    
     private func saveItem(image: UIImage, result: ClassificationResult) {
-        // TODO: Implementa la logica per salvare l'item in Core Data
+        // Codifica l'immagine in base64
+        let imageData: String? = image.jpegData(compressionQuality: 0.8)?.base64EncodedString()
+        let newItem = ClothingItem(
+            name: result.category, // puoi cambiare come preferisci
+            category: result.category,
+            imageData: imageData,
+            isFavorite: false
+        )
+        items.append(newItem)
     }
-
     private func reset() {
         pickedImage = nil
         classificationResult = nil
@@ -242,6 +250,3 @@ struct ImagePicker: UIViewControllerRepresentable {
 
 // MARK: - Preview
 
-#Preview {
-    CameraView()
-}

@@ -11,6 +11,6 @@ struct ClothingItem: Identifiable, Equatable {
     let id = UUID()
     let name: String
     let category: String
-    let imageData: String? // Base64 string, file path, or URL
+    let imageData: String? 
     var isFavorite: Bool = false
 }

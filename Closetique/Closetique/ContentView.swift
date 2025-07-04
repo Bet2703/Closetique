@@ -23,7 +23,7 @@ import SwiftUI
                     case 1:
                         FavoriteView(items: $items)
                     case 2:
-                        CameraView()
+                        CameraView(items: $items)
                     case 3:
                         WardrobeView(items: $items)
                         /*

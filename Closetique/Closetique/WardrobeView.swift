@@ -29,7 +29,7 @@ struct WardrobeView: View {
 
                     Spacer()
 
-                    NavigationLink(destination: CameraView()) {
+                    NavigationLink(destination: CameraView(items: $items)) {
                         Image(systemName: "plus")
                             .font(.title2)
                             .foregroundColor(.purple)
