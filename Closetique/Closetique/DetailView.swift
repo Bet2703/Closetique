@@ -9,7 +9,7 @@ import SwiftUI
 
 struct DetailView: View {
     
-    @State var item: ClothingItem
+    @Binding var item: ClothingItem
     
     var body: some View {
         ZStack {
@@ -38,7 +38,7 @@ struct DetailView: View {
                                     }
                                     
                                     Button(action: {
-                                        item.isFavorite = true
+                                        item.isFavorite.toggle()
                                     }) {
                                         Image(systemName: item.isFavorite ? "heart.fill" : "heart")
                                             .foregroundColor(item.isFavorite ? .red : .gray)
