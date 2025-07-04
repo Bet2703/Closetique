@@ -4,6 +4,7 @@
 //
 //  Created by Studente on 02/07/25.
 //
+
 import SwiftUI
 import UIKit
 
@@ -102,8 +103,7 @@ struct CameraView: View {
     }
 
     private func saveItem(image: UIImage, result: ClassificationResult) {
-        // Salva il capo nell'armadio (wardrobe)
-        // Implementa la logica di salvataggio qui
+        // TODO: Implementa la logica per salvare l'item in Core Data
     }
 
     private func reset() {
@@ -138,6 +138,7 @@ struct ClassificationPreviewView: View {
                 .frame(maxHeight: 320)
                 .cornerRadius(16)
                 .padding()
+
             VStack(spacing: 8) {
                 HStack {
                     Text("Categoria:")
@@ -153,9 +154,9 @@ struct ClassificationPreviewView: View {
                     Text("Colore:")
                     Spacer()
                     Circle()
-                        .fill(Color(hex: result.color ?? <#default value#>))
+                        .fill(Color(hex: result.color ?? "#CCCCCC"))
                         .frame(width: 24, height: 24)
-                        .overlay(Text(result.color ?? <#default value#>).font(.caption2))
+                        .overlay(Text(result.color ?? "N/A").font(.caption2))
                 }
             }
             .padding()
@@ -172,6 +173,7 @@ struct ClassificationPreviewView: View {
             }
             .padding(.top)
         }
+        .padding()
     }
 }
 
@@ -182,11 +184,14 @@ extension Color {
         let scanner = Scanner(string: hex)
         _ = scanner.scanString("#")
         var rgb: UInt64 = 0
-        scanner.scanHexInt64(&rgb)
-        let r = Double((rgb >> 16) & 0xFF) / 255
-        let g = Double((rgb >> 8) & 0xFF) / 255
-        let b = Double(rgb & 0xFF) / 255
-        self.init(red: r, green: g, blue: b)
+        if scanner.scanHexInt64(&rgb) {
+            let r = Double((rgb >> 16) & 0xFF) / 255
+            let g = Double((rgb >> 8) & 0xFF) / 255
+            let b = Double(rgb & 0xFF) / 255
+            self.init(red: r, green: g, blue: b)
+        } else {
+            self.init(.gray) // fallback colore se hex non valido
+        }
     }
 }
 
@@ -235,8 +240,7 @@ struct ImagePicker: UIViewControllerRepresentable {
     }
 }
 
-
-
+// MARK: - Preview
 
 #Preview {
     CameraView()
