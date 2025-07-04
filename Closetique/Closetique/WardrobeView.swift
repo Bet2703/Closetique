@@ -154,7 +154,7 @@ struct WardrobeView: View {
 struct WardrobeView_Previews: PreviewProvider {
     static var previews: some View {
         // Esempio di dati di test
-        let exampleItems = [
+        var exampleItems = [
             ClothingItem(name: "Felpa", category: "Maglie", imageData: nil, isFavorite: false),
             ClothingItem(name: "Jeans", category: "Pantaloni", imageData: nil, isFavorite: true),
             ClothingItem(name: "T-shirt", category: "Maglie", imageData: nil, isFavorite: false),

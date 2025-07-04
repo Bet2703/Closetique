@@ -38,7 +38,11 @@ struct DetailView: View {
                                     }
                                     
                                     Button(action: {
-                                        item.isFavorite = true
+                                        if item.isFavorite {
+                                            item.isFavorite = false
+                                        } else {
+                                            item.isFavorite = true
+                                        }
                                     }) {
                                         Image(systemName: item.isFavorite ? "heart.fill" : "heart")
                                             .foregroundColor(item.isFavorite ? .red : .gray)
