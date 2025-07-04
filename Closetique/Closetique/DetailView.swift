@@ -9,7 +9,7 @@ import SwiftUI
 
 struct DetailView: View {
     
-    @Binding var item: ClothingItem
+    @ObservedObject var item: ClothingItem
     
     var body: some View {
         ZStack {
@@ -23,8 +23,8 @@ struct DetailView: View {
                             .cornerRadius(12)
                             .overlay(
                                 ZStack(alignment: .bottomTrailing) {
-                                    if let imageName = item.imageData, !imageName.isEmpty {
-                                        Image(imageName)
+                                    if let uiImage = imageFrom(item.imageData) {
+                                        Image(uiImage: uiImage)
                                             .resizable()
                                             .aspectRatio(contentMode: .fill)
                                             .frame(width: 400, height: 450, alignment: .top)
@@ -34,13 +34,17 @@ struct DetailView: View {
                                             .fill(Color.gray.opacity(0.2))
                                             .frame(width: 400, height: 450)
                                             .cornerRadius(30)
-                                            .overlay(Text("Nessuna immagine").foregroundColor(.gray))
+                                            .overlay(Text("Nessuna immagine")
+                                            .foregroundColor(.gray))
                                     }
                                     
                                     Button(action: {
+                    
                                         if item.isFavorite {
+                                            print("true->false")
                                             item.isFavorite = false
                                         } else {
+                                            print("false->true")
                                             item.isFavorite = true
                                         }
                                     }) {
@@ -88,11 +92,31 @@ struct DetailView: View {
         .ignoresSafeArea(edges: .bottom)
         .navigationTitle(item.name)
     }
+    
+    // Utility per convertire imageData (base64 o filepath) in UIImage
+    func imageFrom(_ imageData: String?) -> UIImage? {
+        guard let imageData = imageData else { return nil }
+        // Prova a decodificare Base64
+        if let data = Data(base64Encoded: imageData),
+           let image = UIImage(data: data) {
+            return image
+        }
+        // Altrimenti prova a caricare da file path
+        if let image = UIImage(contentsOfFile: imageData) {
+            return image
+        }
+        // Altrimenti prova a caricare come URL
+        if let url = URL(string: imageData),
+           let data = try? Data(contentsOf: url),
+           let image = UIImage(data: data) {
+            return image
+        }
+        return nil
+    }
 }
 
 
 #Preview {
-
-
+    ContentView().environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
 }
 

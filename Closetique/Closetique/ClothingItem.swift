@@ -1,16 +1,18 @@
-//
-//  ClothingItem.swift
-//  Closetique
-//
-//  Created by Studente on 04/07/25.
-//
-
 import Foundation
+import SwiftUI
 
-struct ClothingItem: Identifiable, Equatable {
-    let id = UUID()
-    let name: String
-    let category: String
-    let imageData: String? 
-    var isFavorite: Bool = false
+class ClothingItem: Identifiable, ObservableObject {
+    var id = UUID()
+    var name: String
+    var category: String
+    var imageData: String?
+    
+    @Published var isFavorite: Bool
+    
+    init(name: String, category: String, imageData: String?, isFavorite: Bool) {
+        self.name = name
+        self.category = category
+        self.imageData = imageData
+        self.isFavorite = isFavorite
+    }
 }
