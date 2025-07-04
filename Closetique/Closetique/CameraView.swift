@@ -238,13 +238,7 @@ struct ImagePicker: UIViewControllerRepresentable {
     }
 }
 
-// MARK: - Dummy runClassifier
 
-/// Implementa questa funzione per usare il tuo modello ML + Vision/CoreImage!
-func runClassifier(on image: UIImage) -> ClassificationResult {
-    // Dummy example - replace with your real classifier!
-    return ClassificationResult(category: "T-shirt", style: "Casual", color: "#3498db")
-}
 
 
 #Preview {

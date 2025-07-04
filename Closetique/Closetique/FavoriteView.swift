@@ -1,23 +1,16 @@
 //
-//  WardarobeView.swift
+//  FavoriteView.swift
 //  Closetique
 //
-//  Created by Studente on 02/07/25.
+//  Created by Studente on 04/07/25.
 //
 import SwiftUI
 
-struct WardrobeView: View {
+struct FavoriteView: View {
     @Binding var items: [ClothingItem]
     
-    let categories = ["Maglie", "Pantaloni", "Giacche", "Scarpe", "Accessori"]
-    @State private var selectedCategory: String? = nil
-
-    var filteredItems: [ClothingItem] {
-        if let selected = selectedCategory {
-            return items.filter { $0.category == selected }
-        } else {
-            return items
-        }
+    var favoriteItems: [ClothingItem] {
+        items.filter { $0.isFavorite }
     }
     
     let gridColumns = [
@@ -27,56 +20,15 @@ struct WardrobeView: View {
     var body: some View {
         NavigationStack {
             VStack(alignment: .leading) {
-                // Titolo + pulsante "+"
-                HStack {
-                    Text("Armadio")
-                        .font(.custom("Poppins-Bold", size: 40))
-                        .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
-
-                    Spacer()
-
-                    NavigationLink(destination: CameraView()) {
-                        Image(systemName: "plus")
-                            .font(.title2)
-                            .foregroundColor(.purple)
-                            .padding(10)
-                            .background(Color.purple.opacity(0.15))
-                            .clipShape(Circle())
-                    }
-                }
-                .padding(.horizontal)
-                .padding(.top)
-                
-                // Categorie
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 12) {
-                        Button(action: { selectedCategory = nil }) {
-                            Text("Tutti")
-                                .padding(.horizontal)
-                                .padding(.vertical, 8)
-                                .background(selectedCategory == nil ? Color.purple.opacity(0.2) : Color.gray.opacity(0.1))
-                                .foregroundColor(.primary)
-                                .cornerRadius(16)
-                        }
-                        ForEach(categories, id: \.self) { cat in
-                            Button(action: { selectedCategory = cat }) {
-                                Text(cat)
-                                    .padding(.horizontal)
-                                    .padding(.vertical, 8)
-                                    .background(selectedCategory == cat ? Color.purple.opacity(0.2) : Color.gray.opacity(0.1))
-                                    .foregroundColor(.primary)
-                                    .cornerRadius(16)
-                            }
-                        }
-                    }
+                Text("Preferiti")
+                    .font(.custom("Poppins-Bold", size: 40))
+                    .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
                     .padding(.horizontal)
-                    .padding(.top, 12)
-                }
+                    .padding(.top)
                 
-                // Griglia immagini
                 ScrollView {
                     LazyVGrid(columns: gridColumns, spacing: 18) {
-                        ForEach(filteredItems) { item in
+                        ForEach(favoriteItems) { item in
                             ZStack(alignment: .bottomTrailing) {
                                 Group {
                                     if let image = imageFrom(item.imageData) {
@@ -148,17 +100,17 @@ struct WardrobeView: View {
 }
 
 #if DEBUG
-struct WardrobeView_Previews: PreviewProvider {
+struct FavoriteView_Previews: PreviewProvider {
     static var previews: some View {
         // Esempio di dati di test
         let exampleItems = [
             ClothingItem(name: "Felpa", category: "Maglie", imageData: nil, isFavorite: false),
             ClothingItem(name: "Jeans", category: "Pantaloni", imageData: nil, isFavorite: true),
-            ClothingItem(name: "T-shirt", category: "Maglie", imageData: nil, isFavorite: false),
+            ClothingItem(name: "T-shirt", category: "Maglie", imageData: nil, isFavorite: true),
             ClothingItem(name: "Cintura", category: "Accessori", imageData: nil, isFavorite: false),
             ClothingItem(name: "Sneakers", category: "Scarpe", imageData: nil, isFavorite: false)
         ]
-        WardrobeView(items: .constant(exampleItems))
+        FavoriteView(items: .constant(exampleItems))
     }
 }
 #endif
