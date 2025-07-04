@@ -9,7 +9,7 @@ import SwiftUI
 
 struct DetailView: View {
     
-    @State var item: ClothingItem
+    @Binding var item: ClothingItem
     
     var body: some View {
         ZStack {
