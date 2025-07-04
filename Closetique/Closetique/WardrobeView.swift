@@ -1,3 +1,9 @@
+//
+//  WardarobeView.swift
+//  Closetique
+//
+//  Created by Studente on 02/07/25.
+//
 import SwiftUI
 
 struct WardrobeView: View {
@@ -71,46 +77,49 @@ struct WardrobeView: View {
                 ScrollView {
                     LazyVGrid(columns: gridColumns, spacing: 18) {
                         ForEach(filteredItems) { item in
-                            ZStack(alignment: .bottomTrailing) {
-                                Group {
-                                    if let image = imageFrom(item.imageData) {
-                                        GeometryReader { geo in
-                                            Image(uiImage: image)
-                                                .resizable()
-                                                .aspectRatio(contentMode: .fill)
-                                                .frame(width: geo.size.width, height: geo.size.width)
-                                                .clipped()
-                                                .cornerRadius(12)
-                                        }
-                                        .aspectRatio(1, contentMode: .fit)
-                                    } else {
-                                        Rectangle()
-                                            .fill(Color.gray.opacity(0.2))
+                            NavigationLink(destination: DetailView(item: item)) {
+                                ZStack(alignment: .bottomTrailing) {
+                                    Group {
+                                        if let image = imageFrom(item.imageData) {
+                                            GeometryReader { geo in
+                                                Image(uiImage: image)
+                                                    .resizable()
+                                                    .aspectRatio(contentMode: .fill)
+                                                    .frame(width: geo.size.width, height: geo.size.width)
+                                                    .clipped()
+                                                    .cornerRadius(12)
+                                            }
                                             .aspectRatio(1, contentMode: .fit)
-                                            .cornerRadius(12)
-                                            .overlay(Text("No Image").font(.caption))
+                                        } else {
+                                            Rectangle()
+                                                .fill(Color.gray.opacity(0.2))
+                                                .aspectRatio(1, contentMode: .fit)
+                                                .cornerRadius(12)
+                                                .overlay(Text("No Image").font(.caption))
+                                        }
                                     }
-                                }
-                                .padding(4)
-                                .background(Color.white)
-                                .cornerRadius(16)
-                                .shadow(color: Color.black.opacity(0.07), radius: 6, x: 0, y: 3)
-                                
-                                Button(action: {
-                                    if let idx = items.firstIndex(where: { $0.id == item.id }) {
-                                        items[idx].isFavorite.toggle()
+                                    .padding(4)
+                                    .background(Color.white)
+                                    .cornerRadius(16)
+                                    .shadow(color: Color.black.opacity(0.07), radius: 6, x: 0, y: 3)
+                                    
+                                    Button(action: {
+                                        if let idx = items.firstIndex(where: { $0.id == item.id }) {
+                                            items[idx].isFavorite.toggle()
+                                        }
+                                    }) {
+                                        Image(systemName: item.isFavorite ? "heart.fill" : "heart")
+                                            .foregroundColor(item.isFavorite ? .red : .gray)
+                                            .padding(8)
+                                            .background(Color.white.opacity(0.8))
+                                            .clipShape(Circle())
+                                            .shadow(radius: 2)
                                     }
-                                }) {
-                                    Image(systemName: item.isFavorite ? "heart.fill" : "heart")
-                                        .foregroundColor(item.isFavorite ? .red : .gray)
-                                        .padding(8)
-                                        .background(Color.white.opacity(0.8))
-                                        .clipShape(Circle())
-                                        .shadow(radius: 2)
+                                    .padding(10)
                                 }
-                                .padding(10)
                             }
                         }
+
                     }
                     .padding()
                 }
@@ -145,7 +154,7 @@ struct WardrobeView: View {
 struct WardrobeView_Previews: PreviewProvider {
     static var previews: some View {
         // Esempio di dati di test
-        var exampleItems = [
+        let exampleItems = [
             ClothingItem(name: "Felpa", category: "Maglie", imageData: nil, isFavorite: false),
             ClothingItem(name: "Jeans", category: "Pantaloni", imageData: nil, isFavorite: true),
             ClothingItem(name: "T-shirt", category: "Maglie", imageData: nil, isFavorite: false),
