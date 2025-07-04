@@ -93,14 +93,11 @@ struct CameraView: View {
         isClassifying = true
         classificationResult = nil
         showPreview = false
-        // Chiamata asincrona al classificatore ML + Vision per categoria, stile e colore
-        DispatchQueue.global().async {
-            let result = runClassifier(on: image) // <-- implementa questa funzione
-            DispatchQueue.main.async {
-                self.classificationResult = result
-                self.isClassifying = false
-                self.showPreview = true
-            }
+
+        ImageClassifier.shared.classify(image: image) { result in
+            self.classificationResult = result
+            self.isClassifying = false
+            self.showPreview = true
         }
     }
 
@@ -122,7 +119,7 @@ struct CameraView: View {
 struct ClassificationResult {
     let category: String
     let style: String
-    let color: String // Es: "#FFFFFF" o nome colore
+    let color: String? // Es: "#FFFFFF" o nome colore
 }
 
 // MARK: - Preview View
@@ -156,9 +153,9 @@ struct ClassificationPreviewView: View {
                     Text("Colore:")
                     Spacer()
                     Circle()
-                        .fill(Color(hex: result.color))
+                        .fill(Color(hex: result.color ?? <#default value#>))
                         .frame(width: 24, height: 24)
-                        .overlay(Text(result.color).font(.caption2))
+                        .overlay(Text(result.color ?? <#default value#>).font(.caption2))
                 }
             }
             .padding()
