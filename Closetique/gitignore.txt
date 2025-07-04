@@ -1,0 +1,54 @@
+
+#####
+# File temporanei del sistema operativo (macOS)
+
+.DS_Store
+*.swp
+*.lock
+profile
+
+
+####
+# File temporanei generati da Xcode
+
+*~.nib
+
+
+####
+# Cartelle che contengono cache e build locali di Xcode
+
+DerivedData/
+build/
+
+
+#####
+#  Impostazioni private dell’utente di Xcode (layout, breakpoints, ecc.)
+
+*.pbxuser
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+
+# Includere i file di default se presenti
+!default.pbxuser
+!default.mode1v3
+!default.mode2v3
+!default.perspectivev3
+
+
+####
+# Dati personali salvati da Xcode per ogni utente
+
+xcuserdata
+
+
+####
+# Conserva i dati condivisi del workspace (schemi, configurazioni comuni)
+
+!xcshareddata
+
+
+####
+# Classi marcate come deprecate da Xcode
+
+*.moved-aside
