@@ -36,15 +36,22 @@ struct HomepageView: View {
             Text("Genera Outfit")
                 .font(.largeTitle)
                 .bold()
+                .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
                 .frame(maxWidth: .infinity, alignment: .center)
             Spacer() // Spinge il contenuto verso l'alto
         }
         Text("Il tuo armadio")
             .font(.custom("Poppins-Medium", size: 20))
             .frame(maxWidth: .infinity, alignment: .leading)
+            .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
             .padding(.leading)
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 16) {
+                Text("No Wardrobe Item")
+                Text("No Wardrobe Item")
+                Text("No Wardrobe Item")
+                Text("No Wardrobe Item")
+                
                 /*
                 ForEach(wardrobeItems) { item in
                     VStack {
@@ -80,8 +87,6 @@ struct HomepageView: View {
     }
     
 }
-
-
 
 #Preview {
     HomepageView()
