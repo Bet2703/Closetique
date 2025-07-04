@@ -11,6 +11,7 @@ import SwiftUI
 
     struct ContentView: View {
         @State private var selectedTab: Int = 0
+        @State private var items: [ClothingItem] = [ ]
 
         var body: some View {
             VStack(spacing: 0) {
@@ -19,15 +20,12 @@ import SwiftUI
                     switch selectedTab {
                     case 0:
                         HomepageView()
-                        /*
                     case 1:
-                        FavoritesView()
-                         */
+                        FavoriteView(items: $items)
                     case 2:
                         CameraView()
-                         
                     case 3:
-                        WardrobeView()
+                        WardrobeView(items: $items)
                         /*
                     case 4:
                         CategoriesView()
