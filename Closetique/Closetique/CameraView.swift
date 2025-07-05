@@ -9,7 +9,10 @@ import SwiftUI
 import UIKit
 
 struct CameraView: View {
+    
     @Binding var items: [ClothingItem]
+    @Environment(\.dismiss) private var dismiss
+    
     @State private var showImagePicker = false
     @State private var imageSource: UIImagePickerController.SourceType = .camera
     @State private var pickedImage: UIImage?
@@ -28,6 +31,7 @@ struct CameraView: View {
                     onConfirm: {
                         saveItem(image: image, result: result)
                         reset()
+                        dismiss()
                     },
                     onRetake: {
                         reset()
