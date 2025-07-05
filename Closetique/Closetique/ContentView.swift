@@ -34,6 +34,13 @@ import SwiftUI
                         HomepageView()
                     }
                 }
+                .onChange(of: items){
+                    newItems in
+                    UserDefaultsManager.shared.saveItems(newItems)
+                }
+                .onAppear {
+                    items = UserDefaultsManager.shared.loadItems()
+                }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 
                 // La TabBar resta sempre sotto
@@ -126,5 +133,5 @@ struct TabBarItem: View {
     }
 }
 #Preview {
-    ContentView().environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
+    ContentView()
 }
