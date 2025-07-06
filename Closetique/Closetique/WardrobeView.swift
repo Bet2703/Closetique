@@ -124,6 +124,8 @@ struct WardrobeView: View {
                 }
             }
             .background(Color(.systemGroupedBackground))
+            .navigationTitle("Armadio")
+            .toolbar(.hidden, for: .navigationBar)
         }
     }
     
