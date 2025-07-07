@@ -5,67 +5,35 @@ import CoreML
 class ImageClassifier {
     static let shared = ImageClassifier()
 
-    private init() {}
-    func dominantColorHexCentralCrop(from image: UIImage) -> String? {
-        guard let ciImage = CIImage(image: image) else { return nil }
-        
-        let extent = ciImage.extent
-        let cropRect = CGRect(
-            x: extent.midX - extent.width * 0.25,
-            y: extent.midY - extent.height * 0.25,
-            width: extent.width * 0.5,
-            height: extent.height * 0.5
-        )
-        
-        let croppedImage = ciImage.cropped(to: cropRect)
-        
-        let context = CIContext()
-        let filter = CIFilter(name: "CIAreaAverage", parameters: [
-            kCIInputImageKey: croppedImage,
-            kCIInputExtentKey: CIVector(cgRect: croppedImage.extent)
-        ])
-        
-        guard let outputImage = filter?.outputImage else { return nil }
-        
-        var bitmap = [UInt8](repeating: 0, count: 4)
-        context.render(outputImage,
-                       toBitmap: &bitmap,
-                       rowBytes: 4,
-                       bounds: CGRect(x: 0, y: 0, width: 1, height: 1),
-                       format: .RGBA8,
-                       colorSpace: CGColorSpaceCreateDeviceRGB())
-        
-        let red = bitmap[0]
-        let green = bitmap[1]
-        let blue = bitmap[2]
-        
-        return String(format: "#%02X%02X%02X", red, green, blue)
-    }
-
     func classify(image: UIImage, completion: @escaping (ClassificationResult) -> Void) {
+        print("1️⃣ [ImageClassifier] Inizio classificazione")
+
         guard let ciImage = CIImage(image: image) else {
-            completion(ClassificationResult(category: "Sconosciuto", style: "NA", domColor: nil))
+            print("2️⃣ [ImageClassifier] Errore: Immagine non valida")
+            completion(ClassificationResult(category: "Sconosciuto", style: "NA", domColor: nil, details: nil))
             return
         }
 
         guard let model = try? FashionClassifier_1(configuration: MLModelConfiguration()),
               let visionModel = try? VNCoreMLModel(for: model.model) else {
-            completion(ClassificationResult(category: "Errore", style: "NA", domColor: nil))
+            print("3️⃣ [ImageClassifier] Errore: Modello ML non disponibile")
+            completion(ClassificationResult(category: "Errore", style: "NA", domColor: nil, details: nil))
             return
         }
 
         let request = VNCoreMLRequest(model: visionModel) { request, _ in
-            var result = ClassificationResult(category: "Sconosciuto", style: "NA", domColor: nil)
-
+            print("4️⃣ [ImageClassifier] Eseguito VNCoreMLRequest")
+            var foundStyle = "NA"
+            var foundCategory = "Sconosciuto"
             if let observations = request.results as? [VNClassificationObservation],
                let topResult = observations.first {
                 let label = topResult.identifier.lowercased()
+                print("5️⃣ [ImageClassifier] VNCoreMLRequest: topResult = \(label)")
 
                 let knownStyles = [
                     "casual", "sports", "ethnic", "formal", "party",
                     "travel", "smart casual", "home", "night", "na"
                 ]
-
                 let knownCategories = [
                     "tshirts", "shirts", "casual shoes", "watches", "sports shoes", "kurtas",
                     "tops", "handbags", "heels", "sunglasses", "flip flops", "sandals", "belts",
@@ -79,48 +47,72 @@ class ImageClassifier {
                     "jumpsuit", "shapewear", "tights", "blazers", "headband", "robe", "hat",
                     "lounge tshirts", "suits"
                 ]
-
-                var foundStyle = "NA"
                 for style in knownStyles {
                     if label.contains(style) {
                         foundStyle = style.capitalized
                         break
                     }
                 }
-
-                var foundCategory = "Sconosciuto"
                 for category in knownCategories {
                     if label.contains(category) {
                         foundCategory = category.capitalized
                         break
                     }
                 }
-
-                if let hex = self.dominantColorHexCentralCrop(from: image) {
-                    ColorConverter.getColorName(from: hex) { colorName in
-                        let finalColor = colorName ?? hex
-                        DispatchQueue.main.async {
-                            let result = ClassificationResult(category: foundCategory, style: foundStyle, domColor: finalColor)
-                            completion(result)
-                        }
-                    }
-                } else {
-                    DispatchQueue.main.async {
-                        let result = ClassificationResult(category: foundCategory, style: foundStyle, domColor: nil)
-                        completion(result)
-                    }
-                }
-
+                print("6️⃣ [ImageClassifier] Style trovato: \(foundStyle), Category trovata: \(foundCategory)")
+            } else {
+                print("5️⃣ [ImageClassifier] VNCoreMLRequest: nessun risultato di classificazione")
             }
 
-            DispatchQueue.main.async {
+            let group = DispatchGroup()
+            var domColor: String?
+            var details: String?
+
+            // Colore dominante con KMeansColorExtractor
+            group.enter()
+            print("7️⃣ [ImageClassifier] Calcolo colore dominante (KMeansColorExtractor)...")
+            DispatchQueue.global(qos: .userInitiated).async {
+                let hex = KMeansColorExtractor.extractDominantColor(from: image)
+                print("Dominant color HEX: \(hex ?? "nil")")
+                ColorConverter.getColorName(from: hex ?? "#CCCCCC") { colorName in
+                    domColor = colorName ?? hex
+                    print("Colore finale: \(domColor ?? "nil")")
+                    group.leave()
+                }
+            }
+
+            // Gemini Vision: chiama la funzione ultra short SENZA passare un prompt custom
+            group.enter()
+            print("🔟 [ImageClassifier] Chiamata GeminiVisionAnalyzer (ultra short)")
+            GeminiVisionAnalyzer.shared.analyzeFit(image: image) { geminiFit in
+                print("1️⃣1️⃣ [ImageClassifier] GeminiVisionAnalyzer risposta ricevuta (ultra short): \(geminiFit ?? "nil")")
+                details = geminiFit
+                group.leave()
+            }
+
+            group.notify(queue: .main) {
+                print("1️⃣2️⃣ [ImageClassifier] DispatchGroup completato, restituisco risultato")
+                let result = ClassificationResult(
+                    category: foundCategory,
+                    style: foundStyle,
+                    domColor: domColor,
+                    details: details
+                )
                 completion(result)
             }
         }
 
         let handler = VNImageRequestHandler(ciImage: ciImage, options: [:])
         DispatchQueue.global().async {
-            try? handler.perform([request])
+            do {
+                try handler.perform([request])
+                print("3️⃣ [ImageClassifier] VNImageRequestHandler eseguito con successo")
+            } catch {
+                print("3️⃣ [ImageClassifier] Errore durante la richiesta VNImageRequestHandler: \(error)")
+                DispatchQueue.main.async {
+                    completion(ClassificationResult(category: "Errore", style: "NA", domColor: nil, details: nil))
+                }
+            }
         }
     }
 }

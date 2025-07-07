@@ -129,10 +129,12 @@ struct CameraView: View {
 // MARK: - ClassificationResult struct
 
 struct ClassificationResult {
-    let category: String
-    let style: String
-    let domColor: String? // Es: "#FFFFFF" o nome colore
+    var category: String
+    var style: String
+    var domColor: String?
+    var details: String?   // ATTENZIONE: qui plurale "details"
 }
+
 
 // MARK: - Preview View
 
@@ -166,12 +168,24 @@ struct ClassificationPreviewView: View {
                     Text("Colore:")
                     Spacer()
                     Circle()
-                            .fill(Color(hex: result.domColor ?? "#CCCCCC"))
-                            .frame(width: 32, height: 32)
-                        Text(result.domColor ?? "N/A")
-                            .font(.caption)
+                        .fill(Color(Hex: result.domColor ?? "#CCCCCC"))
+                        .frame(width: 32, height: 32)
+                    Text(result.domColor ?? "N/A")
+                        .font(.caption)
+                }
+                // Nuova riga per dettagli
+                if let details = result.details, !details.isEmpty {
+                    HStack {
+                        Text("Dettagli:")
+                        Spacer()
+                        Text(details)
+                            .italic()
+                            .foregroundColor(.gray)
+                            .multilineTextAlignment(.trailing)
+                    }
                 }
             }
+
             .padding()
             .background(Color(.systemGroupedBackground))
             .cornerRadius(12)
@@ -190,23 +204,7 @@ struct ClassificationPreviewView: View {
     }
 }
 
-// MARK: - Color(hex:) utility
 
-extension Color {
-    init(hex: String) {
-        let scanner = Scanner(string: hex)
-        _ = scanner.scanString("#")
-        var rgb: UInt64 = 0
-        if scanner.scanHexInt64(&rgb) {
-            let r = Double((rgb >> 16) & 0xFF) / 255
-            let g = Double((rgb >> 8) & 0xFF) / 255
-            let b = Double(rgb & 0xFF) / 255
-            self.init(red: r, green: g, blue: b)
-        } else {
-            self.init(.gray) // fallback colore se hex non valido
-        }
-    }
-}
 
 // MARK: - ImagePicker (camera o galleria)
 

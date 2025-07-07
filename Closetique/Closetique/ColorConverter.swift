@@ -2,7 +2,7 @@ import Foundation
 
 class ColorConverter {
     static func getColorName(from hex: String, completion: @escaping (String?) -> Void) {
-        let sanitizedHex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
+        let sanitizedHex = hex.trimmingCharacters(in: CharacterSet(charactersIn: "#"))
         guard let url = URL(string: "https://www.thecolorapi.com/id?hex=\(sanitizedHex)") else {
             completion(nil)
             return
@@ -19,7 +19,6 @@ class ColorConverter {
                 completion(nil)
                 return
             }
-
             completion(name)
         }.resume()
     }
