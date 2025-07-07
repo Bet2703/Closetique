@@ -8,27 +8,19 @@ import SwiftUI
 
 struct AboutView: View {
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
-                Text("Informazioni sull'app")
-                    .font(.largeTitle)
-                    .bold()
-                    .foregroundColor(.purple)
-                
-                Text("Closetique è un armadio virtuale intelligente che ti permette di:")
-                Text("• Salvare capi fotografandoli o selezionandoli dalla galleria.")
-                Text("• Classificare automaticamente i capi per categoria, stile e colore.")
-                Text("• Segnare i tuoi preferiti.")
-                Text("• Generare outfit abbinati grazie all'AI.")
-                Text("• Modificare i dettagli di ogni capo.")
-                
-                Text("Progetto realizzato durante il Bootcamp iOS UNISA 2025.")
-                    .font(.footnote)
-                    .foregroundColor(.gray)
-            }
-            .padding()
+        VStack(spacing: 24) {
+            Image("LogoLavNoBG")
+            Text("Closetique")
+                .font(.custom("Poppins-Bold", size: 40))
+                .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
+            Text("Versione 1.0\n\nClosetique è un'app per organizzare il tuo armadio, generare outfit e tenere traccia dei tuoi capi preferiti.")
+                .multilineTextAlignment(.center)
+                .font(.custom("Poppins-Italic", size: 18))
+                .foregroundColor(Color(red: 71/255, green: 71/255, blue: 71/255))
+            Spacer()
         }
-        .navigationTitle("About")
+        .padding()
+        .navigationTitle("")
     }
 }
 
