@@ -66,6 +66,7 @@ struct CameraView: View {
                                 .frame(width: 64, height: 48)
                                 .padding()
                             Text("Aggiungi foto")
+                                .font(.custom("Poppins-Regular", size: 16))
                         }
                     }
                     .padding()
@@ -156,16 +157,19 @@ struct ClassificationPreviewView: View {
             VStack(spacing: 8) {
                 HStack {
                     Text("Categoria:")
+                        .font(.custom("Poppins-Regular", size: 16))
                     Spacer()
                     Text(result.category).bold()
                 }
                 HStack {
                     Text("Stile:")
+                        .font(.custom("Poppins-Regular", size: 16))
                     Spacer()
                     Text(result.style).bold()
                 }
                 HStack {
                     Text("Colore:")
+                        .font(.custom("Poppins-Regular", size: 16))
                     Spacer()
                     Circle()
                         .fill(Color(Hex: result.domColor ?? "#CCCCCC"))
@@ -177,8 +181,10 @@ struct ClassificationPreviewView: View {
                 if let details = result.details, !details.isEmpty {
                     HStack {
                         Text("Dettagli:")
+                            .font(.custom("Poppins-Regular", size: 16))
                         Spacer()
                         Text(details)
+                            .font(.custom("Poppins-Italic", size: 14))
                             .italic()
                             .foregroundColor(.gray)
                             .multilineTextAlignment(.trailing)

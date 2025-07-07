@@ -71,6 +71,7 @@ struct WardrobeView: View {
                         HStack(spacing: 12) {
                             Button(action: { selectedCategory = nil }) {
                                 Text("Tutti")
+                                    .font(.custom("Poppins-Regular", size: 18))
                                     .padding(.horizontal)
                                     .padding(.vertical, 8)
                                     .background(selectedCategory == nil ? Color.purple.opacity(0.2) : Color.gray.opacity(0.1))
@@ -80,6 +81,7 @@ struct WardrobeView: View {
                             ForEach(categories, id: \.self) { cat in
                                 Button(action: { selectedCategory = cat }) {
                                     Text(cat)
+                                        .font(.custom("Poppins-Regular", size: 18))
                                         .padding(.horizontal)
                                         .padding(.vertical, 8)
                                         .background(selectedCategory == cat ? Color.purple.opacity(0.2) : Color.gray.opacity(0.1))
