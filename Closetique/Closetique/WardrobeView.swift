@@ -3,6 +3,7 @@ import SwiftUI
 struct WardrobeView: View {
     
     @State var items: [ClothingItem]
+        
     let categories = ["Maglie", "Pantaloni", "Giacche", "Scarpe", "Accessori"]
     @State private var selectedCategory: String? = nil
 
@@ -12,6 +13,7 @@ struct WardrobeView: View {
 
     @State var showDeleteAlert: Bool = false
     
+        
     var filteredItems: [ClothingItem] {
         if let selected = selectedCategory {
             return items.filter { $0.category == selected }
@@ -152,8 +154,8 @@ struct WardrobeView: View {
                                 Button("Elimina", role: .destructive) {
                                     // Qui metti l'azione di eliminazione
                                     items.removeAll { selectedItems.contains($0.id) }
-                                                                    selectedItems.removeAll()
-                                    /*UserDefaultsManager.shared.deleteItem(selectedItems)*/
+                                    UserDefaultsManager.shared.deleteItems(selectedItems)
+                                    selectedItems.removeAll()
                                     isSelecting = false
                                     print("Elemento eliminato")
                                 }
@@ -170,6 +172,9 @@ struct WardrobeView: View {
                     .transition(.move(edge: .bottom))
                 }
             }
+        }
+        .onAppear {
+            items = UserDefaultsManager.shared.loadItems()
         }
     }
 }

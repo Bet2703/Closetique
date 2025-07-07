@@ -117,7 +117,7 @@ struct CameraView: View {
             imageData: imageData,
             isFavorite: false
         )
-        items.append(newItem)
+        UserDefaultsManager.shared.addItem(newItem)
     }
     private func reset() {
         pickedImage = nil

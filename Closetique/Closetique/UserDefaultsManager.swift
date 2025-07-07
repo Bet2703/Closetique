@@ -16,24 +16,29 @@ class UserDefaultsManager {
     // Salva l'array di ClothingItem
     func saveItems(_ items: [ClothingItem]) {
         do {
+            // Codifica l'array di ClothingItem in dati JSON
             let encoded = try JSONEncoder().encode(items)
+            // Salva i dati in UserDefaults con la chiave specificata
             UserDefaults.standard.set(encoded, forKey: key)
         } catch {
-            print("❌ Errore durante la codifica degli items: \(error)")
+            // Messaggio di errore in caso di problemi di codifica
+            print("Errore durante la codifica degli items: \(error)")
         }
     }
 
     // Carica l'array di ClothingItem
     func loadItems() -> [ClothingItem] {
+        // Recupera i dati salvati con la chiave specifica
         guard let data = UserDefaults.standard.data(forKey: key) else {
             return []
         }
 
         do {
+            // Tenta di decodificare i dati in un array di ClothingItem
             let decoded = try JSONDecoder().decode([ClothingItem].self, from: data)
             return decoded
         } catch {
-            print("❌ Errore durante la decodifica degli items: \(error)")
+            print("Errore durante la decodifica degli items: \(error)")
             return []
         }
     }
@@ -51,6 +56,10 @@ class UserDefaultsManager {
         currentItems.removeAll { $0.id == item.id }
         saveItems(currentItems)
     }
+    
+    func reset(){
+        saveItems([])
+    }
 
     // Aggiorna un capo esistente
     func updateItem(_ updatedItem: ClothingItem) {
@@ -61,6 +70,13 @@ class UserDefaultsManager {
         }
     }
 
+    //elimina un sottoinsieme di capi
+    func deleteItems(_ idsToDelete: Set<UUID>) {
+        var currentItems = loadItems()
+        currentItems.removeAll { idsToDelete.contains($0.id) }
+        saveItems(currentItems)
+    }
+    
     // Elimina tutto
     func clearAll() {
         UserDefaults.standard.removeObject(forKey: key)

@@ -37,7 +37,7 @@ struct SettingsView: View {
                 Button("Annulla", role: .cancel) { }
                 Button("Reset", role: .destructive) {
                     items.removeAll()
-                    UserDefaultsManager.shared.clearAll()
+                    UserDefaultsManager.shared.reset()
                 }
             } message: {
                 Text("Tutti i capi salvati verranno eliminati. L'operazione è irreversibile.")

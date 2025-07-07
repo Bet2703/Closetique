@@ -53,6 +53,9 @@ struct FavoriteView: View {
             .navigationTitle("Preferiti")
             .toolbar(.hidden, for: .navigationBar)
         }
+        .onAppear {
+            items = UserDefaultsManager.shared.loadItems()
+        }
     }
 }
 
