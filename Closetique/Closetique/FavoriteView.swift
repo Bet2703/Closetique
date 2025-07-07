@@ -7,7 +7,7 @@
 import SwiftUI
 
 struct FavoriteView: View {
-    @Binding var items: [ClothingItem]
+    @State var items: [ClothingItem]
     
     var favoriteItems: [ClothingItem] {
         items.filter { $0.isFavorite }
@@ -118,7 +118,7 @@ struct FavoriteView_Previews: PreviewProvider {
             ClothingItem(name: "Cintura", category: "Accessori", imageData: nil, isFavorite: false),
             ClothingItem(name: "Sneakers", category: "Scarpe", imageData: nil, isFavorite: false)
         ]
-        FavoriteView(items: .constant(exampleItems))
+        FavoriteView(items: (exampleItems))
     }
 }
 #endif
