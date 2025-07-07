@@ -22,25 +22,19 @@ struct HomepageView: View {
                     // Azione del bottone
                 }) {
                     ZStack {
-                        Circle()
-                            .fill(Color(red: 112/255, green: 41/255, blue: 99/255))
-                            .frame(width: 290, height: 290)
-                        Image(systemName: "sparkles")
-                            .font(.system(size: 100))
-                            .foregroundColor(.white)
+                        AnimatedPulsingCircle()
                     }
                 }
                 .accessibilityLabel("Genera outfit")
             }
             .frame(maxWidth: .infinity)
             Text("Genera Outfit")
-                .font(.largeTitle)
-                .bold()
+                .font(.custom("Poppins-SemiBold", size: 27))
                 .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
                 .frame(maxWidth: .infinity, alignment: .center)
             Spacer() // Spinge il contenuto verso l'alto
         }
-        Text("Il tuo armadio")
+        Text("Armadio")
             .font(.custom("Poppins-Medium", size: 20))
             .frame(maxWidth: .infinity, alignment: .leading)
             .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))

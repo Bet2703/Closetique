@@ -107,9 +107,10 @@ struct DetailView: View {
                         Circle()
                             .fill(Color(red: 112/255, green: 41/255, blue: 99/255))
                             .frame(width: 130, height: 130)
-                        Image(systemName: "sparkles")
-                            .font(.system(size: 50))
-                            .foregroundColor(.white)
+                        Image("Button")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 130, height: 130)
                     }
                 }
                 .accessibilityLabel("Genera Outfit")
