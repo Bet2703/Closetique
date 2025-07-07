@@ -65,4 +65,4 @@ playground.xcworkspace
 # ===============================
 # File contenenti chiavi o segreti privati
 # ===============================
-**/APYKeys.swift
+**/APIKeys.swift
