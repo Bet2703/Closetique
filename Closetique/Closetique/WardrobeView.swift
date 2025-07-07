@@ -78,7 +78,9 @@ struct WardrobeView: View {
                     LazyVGrid(columns: gridColumns, spacing: 18) {
                         ForEach(filteredItems) { item in
                             if let index = items.firstIndex(where: { $0.id == item.id }) {
-                                NavigationLink(destination: DetailView(item: items[index])) {
+                                NavigationLink(destination: DetailView(item: items[index], onDelete: {
+                                    items.remove(at: index)
+                                })) {
                                     ZStack(alignment: .bottomTrailing) {
                                         Group {
                                             if let image = imageFrom(item.imageData) {

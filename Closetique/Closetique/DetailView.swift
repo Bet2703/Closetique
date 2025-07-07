@@ -9,7 +9,11 @@ import SwiftUI
 
 struct DetailView: View {
     
+    
     @ObservedObject var item: ClothingItem
+    @State var showDeleteAlert: Bool = false
+    @Environment(\.dismiss) var dismiss
+    var onDelete: (() -> Void)?
     
     var body: some View {
         ZStack {
@@ -67,7 +71,28 @@ struct DetailView: View {
                     Spacer()
                 }
                 .padding(.bottom, 160)
-                .navigationTitle(item.name)
+                .navigationTitle("")
+                .toolbar(){
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button(action: {
+                            showDeleteAlert = true
+                        }){
+                            Text("Elimina")
+                                .foregroundStyle(Color.red)
+                        }
+                    }
+                }.alert("Sei sicuro di voler eliminare?", isPresented: $showDeleteAlert) {
+                    Button("Annulla", role: .cancel) { }
+                    Button("Elimina", role: .destructive) {
+                        // Qui metti l'azione di eliminazione
+                        UserDefaultsManager.shared.deleteItem(item)
+                        onDelete?()
+                        dismiss()
+                        print("Elemento eliminato")
+                    }
+                } message: {
+                    Text("Questa azione non può essere annullata.")
+                }
             }
             
             // Bottone "Genera Outfit"
@@ -116,7 +141,24 @@ struct DetailView: View {
 }
 
 
-#Preview {
-    ContentView()
+
+#if DEBUG
+struct DetailView_Previews: PreviewProvider {
+    static var previews: some View {
+        // Esempio di dati di test
+        let exampleItems = [
+            ClothingItem(name: "Felpa", category: "Maglie", imageData: nil, isFavorite: false),
+            ClothingItem(name: "Jeans", category: "Pantaloni", imageData: nil, isFavorite: true),
+            ClothingItem(name: "T-shirt", category: "Maglie", imageData: nil, isFavorite: false),
+            ClothingItem(name: "Cintura", category: "Accessori", imageData: nil, isFavorite: false),
+            ClothingItem(name: "Sneakers", category: "Scarpe", imageData: nil, isFavorite: false)
+        ]
+        WardrobeView(items: .constant(exampleItems))
+    }
 }
+#endif
+
+/*#Preview {
+    ContentView()
+}*/
 
