@@ -131,7 +131,7 @@ struct CameraView: View {
 struct ClassificationResult {
     let category: String
     let style: String
-    let color: String? // Es: "#FFFFFF" o nome colore
+    let domColor: String? // Es: "#FFFFFF" o nome colore
 }
 
 // MARK: - Preview View
@@ -166,9 +166,10 @@ struct ClassificationPreviewView: View {
                     Text("Colore:")
                     Spacer()
                     Circle()
-                        .fill(Color(hex: result.color ?? "#CCCCCC"))
-                        .frame(width: 24, height: 24)
-                        .overlay(Text(result.color ?? "N/A").font(.caption2))
+                            .fill(Color(hex: result.domColor ?? "#CCCCCC"))
+                            .frame(width: 32, height: 32)
+                        Text(result.domColor ?? "N/A")
+                            .font(.caption)
                 }
             }
             .padding()

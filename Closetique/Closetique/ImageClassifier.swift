@@ -6,21 +6,56 @@ class ImageClassifier {
     static let shared = ImageClassifier()
 
     private init() {}
+    func dominantColorHexCentralCrop(from image: UIImage) -> String? {
+        guard let ciImage = CIImage(image: image) else { return nil }
+        
+        let extent = ciImage.extent
+        let cropRect = CGRect(
+            x: extent.midX - extent.width * 0.25,
+            y: extent.midY - extent.height * 0.25,
+            width: extent.width * 0.5,
+            height: extent.height * 0.5
+        )
+        
+        let croppedImage = ciImage.cropped(to: cropRect)
+        
+        let context = CIContext()
+        let filter = CIFilter(name: "CIAreaAverage", parameters: [
+            kCIInputImageKey: croppedImage,
+            kCIInputExtentKey: CIVector(cgRect: croppedImage.extent)
+        ])
+        
+        guard let outputImage = filter?.outputImage else { return nil }
+        
+        var bitmap = [UInt8](repeating: 0, count: 4)
+        context.render(outputImage,
+                       toBitmap: &bitmap,
+                       rowBytes: 4,
+                       bounds: CGRect(x: 0, y: 0, width: 1, height: 1),
+                       format: .RGBA8,
+                       colorSpace: CGColorSpaceCreateDeviceRGB())
+        
+        let red = bitmap[0]
+        let green = bitmap[1]
+        let blue = bitmap[2]
+        
+        return String(format: "#%02X%02X%02X", red, green, blue)
+    }
 
     func classify(image: UIImage, completion: @escaping (ClassificationResult) -> Void) {
         guard let ciImage = CIImage(image: image) else {
-            completion(ClassificationResult(category: "Sconosciuto", style: "NA", color: nil))
+            completion(ClassificationResult(category: "Sconosciuto", style: "NA", domColor: nil))
             return
         }
 
         guard let model = try? FashionClassifier_1(configuration: MLModelConfiguration()),
               let visionModel = try? VNCoreMLModel(for: model.model) else {
-            completion(ClassificationResult(category: "Errore", style: "NA", color: nil))
+            completion(ClassificationResult(category: "Errore", style: "NA", domColor: nil))
             return
         }
 
         let request = VNCoreMLRequest(model: visionModel) { request, _ in
-            var result = ClassificationResult(category: "Sconosciuto", style: "NA", color: nil)
+            var result = ClassificationResult(category: "Sconosciuto", style: "NA", domColor: nil)
 
             if let observations = request.results as? [VNClassificationObservation],
                let topResult = observations.first {
@@ -61,7 +96,21 @@ class ImageClassifier {
                     }
                 }
 
-                result = ClassificationResult(category: foundCategory, style: foundStyle, color: nil)
+                if let hex = self.dominantColorHexCentralCrop(from: image) {
+                    ColorConverter.getColorName(from: hex) { colorName in
+                        let finalColor = colorName ?? hex
+                        DispatchQueue.main.async {
+                            let result = ClassificationResult(category: foundCategory, style: foundStyle, domColor: finalColor)
+                            completion(result)
+                        }
+                    }
+                } else {
+                    DispatchQueue.main.async {
+                        let result = ClassificationResult(category: foundCategory, style: foundStyle, domColor: nil)
+                        completion(result)
+                    }
+                }
+
             }
 
             DispatchQueue.main.async {
