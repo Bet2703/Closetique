@@ -21,11 +21,11 @@ import SwiftUI
                     case 0:
                         HomepageView()
                     case 1:
-                        FavoriteView(items: $items)
+                        FavoriteView(items: items)
                     case 2:
                         CameraView(items: $items)
                     case 3:
-                        WardrobeView(items: $items)
+                        WardrobeView(items: items)
                         /*
                     case 4:
                         CategoriesView()

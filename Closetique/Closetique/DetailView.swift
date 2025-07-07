@@ -9,7 +9,6 @@ import SwiftUI
 
 struct DetailView: View {
     
-    
     @ObservedObject var item: ClothingItem
     @State var showDeleteAlert: Bool = false
     @Environment(\.dismiss) var dismiss
@@ -153,7 +152,7 @@ struct DetailView_Previews: PreviewProvider {
             ClothingItem(name: "Cintura", category: "Accessori", imageData: nil, isFavorite: false),
             ClothingItem(name: "Sneakers", category: "Scarpe", imageData: nil, isFavorite: false)
         ]
-        WardrobeView(items: .constant(exampleItems))
+        WardrobeView(items: (exampleItems))
     }
 }
 #endif
