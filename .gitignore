@@ -1,0 +1,68 @@
+# ===============================
+# File temporanei di sistema (macOS)
+# ===============================
+.DS_Store
+*.swp
+*.lock
+profile
+
+# ===============================
+# File temporanei generati da Xcode
+# ===============================
+*~.nib
+
+# ===============================
+# Cache e build locali di Xcode
+# ===============================
+DerivedData/
+build/
+
+# ===============================
+# Impostazioni private utente Xcode (layout, breakpoints, ecc.)
+# ===============================
+*.pbxuser
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+xcuserdata
+
+# Includi sempre i file di default, se presenti
+!default.pbxuser
+!default.mode1v3
+!default.mode2v3
+!default.perspectivev3
+
+# ===============================
+# Dati condivisi del workspace (schemi, configurazioni comuni)
+# ===============================
+!xcshareddata
+
+# ===============================
+# File contrassegnati come deprecati da Xcode
+# ===============================
+*.moved-aside
+
+# ===============================
+# Altri suggerimenti utili (facoltativi)
+# ===============================
+# Cartelle di log comuni
+*.xcuserstate
+*.xcscmblueprint
+*.xcworkspacedata
+# Playground timeline e risultati
+timeline.xctimeline
+playground.xcworkspace
+
+# Per CocoaPods, se lo usi:
+# Pods/
+
+# Per Carthage, se lo usi:
+# Carthage/
+
+# Per Swift Package Manager:
+# .build/
+
+# ===============================
+# File contenenti chiavi o segreti privati
+# ===============================
+APIKeys.swift
