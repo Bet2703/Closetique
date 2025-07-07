@@ -1,3 +1,3 @@
 struct APIKeys {
-    static let geminiVision = "prova3"
+    static let geminiVision = "a"
 }
