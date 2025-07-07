@@ -2,7 +2,9 @@ import SwiftUI
 
 struct HomepageView: View {
     @State private var showSettings = false  //per il controllo della schermata
+    @State private var showOutfitGenerator = false
 
+    
     var body: some View {
         NavigationStack {
             VStack(alignment: .leading, spacing: 32) {
@@ -36,6 +38,19 @@ struct HomepageView: View {
                                    }
                            }
                        }
+                       .fullScreenCover(isPresented: $showOutfitGenerator) {
+                           NavigationStack {
+                               OutfitGeneratorView()
+                                   .toolbar {
+                                       ToolbarItem(placement: .navigationBarLeading) {
+                                           Button("Chiudi") {
+                                               showOutfitGenerator = false
+                                           }
+                                       }
+                                   }
+                           }
+                       }
+
 
                    }
                    .padding([.top, .horizontal])
@@ -43,6 +58,7 @@ struct HomepageView: View {
                 VStack(alignment: .center, spacing: 16) {
                     Button(action: {
                         // Azione del bottone
+                        showOutfitGenerator = true
                     }) {
                         AnimatedPulsingCircle()
                     }
