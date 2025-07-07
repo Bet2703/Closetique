@@ -23,43 +23,66 @@ class ImageClassifier {
 
         let request = VNCoreMLRequest(model: visionModel) { request, _ in
             print("4️⃣ [ImageClassifier] Eseguito VNCoreMLRequest")
+
+            let knownStyles = [
+                "casual", "sports", "formal", "party",
+                "travel", "smart casual", "home", "night", "na"
+            ]
+            let knownCategories = [
+                "tshirts", "shirts", "casual shoes", "watches", "sports shoes",
+                "tops", "handbags", "heels", "sunglasses", "flip flops", "sandals", "belts",
+                "socks", "formal shoes", "jeans", "shorts", "trousers", "flats", "dresses",
+                "track pants", "sweatshirts", "caps", "sweaters", "ties", "jackets",
+                "innerwear vests", "nightdress", "leggings", "pendant",
+                "capris", "night suits", "trunk", "skirts", "scarves", "stoles",
+                "duffel bag", "sports sandals", "face moisturisers", "lounge pants",
+                "camisoles", "jeggings", "lounge shorts", "stockings",
+                "tracksuits", "gloves", "hair colour", "rain jacket", "swimwear",
+                "jumpsuit", "shapewear", "tights", "blazers", "headband", "robe", "hat",
+                "lounge tshirts", "suits"
+            ]
+            let ethnicLabels = ["salwar", "kurta", "kurti", "patiala", "saree", "churidar", "dupatta", "tunics", "ethnic"]
+
             var foundStyle = "NA"
             var foundCategory = "Sconosciuto"
-            if let observations = request.results as? [VNClassificationObservation],
-               let topResult = observations.first {
-                let label = topResult.identifier.lowercased()
-                print("5️⃣ [ImageClassifier] VNCoreMLRequest: topResult = \(label)")
 
-                let knownStyles = [
-                    "casual", "sports", "ethnic", "formal", "party",
-                    "travel", "smart casual", "home", "night", "na"
-                ]
-                let knownCategories = [
-                    "tshirts", "shirts", "casual shoes", "watches", "sports shoes", "kurtas",
-                    "tops", "handbags", "heels", "sunglasses", "flip flops", "sandals", "belts",
-                    "socks", "formal shoes", "jeans", "shorts", "trousers", "flats", "dresses",
-                    "sarees", "track pants", "sweatshirts", "caps", "sweaters", "ties", "jackets",
-                    "innerwear vests", "kurtis", "tunics", "nightdress", "leggings", "pendant",
-                    "capris", "night suits", "trunk", "skirts", "scarves", "dupatta", "stoles",
-                    "duffel bag", "sports sandals", "face moisturisers", "lounge pants",
-                    "camisoles", "patiala", "jeggings", "lounge shorts", "salwar", "stockings",
-                    "churidar", "tracksuits", "gloves", "hair colour", "rain jacket", "swimwear",
-                    "jumpsuit", "shapewear", "tights", "blazers", "headband", "robe", "hat",
-                    "lounge tshirts", "suits"
-                ]
-                for style in knownStyles {
-                    if label.contains(style) {
-                        foundStyle = style.capitalized
-                        break
+            if let observations = request.results as? [VNClassificationObservation], !observations.isEmpty {
+                let lowerLabels = observations.map { $0.identifier.lowercased() }
+                print("5️⃣ [ImageClassifier] VNCoreMLRequest: labels = \(lowerLabels)")
+
+                // Trova tutte le style e category possibili
+                var foundStyles: [String] = []
+                var foundCategories: [String] = []
+                for label in lowerLabels {
+                    for style in knownStyles {
+                        if label.contains(style) {
+                            foundStyles.append(style.capitalized)
+                            break
+                        }
+                    }
+                    for category in knownCategories {
+                        if label.contains(category) {
+                            foundCategories.append(category.capitalized)
+                            break
+                        }
                     }
                 }
-                for category in knownCategories {
-                    if label.contains(category) {
-                        foundCategory = category.capitalized
-                        break
-                    }
+                // Trova se la prima label è etnica sia per style che per category
+                let isEthnic = { (text: String) in
+                    ethnicLabels.contains { text.lowercased().contains($0) }
                 }
-                print("6️⃣ [ImageClassifier] Style trovato: \(foundStyle), Category trovata: \(foundCategory)")
+                let isFirstStyleEthnic = foundStyles.first.map(isEthnic) ?? false
+                let isFirstCategoryEthnic = foundCategories.first.map(isEthnic) ?? false
+
+                if isFirstStyleEthnic && isFirstCategoryEthnic && foundStyles.count > 1 && foundCategories.count > 1 {
+                    foundStyle = foundStyles[1]
+                    foundCategory = foundCategories[1]
+                    print("6️⃣ [ImageClassifier] Prima label etnica. Usata la seconda: Style \(foundStyle), Category \(foundCategory)")
+                } else {
+                    foundStyle = foundStyles.first ?? "NA"
+                    foundCategory = foundCategories.first ?? "Sconosciuto"
+                    print("6️⃣ [ImageClassifier] Style trovato: \(foundStyle), Category trovata: \(foundCategory)")
+                }
             } else {
                 print("5️⃣ [ImageClassifier] VNCoreMLRequest: nessun risultato di classificazione")
             }
@@ -68,19 +91,21 @@ class ImageClassifier {
             var domColor: String?
             var details: String?
 
-            // Colore dominante con KMeansColorExtractor
+            // Colore dominante con KMeansColorExtractor (USO CORRETTO ASINCRONO)
             group.enter()
             print("7️⃣ [ImageClassifier] Calcolo colore dominante (KMeansColorExtractor)...")
-            DispatchQueue.global(qos: .userInitiated).async {
-                let hex = KMeansColorExtractor.extractDominantColor(from: image)
-                print("Dominant color HEX: \(hex ?? "nil")")
-                ColorConverter.getColorName(from: hex ?? "#CCCCCC") { colorName in
+            if let hex = KMeansColorExtractor.debugCentralKMeans(from: image) {
+                print("Dominant color HEX: \(hex)")
+                ColorConverter.getColorName(from: hex) { colorName in
                     domColor = colorName ?? hex
                     print("Colore finale: \(domColor ?? "nil")")
                     group.leave()
                 }
+            } else {
+                print("Dominant color HEX: nil")
+                domColor = nil
+                group.leave()
             }
-
             // Gemini Vision: chiama la funzione ultra short SENZA passare un prompt custom
             group.enter()
             print("🔟 [ImageClassifier] Chiamata GeminiVisionAnalyzer (ultra short)")
