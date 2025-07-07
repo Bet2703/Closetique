@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct WardrobeView: View {
+    
     @State var items: [ClothingItem]
     let categories = ["Maglie", "Pantaloni", "Giacche", "Scarpe", "Accessori"]
     @State private var selectedCategory: String? = nil
@@ -171,10 +172,10 @@ struct WardrobeView: View {
     }
 }
 
-// Cella normale (come prima)
+// Cella normale
 struct WardrobeItemCell: View {
     @ObservedObject var item: ClothingItem
-
+    
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
             Group {
