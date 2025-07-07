@@ -55,6 +55,7 @@ struct FavoriteView: View {
         }
         .onAppear {
             items = UserDefaultsManager.shared.loadItems()
+            
         }
     }
 }
