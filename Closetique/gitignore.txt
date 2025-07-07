@@ -61,3 +61,8 @@ playground.xcworkspace
 
 # Per Swift Package Manager:
 # .build/
+
+# ===============================
+# File contenenti chiavi o segreti privati
+# ===============================
+apikeys
