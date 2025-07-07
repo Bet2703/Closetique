@@ -1,3 +1,3 @@
 struct APIKeys {
-    static let geminiVision = "AIzaSyB06nja5aSFH78yM_bBhQ2iPtw2yvrV79g"
+    static let geminiVision = "AIzaSyBcgavA4Wdv90QeqqMXbAGGO5PS2_Ow3iA"
 }
