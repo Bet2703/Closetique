@@ -67,6 +67,9 @@ struct DetailView: View {
                         .font(.custom("Poppins-Bold", size: 30))
                         .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
                     
+                    Text(item.detail ?? "")
+                        .font(.custom("Poppins-Regular", size: 18))
+                    
                     Spacer()
                 }
                 .padding(.bottom, 160)
@@ -146,11 +149,11 @@ struct DetailView_Previews: PreviewProvider {
     static var previews: some View {
         // Esempio di dati di test
         let exampleItems = [
-            ClothingItem(name: "Felpa", category: "Maglie", imageData: nil, isFavorite: false),
-            ClothingItem(name: "Jeans", category: "Pantaloni", imageData: nil, isFavorite: true),
-            ClothingItem(name: "T-shirt", category: "Maglie", imageData: nil, isFavorite: false),
-            ClothingItem(name: "Cintura", category: "Accessori", imageData: nil, isFavorite: false),
-            ClothingItem(name: "Sneakers", category: "Scarpe", imageData: nil, isFavorite: false)
+            ClothingItem(name: "Felpa", category: "Maglie", imageData: nil, detail: "Stringa di dettagli per prova", isFavorite: false),
+            ClothingItem(name: "Jeans", category: "Pantaloni", imageData: nil, detail: "Stringa di dettagli per prova", isFavorite: true),
+            ClothingItem(name: "T-shirt", category: "Maglie", imageData: nil, detail: "Stringa di dettagli per prova", isFavorite: false),
+            ClothingItem(name: "Cintura", category: "Accessori", imageData: nil, detail: "Stringa di dettagli per prova", isFavorite: false),
+            ClothingItem(name: "Sneakers", category: "Scarpe", imageData: nil, detail: "Stringa di dettagli per prova", isFavorite: false)
         ]
         WardrobeView(items: (exampleItems))
     }

@@ -10,7 +10,7 @@ class GeminiVisionAnalyzer {
     /// Analizza tipologia, vestibilità e dettaglio distintivo principale del capo visibile
     func analyzeFit(image: UIImage, completion: @escaping (String?) -> Void) {
         let prompt = """
-        Scrivi solo la tipologia, la vestibilità e un dettaglio ben riconoscibile del capo principale nell'immagine, in massimo 15 parole. Non aggiungere dettagli sulla persona o sull'ambiente. Esempi:
+        Scrivi solo la tipologia, la vestibilità e un dettaglio ben riconoscibile del capo principale nell'immagine, in massimo 20 parole. Non aggiungere dettagli sulla persona o sull'ambiente. Esempi:
         - "jeans baggy con strappi"
         -"jeans "lavato""
         - "maglia aderente a righe bianche e nere"
