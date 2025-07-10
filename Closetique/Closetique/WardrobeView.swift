@@ -42,11 +42,11 @@ struct WardrobeView: View {
                         Button(action: {
                             showFavorites = true
                         }) {
-                            Image(systemName: "heart.fill")
+                            Image(systemName: "heart")
                                 .font(.system(size: 22, weight: .bold))
-                                .foregroundColor(.purple)
+                                .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
                                 .padding(10)
-                                .background(Color.purple.opacity(0.13))
+                                .background(Color(red: 246/255, green: 232/255, blue: 234/255))
                                 .clipShape(Circle())
                         }
                         .padding(.trailing, 8)
@@ -60,9 +60,9 @@ struct WardrobeView: View {
                         }) {
                             Image(systemName: isSelecting ? "xmark" : "checkmark.circle")
                                 .font(.system(size: 22, weight: .bold))
-                                .foregroundColor(.purple)
+                                .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
                                 .padding(10)
-                                .background(Color.purple.opacity(0.13))
+                                .background(Color(red: 246/255, green: 232/255, blue: 234/255))
                                 .clipShape(Circle())
                         }
                         .padding(.trailing, 8)
@@ -72,9 +72,9 @@ struct WardrobeView: View {
                             NavigationLink(destination: CameraView(items: $items)) {
                                 Image(systemName: "plus")
                                     .font(.title2)
-                                    .foregroundColor(.purple)
+                                    .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
                                     .padding(10)
-                                    .background(Color.purple.opacity(0.15))
+                                    .background(Color(red: 246/255, green: 232/255, blue: 234/255))
                                     .clipShape(Circle())
                             }
                         }
@@ -88,20 +88,20 @@ struct WardrobeView: View {
                             Button(action: { selectedCategory = nil }) {
                                 Text("Tutti")
                                     .font(.custom("Poppins-Regular", size: 18))
+                                    .foregroundColor(selectedCategory == nil ? Color.white : Color.black)
                                     .padding(.horizontal)
                                     .padding(.vertical, 8)
-                                    .background(selectedCategory == nil ? Color.purple.opacity(0.2) : Color.gray.opacity(0.1))
-                                    .foregroundColor(.primary)
+                                    .background(selectedCategory == nil ? Color(red: 112/255, green: 41/255, blue: 99/255) : Color.gray.opacity(0.1))
                                     .cornerRadius(16)
                             }
                             ForEach(categories, id: \.self) { cat in
                                 Button(action: { selectedCategory = cat }) {
                                     Text(cat)
                                         .font(.custom("Poppins-Regular", size: 18))
+                                        .foregroundColor(selectedCategory == cat ? Color.white : Color.black)
                                         .padding(.horizontal)
                                         .padding(.vertical, 8)
-                                        .background(selectedCategory == cat ? Color.purple.opacity(0.2) : Color.gray.opacity(0.1))
-                                        .foregroundColor(.primary)
+                                        .background(selectedCategory == cat ? Color(red: 112/255, green: 41/255, blue: 99/255) : Color.gray.opacity(0.1))
                                         .cornerRadius(16)
                                 }
                             }

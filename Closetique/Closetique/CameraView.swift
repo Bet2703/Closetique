@@ -28,8 +28,8 @@ struct CameraView: View {
                 ClassificationPreviewView(
                     image: image,
                     result: result,
-                    onConfirm: {
-                        saveItem(image: image, result: result)
+                    onConfirm: { updatedResult in
+                        saveItem(image: image, result: updatedResult)
                         reset()
                         dismiss()
                     },
@@ -146,8 +146,19 @@ struct ClassificationResult {
 struct ClassificationPreviewView: View {
     let image: UIImage
     let result: ClassificationResult
-    let onConfirm: () -> Void
+    let onConfirm: (ClassificationResult) -> Void
     let onRetake: () -> Void
+    let availableCategories: [String] = ["Maglie", "Pantaloni", "Giacche", "Scarpe", "Accessori"]
+    
+    // Editing states
+    @State private var editedCategory: String = ""
+    @State private var editedStyle: String = ""
+    @State private var editedDomColor: String = ""
+    @State private var editedDetails: String = ""
+    
+    @State private var editingField: EditingField? = nil
+
+    enum EditingField { case category, style, domColor, details }
 
     var body: some View {
         VStack(spacing: 24) {
@@ -158,19 +169,72 @@ struct ClassificationPreviewView: View {
                 .cornerRadius(16)
                 .padding()
 
-            VStack(spacing: 8) {
+            VStack(spacing: 12) {
+                //Categoria
                 HStack {
                     Text("Categoria:")
                         .font(.custom("Poppins-Regular", size: 16))
                     Spacer()
-                    Text(result.category).bold()
+                    if editingField == .category {
+                        Picker("Categoria", selection: $editedCategory) {
+                            ForEach(availableCategories + ["Altro"], id: \.self) { cat in
+                                Text(cat)
+                            }
+                        }
+                        .pickerStyle(MenuPickerStyle())
+                        Button(action: {
+                            editingField = nil
+                        }) {
+                            Image(systemName: "checkmark")
+                                .font(.system(size: 20, weight: .bold)) // icona grande e bold
+                                .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
+                        }
+                    }else {
+                        Text(editedCategory.isEmpty ? result.category : editedCategory)
+                            .bold()
+                        Button(action: {
+                            editedCategory = result.category
+                            editingField = .category
+                        }) {
+                            Image(systemName: "pencil")
+                                .font(.system(size: 20, weight: .bold)) // icona grande e bold
+                                .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
+                        }
+                    }
+                    
                 }
+                
+                //Stile
                 HStack {
                     Text("Stile:")
                         .font(.custom("Poppins-Regular", size: 16))
                     Spacer()
-                    Text(result.style).bold()
+                    if editingField == .style {
+                        TextField("Stile", text: $editedStyle)
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                            .frame(width: 120)
+                        Button(action: {
+                            editingField = nil
+                        }) {
+                            Image(systemName: "checkmark")
+                                .font(.system(size: 20, weight: .bold)) // icona grande e bold
+                                .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
+                        }
+                    } else {
+                        Text(editedStyle.isEmpty ? result.style : editedStyle)
+                            .bold()
+                        Button(action: {
+                            editedStyle = result.style
+                            editingField = .style
+                        }) {
+                            Image(systemName: "pencil")
+                                .font(.system(size: 20, weight: .bold)) // icona grande e bold
+                                .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
+                        }
+                    }
                 }
+                
+                //Colore
                 HStack {
                     Text("Colore:")
                         .font(.custom("Poppins-Regular", size: 16))
@@ -178,20 +242,61 @@ struct ClassificationPreviewView: View {
                     Circle()
                         .fill(Color(Hex: result.domColor ?? "#CCCCCC"))
                         .frame(width: 32, height: 32)
-                    Text(result.domColor ?? "N/A")
-                        .font(.caption)
+                    if editingField == .domColor {
+                        TextField("Colore (hex o nome)", text: $editedDomColor)
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                            .frame(width: 80)
+                        Button(action: {
+                            editingField = nil
+                        }) {
+                            Image(systemName: "checkmark")
+                                .font(.system(size: 20, weight: .bold)) // icona grande e bold
+                                .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
+                        }
+                    } else {
+                        Text(editedDomColor.isEmpty ? (result.domColor ?? "N/A") : editedDomColor)
+                            .font(.caption)
+                        Button(action: {
+                            editedDomColor = result.domColor ?? ""
+                            editingField = .domColor
+                        }) {
+                            Image(systemName: "pencil")
+                                .font(.system(size: 20, weight: .bold)) // icona grande e bold
+                                .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
+                        }
+                    }
                 }
-                // Nuova riga per dettagli
-                if let details = result.details, !details.isEmpty {
-                    HStack {
-                        Text("Dettagli:")
-                            .font(.custom("Poppins-Regular", size: 16))
-                        Spacer()
-                        Text(details)
+                
+                // Dettagli
+                HStack(alignment: .top) {
+                    Text("Dettagli:")
+                        .font(.custom("Poppins-Regular", size: 16))
+                    Spacer()
+                    if editingField == .details {
+                        TextField("Dettagli", text: $editedDetails)
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                            .frame(width: 160)
+                        Button(action: {
+                            editingField = nil
+                        }) {
+                            Image(systemName: "checkmark")
+                                .font(.system(size: 20, weight: .bold)) // icona grande e bold
+                                .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
+                        }
+                    } else {
+                        Text(editedDetails.isEmpty ? (result.details ?? "") : editedDetails)
                             .font(.custom("Poppins-Italic", size: 14))
                             .italic()
                             .foregroundColor(.gray)
                             .multilineTextAlignment(.trailing)
+                        Button(action: {
+                            editedDetails = result.details ?? ""
+                            editingField = .details
+                        }) {
+                            Image(systemName: "pencil")
+                                .font(.system(size: 20, weight: .bold)) // icona grande e bold
+                                .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
+                        }
                     }
                 }
             }
@@ -204,9 +309,17 @@ struct ClassificationPreviewView: View {
                 Button("Ripeti") { onRetake() }
                     .foregroundColor(.red)
                     .bold()
-                Button("Aggiungi all'armadio") { onConfirm() }
-                    .foregroundColor(.green)
-                    .bold()
+                Button("Aggiungi all'armadio") {
+                    let newResult = ClassificationResult(
+                        category: editedCategory.isEmpty ? result.category : editedCategory,
+                        style: editedStyle.isEmpty ? result.style : editedStyle,
+                        domColor: editedDomColor.isEmpty ? result.domColor : editedDomColor,
+                        details: editedDetails.isEmpty ? result.details : editedDetails
+                    )
+                    onConfirm(newResult)
+                }
+                .foregroundColor(.green)
+                .bold()
             }
             .padding(.top)
         }
@@ -263,3 +376,6 @@ struct ImagePicker: UIViewControllerRepresentable {
 
 // MARK: - Preview
 
+#Preview{
+    ContentView()
+}
