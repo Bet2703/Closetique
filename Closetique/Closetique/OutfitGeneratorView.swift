@@ -49,7 +49,9 @@ struct OutfitGeneratorView: View {
                 Spacer()
 
                 NavigationLink(
-                    destination: OutfitDescriptionView(allItems: allItems, aiMessage: aiMessage),
+                    destination: OutfitDescriptionView(allItems: allItems, aiMessage: aiMessage, onRegenerate: {
+                        generateOutfitWithGroq(for: selectedStyle)
+                    }),
                     isActive: $navigateToDescription
                 ) { EmptyView() }
             }
