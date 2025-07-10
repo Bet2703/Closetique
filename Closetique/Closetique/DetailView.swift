@@ -144,19 +144,22 @@ struct DetailView: View {
 }
 
 
-
 #if DEBUG
 struct DetailView_Previews: PreviewProvider {
-    static var previews: some View {
-        // Esempio di dati di test
-        let exampleItems = [
+    struct PreviewWrapper: View {
+        @State var exampleItems = [
             ClothingItem(name: "Felpa", category: "Maglie", imageData: nil, details: "Stringa di dettagli per prova", isFavorite: false),
             ClothingItem(name: "Jeans", category: "Pantaloni", imageData: nil, details: "Stringa di dettagli per prova", isFavorite: true),
             ClothingItem(name: "T-shirt", category: "Maglie", imageData: nil, details: "Stringa di dettagli per prova", isFavorite: false),
             ClothingItem(name: "Cintura", category: "Accessori", imageData: nil, details: "Stringa di dettagli per prova", isFavorite: false),
             ClothingItem(name: "Sneakers", category: "Scarpe", imageData: nil, details: "Stringa di dettagli per prova", isFavorite: false)
         ]
-        WardrobeView(items: (exampleItems))
+        var body: some View {
+            WardrobeView(items: $exampleItems)
+        }
+    }
+    static var previews: some View {
+        PreviewWrapper()
     }
 }
 #endif
