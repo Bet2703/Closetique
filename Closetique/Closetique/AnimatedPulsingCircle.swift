@@ -2,7 +2,8 @@ import SwiftUI
 
 struct AnimatedPulsingCircle: View {
     @State private var animate = false
-
+    var size : CGFloat = 290
+    
     var body: some View {
         ZStack {
             // Cerchi concentrici animati

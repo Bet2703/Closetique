@@ -57,8 +57,9 @@ class UserDefaultsManager {
         saveItems(currentItems)
     }
     
+    // Resetta l'applicazione cancellando tutti i capi
     func reset(){
-        saveItems([])
+        UserDefaults.standard.removeObject(forKey: self.key)
     }
 
     // Aggiorna un capo esistente
@@ -76,9 +77,5 @@ class UserDefaultsManager {
         currentItems.removeAll { idsToDelete.contains($0.id) }
         saveItems(currentItems)
     }
-    
-    // Elimina tutto
-    func clearAll() {
-        UserDefaults.standard.removeObject(forKey: key)
-    }
+
 }

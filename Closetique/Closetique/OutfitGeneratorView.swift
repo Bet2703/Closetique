@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct OutfitGeneratorView: View {
-    @State private var selectedStyle: String = "Casual"
+    @State private var selectedStyle: String = ""
     @State private var isGenerating: Bool = false
     @State private var generationError: String? = nil
     @State private var navigateToDescription: Bool = false
@@ -14,13 +14,15 @@ struct OutfitGeneratorView: View {
         NavigationStack {
             VStack(alignment: .leading, spacing: 24) {
                 Text("Seleziona lo stile")
-                    .font(.headline)
+                    .font(.custom("Poppins-SemiBold", size: 32))
+                    .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
                 Picker("Stile", selection: $selectedStyle) {
                     ForEach(styles, id: \.self) { style in
                         Text(style)
                     }
                 }
                 .pickerStyle(SegmentedPickerStyle())
+                .background(Color(red: 112/255, green: 41/255, blue: 99/255).opacity(0.7))
 
                 Spacer()
 
@@ -29,19 +31,7 @@ struct OutfitGeneratorView: View {
                     Button(action: {
                         generateOutfitWithGroq(for: selectedStyle)
                     }) {
-                        ZStack {
-                            Circle()
-                                .fill(Color(red: 112/255, green: 41/255, blue: 99/255))
-                                .frame(width: 200, height: 200)
-                            if isGenerating {
-                                ProgressView()
-                                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                            } else {
-                                Image(systemName: "sparkles")
-                                    .font(.system(size: 60))
-                                    .foregroundColor(.white)
-                            }
-                        }
+                        AnimatedPulsingCircle(size: 200)
                     }
                     .accessibilityLabel("Genera Outfit")
                     Spacer()
@@ -49,7 +39,9 @@ struct OutfitGeneratorView: View {
                 Spacer()
 
                 NavigationLink(
-                    destination: OutfitDescriptionView(allItems: allItems, aiMessage: aiMessage),
+                    destination: OutfitDescriptionView(allItems: allItems, aiMessage: aiMessage, onRegenerate: {
+                        generateOutfitWithGroq(for: selectedStyle)
+                    }),
                     isActive: $navigateToDescription
                 ) { EmptyView() }
             }
@@ -80,3 +72,6 @@ struct OutfitGeneratorView: View {
         }
     }
 }
+
+
+
