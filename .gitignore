@@ -5,7 +5,7 @@
 *.swp
 *.lock
 profile
-
+**.UserInterfaceState.xcuserstate
 # ===============================
 # File temporanei generati da Xcode
 # ===============================
