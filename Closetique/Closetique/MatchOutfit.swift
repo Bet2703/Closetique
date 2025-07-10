@@ -16,6 +16,7 @@ class MatchOutfit: Identifiable, ObservableObject, Codable, Equatable {
         self.items = items
         self.description = description
         self.dateCreated = dateCreated
+        print("DEBUG: MatchOutfit creato con \(items.count) items, description: \(description ?? "nessuna")")
     }
 
     // MARK: - Codable
@@ -25,6 +26,7 @@ class MatchOutfit: Identifiable, ObservableObject, Codable, Equatable {
         items = try container.decode([ClothingItem].self, forKey: .items)
         description = try container.decodeIfPresent(String.self, forKey: .description)
         dateCreated = try container.decode(Date.self, forKey: .dateCreated)
+        print("DEBUG: MatchOutfit DECODIFICATO con \(items.count) items, description: \(description ?? "nessuna")")
     }
 
     func encode(to encoder: Encoder) throws {
@@ -33,28 +35,16 @@ class MatchOutfit: Identifiable, ObservableObject, Codable, Equatable {
         try container.encode(items, forKey: .items)
         try container.encodeIfPresent(description, forKey: .description)
         try container.encode(dateCreated, forKey: .dateCreated)
+        print("DEBUG: MatchOutfit CODIFICATO con \(items.count) items, description: \(description ?? "nessuna")")
     }
 
     // MARK: - Equatable
     static func == (lhs: MatchOutfit, rhs: MatchOutfit) -> Bool {
-        return lhs.id == rhs.id &&
-               lhs.items == rhs.items &&
-               lhs.description == rhs.description &&
-               lhs.dateCreated == rhs.dateCreated
-    }
-    func generateOutfitWithAllItems(completion: @escaping (MatchOutfit?) -> Void) {
-        let clothingItems = UserDefaultsManager.shared.loadItems()
-        guard !clothingItems.isEmpty else {
-            completion(nil)
-            return
-        }
-        LlamaGroqAPI.generateOutfitDescription(from: clothingItems) { description in
-            if let descr = description {
-                let newOutfit = MatchOutfit(items: clothingItems, description: descr)
-                completion(newOutfit)
-            } else {
-                completion(nil)
-            }
-        }
+        let eq = lhs.id == rhs.id &&
+        lhs.items == rhs.items &&
+        lhs.description == rhs.description &&
+        lhs.dateCreated == rhs.dateCreated
+        print("DEBUG: Confronto MatchOutfit: ids uguali? \(lhs.id == rhs.id), items uguali? \(lhs.items == rhs.items)")
+        return eq
     }
 }
