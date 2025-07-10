@@ -19,11 +19,11 @@ struct OutfitGeneratorView: View {
                 Picker("Stile", selection: $selectedStyle) {
                     ForEach(styles, id: \.self) { style in
                         Text(style)
+                            .font(.custom("Poppins-Regular", size: 200))
                     }
                 }
                 .pickerStyle(SegmentedPickerStyle())
-                .background(Color(red: 112/255, green: 41/255, blue: 99/255).opacity(0.7))
-
+                .scaleEffect(CGSize(width: 1, height: 1.3))
                 Spacer()
 
                 HStack {
@@ -73,5 +73,8 @@ struct OutfitGeneratorView: View {
     }
 }
 
+#Preview {
+    ContentView()
+}
 
 
