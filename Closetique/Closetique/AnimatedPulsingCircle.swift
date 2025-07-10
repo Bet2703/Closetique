@@ -32,6 +32,10 @@ struct AnimatedPulsingCircle: View {
                     value: animate
                 )
         }
-        .onAppear { animate = true }
+        .onAppear {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                animate = true
+            }
+        }
     }
 }
