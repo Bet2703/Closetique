@@ -67,7 +67,7 @@ struct DetailView: View {
                         .font(.custom("Poppins-Bold", size: 30))
                         .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
                     
-                    Text(item.detail ?? "")
+                    Text(item.details ?? "")
                         .font(.custom("Poppins-Regular", size: 18))
                     
                     Spacer()
@@ -144,19 +144,22 @@ struct DetailView: View {
 }
 
 
-
 #if DEBUG
 struct DetailView_Previews: PreviewProvider {
-    static var previews: some View {
-        // Esempio di dati di test
-        let exampleItems = [
-            ClothingItem(name: "Felpa", category: "Maglie", imageData: nil, detail: "Stringa di dettagli per prova", isFavorite: false),
-            ClothingItem(name: "Jeans", category: "Pantaloni", imageData: nil, detail: "Stringa di dettagli per prova", isFavorite: true),
-            ClothingItem(name: "T-shirt", category: "Maglie", imageData: nil, detail: "Stringa di dettagli per prova", isFavorite: false),
-            ClothingItem(name: "Cintura", category: "Accessori", imageData: nil, detail: "Stringa di dettagli per prova", isFavorite: false),
-            ClothingItem(name: "Sneakers", category: "Scarpe", imageData: nil, detail: "Stringa di dettagli per prova", isFavorite: false)
+    struct PreviewWrapper: View {
+        @State var exampleItems = [
+            ClothingItem(name: "Felpa", category: "Maglie", imageData: nil, details: "Stringa di dettagli per prova", isFavorite: false),
+            ClothingItem(name: "Jeans", category: "Pantaloni", imageData: nil, details: "Stringa di dettagli per prova", isFavorite: true),
+            ClothingItem(name: "T-shirt", category: "Maglie", imageData: nil, details: "Stringa di dettagli per prova", isFavorite: false),
+            ClothingItem(name: "Cintura", category: "Accessori", imageData: nil, details: "Stringa di dettagli per prova", isFavorite: false),
+            ClothingItem(name: "Sneakers", category: "Scarpe", imageData: nil, details: "Stringa di dettagli per prova", isFavorite: false)
         ]
-        WardrobeView(items: (exampleItems))
+        var body: some View {
+            WardrobeView(items: $exampleItems)
+        }
+    }
+    static var previews: some View {
+        PreviewWrapper()
     }
 }
 #endif

@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct FavoriteView: View {
-    @State var items: [ClothingItem] 
+    @Binding var items: [ClothingItem]
     
     // Mostra solo i preferiti
     var filteredItems: [ClothingItem] {
@@ -29,18 +29,16 @@ struct FavoriteView: View {
                 ScrollView {
                     LazyVGrid(columns: gridColumns, spacing: 18) {
                         ForEach(filteredItems) { item in
-                            NavigationLink(
-                                destination: DetailView(item: item, onDelete: {
-                                    if let idx = items.firstIndex(where: { $0.id == item.id }) {
+                            if let idx = items.firstIndex(where: { $0.id == item.id }) {
+                                NavigationLink(
+                                    destination: DetailView(item: items[idx], onDelete: {
                                         items.remove(at: idx)
-                                    }
-                                })
-                            ) {
-                                FavoriteItemCell(item: item) {
-                                    
-                                    if !item.isFavorite, let idx = items.firstIndex(where: { $0.id == item.id }) {
-                                        items.remove(at: idx)
-                                        
+                                    })
+                                ) {
+                                    FavoriteItemCell(item: items[idx]) {
+                                        if !items[idx].isFavorite {
+                                            items.remove(at: idx)
+                                        }
                                     }
                                 }
                             }
@@ -52,10 +50,6 @@ struct FavoriteView: View {
             .background(Color(.systemGroupedBackground))
             .navigationTitle("Preferiti")
             .toolbar(.hidden, for: .navigationBar)
-        }
-        .onAppear {
-            items = UserDefaultsManager.shared.loadItems()
-            
         }
     }
 }
@@ -121,6 +115,7 @@ struct FavoriteItemCell: View {
         return nil
     }
 }
+
 #if DEBUG
 struct FavoriteView_Previews: PreviewProvider {
     struct PreviewWrapper: View {
@@ -132,7 +127,7 @@ struct FavoriteView_Previews: PreviewProvider {
             ClothingItem(name: "Sneakers", category: "Scarpe", imageData: nil, isFavorite: false)
         ]
         var body: some View {
-            FavoriteView(items: exampleItems)
+            FavoriteView(items: $exampleItems)
         }
     }
     static var previews: some View {

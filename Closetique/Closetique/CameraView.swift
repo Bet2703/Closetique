@@ -115,8 +115,12 @@ struct CameraView: View {
             name: result.category, // puoi cambiare come preferisci
             category: result.category,
             imageData: imageData,
+            domColor: result.domColor,
+            details: result.details ?? "",
+            style: result.style,
             isFavorite: false
         )
+        items.append(newItem)
         UserDefaultsManager.shared.addItem(newItem)
     }
     private func reset() {

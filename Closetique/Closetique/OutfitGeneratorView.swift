@@ -92,7 +92,7 @@ struct OutfitGeneratorView: View {
         isGenerating = true
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { // Simula elaborazione AI
             let filtered = allItems.filter {
-                ($0.detail ?? "").lowercased().contains(style.lowercased())
+                ($0.details ?? "").lowercased().contains(style.lowercased())
             }
             let categories = ["Maglie", "Pantaloni", "Giacche", "Scarpe", "Accessori"]
             var selected: [ClothingItem] = []

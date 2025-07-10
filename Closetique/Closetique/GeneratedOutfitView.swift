@@ -45,7 +45,7 @@ struct GeneratedOutfitPopupView: View {
                                     .font(.caption)
                             }
 
-                            if let detail = item.detail, !detail.isEmpty {
+                            if let detail = item.details, !detail.isEmpty {
                                 Text("Descrizione: \(detail)")
                                     .font(.caption)
                                     .foregroundColor(.gray)
