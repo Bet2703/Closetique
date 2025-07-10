@@ -86,7 +86,8 @@ struct OutfitDescriptionView: View {
                     }
                     
                     Button(action:{
-                        //Da implementare
+                        let newOutfit = MatchOutfit(items: parsed.items, description: parsed.description)
+                        UserDefaultsManager.shared.saveOutfit(newOutfit)
                     }){
                         Label("Salva", systemImage: "heart")
                             .font(.custom("Poppins-Regular", size: 18))

@@ -21,7 +21,7 @@ import SwiftUI
                     case 0:
                         HomepageView(items: $items, selectedTab: $selectedTab)
                     case 1:
-                        FavoriteView(items: $items)
+                        SavedOutfitsView()
                     case 2:
                         CameraView(items: $items)
                     case 3:
@@ -34,9 +34,10 @@ import SwiftUI
                         HomepageView(items: $items, selectedTab: $selectedTab)
                     }
                 }
+                /*
                 .onChange(of: items) { newItems, oldItems in
                     UserDefaultsManager.shared.saveItems(newItems)
-                }
+                }*/
                 .onAppear {
                     items = UserDefaultsManager.shared.loadItems()
                 }

@@ -36,9 +36,9 @@ struct FavoriteView: View {
                                     })
                                 ) {
                                     FavoriteItemCell(item: items[idx]) {
-                                        if !items[idx].isFavorite {
+                                        /*if !items[idx].isFavorite {
                                             items.remove(at: idx)
-                                        }
+                                        }*/
                                     }
                                 }
                             }
