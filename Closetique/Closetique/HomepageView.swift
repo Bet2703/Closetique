@@ -86,7 +86,7 @@ struct HomepageView: View {
         // FullScreenCover impostazioni
         .fullScreenCover(isPresented: $showSettings) {
             NavigationStack {
-                SettingsView(items: $items)
+                SettingsView(items: $items, selectedTab: $selectedTab)
                     .toolbar {
                         ToolbarItem(placement: .navigationBarLeading) {
                             Button("Chiudi") {

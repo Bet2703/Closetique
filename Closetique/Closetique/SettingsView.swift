@@ -9,6 +9,7 @@ import SwiftUI
 struct SettingsView: View {
     @State private var showResetAlert = false
     @Binding var items: [ClothingItem]
+    @Binding var selectedTab: Int
 
     var body: some View {
         NavigationStack {
@@ -38,6 +39,7 @@ struct SettingsView: View {
                 Button("Reset", role: .destructive) {
                     items.removeAll()
                     UserDefaultsManager.shared.reset()
+                    selectedTab = 0
                 }
             } message: {
                 Text("Tutti i capi salvati verranno eliminati. L'operazione è irreversibile.")
@@ -52,8 +54,10 @@ struct SettingsView: View {
             ClothingItem(name: "Felpa", category: "Maglie", imageData: nil, isFavorite: false),
             ClothingItem(name: "Jeans", category: "Pantaloni", imageData: nil, isFavorite: true)
         ]
+        @State var selectedTab: Int = 0
+        
         var body: some View {
-            SettingsView(items: $items)
+            SettingsView(items: $items, selectedTab: $selectedTab)
         }
     }
     return PreviewWrapper()
