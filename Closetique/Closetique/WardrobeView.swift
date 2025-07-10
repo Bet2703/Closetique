@@ -4,8 +4,9 @@ struct WardrobeView: View {
     
     @Binding var items: [ClothingItem]
         
-    let categories = ["Maglie", "Pantaloni", "Giacche", "Scarpe", "Accessori"]
+    
     @State private var selectedCategory: String? = nil
+    @State private var showFavorites = false
 
     // Modalità selezione
     @State private var isSelecting = false
@@ -13,6 +14,7 @@ struct WardrobeView: View {
 
     @State var showDeleteAlert: Bool = false
     
+    let categories = ["Maglie", "Pantaloni", "Giacche", "Scarpe", "Accessori"]
         
     var filteredItems: [ClothingItem] {
         if let selected = selectedCategory {
@@ -37,6 +39,18 @@ struct WardrobeView: View {
                             .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
                         Spacer()
                         
+                        Button(action: {
+                            showFavorites = true
+                        }) {
+                            Image(systemName: "heart.fill")
+                                .font(.system(size: 22, weight: .bold))
+                                .foregroundColor(.purple)
+                                .padding(10)
+                                .background(Color.purple.opacity(0.13))
+                                .clipShape(Circle())
+                        }
+                        .padding(.trailing, 8)
+
                         // "Seleziona" o "Annulla"
                         Button(action: {
                             withAnimation {
@@ -172,6 +186,19 @@ struct WardrobeView: View {
                     .transition(.move(edge: .bottom))
                 }
             }
+            .sheet(isPresented: $showFavorites) {
+                NavigationStack {
+                    FavoriteView(items: $items)
+                        .toolbar {
+                            ToolbarItem(placement: .navigationBarLeading) {
+                                Button("Chiudi") {
+                                    showFavorites = false
+                                }
+                            }
+                        }
+                }
+            }
+
         }
     }
 }
