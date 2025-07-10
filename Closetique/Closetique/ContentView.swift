@@ -25,7 +25,7 @@ import SwiftUI
                 Group {
                     switch selectedTab {
                     case 0:
-                        HomepageView(items: $items)
+                        HomepageView(items: $items, selectedTab: $selectedTab)
                     case 1:
                         FavoriteView(items: $items)
                     case 2:
@@ -37,7 +37,7 @@ import SwiftUI
                         CategoriesView()
                          */
                     default:
-                        HomepageView(items: $items)
+                        HomepageView(items: $items, selectedTab: $selectedTab)
                     }
                 }
                 .onChange(of: items) { newItems, oldItems in

@@ -2,6 +2,7 @@ import SwiftUI
 
 struct HomepageView: View {
     @Binding var items: [ClothingItem]
+    @Binding var selectedTab: Int
     @State private var showSettings = false
     @State private var showOutfitGenerator = false
     @State private var showWardrobe = false
@@ -61,7 +62,11 @@ struct HomepageView: View {
                                 .padding(.vertical, 24)
                         } else {
                             ForEach(items.prefix(5), id: \.id) { item in
-                                WardrobePreviewItemView(item: item)
+                                Button {
+                                    selectedTab = 3
+                                } label: {
+                                    WardrobePreviewItemView(item: item)
+                                }
                             }
                         }
                     }
@@ -104,19 +109,6 @@ struct HomepageView: View {
                     }
             }
         }
-        // FullScreenCover armadio
-        .fullScreenCover(isPresented: $showWardrobe) {
-            NavigationStack {
-                WardrobeView(items: $items)
-                    .toolbar {
-                        ToolbarItem(placement: .navigationBarLeading) {
-                            Button("Chiudi") {
-                                showWardrobe = false
-                            }
-                        }
-                    }
-            }
-        }
     }
 }
 
@@ -153,7 +145,7 @@ struct WardrobePreviewItemView: View {
 }
 
 
-#Preview {
+/*#Preview {
     struct PreviewWrapper: View {
         @State var items: [ClothingItem] = [
             ClothingItem(name: "Felpa", category: "Maglie", imageData: nil, isFavorite: false),
@@ -167,4 +159,9 @@ struct WardrobePreviewItemView: View {
         }
     }
     return PreviewWrapper()
+}
+*/
+
+#Preview {
+    ContentView()
 }
