@@ -94,18 +94,20 @@ class ImageClassifier {
             // Colore dominante con KMeansColorExtractor (USO CORRETTO ASINCRONO)
             group.enter()
             print("7️⃣ [ImageClassifier] Calcolo colore dominante (KMeansColorExtractor)...")
-            if let hex = KMeansColorExtractor.debugCentralKMeans(from: image) {
-                print("Dominant color HEX: \(hex)")
-                ColorConverter.getColorName(from: hex) { colorName in
-                    domColor = colorName ?? hex
-                    print("Colore finale: \(domColor ?? "nil")")
+            KMeansColorExtractor.dominantColorViaSegmentation(image: image) { hex in
+                print("Dominant color HEX: \(hex ?? "nil")")
+                if let hex = hex {
+                    ColorConverter.getColorName(from: hex) { colorName in
+                        domColor = colorName ?? hex
+                        print("Colore finale: \(domColor ?? "nil")")
+                        group.leave()
+                    }
+                } else {
+                    domColor = nil
                     group.leave()
                 }
-            } else {
-                print("Dominant color HEX: nil")
-                domColor = nil
-                group.leave()
             }
+
             // Gemini Vision: chiama la funzione ultra short SENZA passare un prompt custom
             group.enter()
             print("🔟 [ImageClassifier] Chiamata GeminiVisionAnalyzer (ultra short)")
