@@ -1,61 +1,33 @@
-
-//
-//  OutfitGeneratorView.swift
-//  Closetique
-//
-//  Created by Studente on 07/07/25.
-//
-
 import SwiftUI
 
 struct OutfitGeneratorView: View {
     @State private var selectedStyle: String = "Casual"
-    @State private var outfitItems: [ClothingItem] = []
-    @State private var showPopup: Bool = false
     @State private var isGenerating: Bool = false
-    
+    @State private var generationError: String? = nil
+    @State private var navigateToDescription: Bool = false
+    @State private var aiMessage: String = ""
+
     let styles = ["Casual", "Elegante", "Sportivo", "Streetwear"]
     let allItems: [ClothingItem] = UserDefaultsManager.shared.loadItems()
 
     var body: some View {
         NavigationStack {
             VStack(alignment: .leading, spacing: 24) {
-                
-                // Titolo
-                HStack {
-                    Text("Genera Outfit")
-                        .font(.custom("Poppins-Bold", size: 40))
-                        .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
-                    Spacer()
-                }
-                .padding(.horizontal)
-
-                // Picker stile
-                VStack(alignment: .leading) {
-                    Text("Seleziona stile:")
-                        .font(.headline)
-                        .padding(.horizontal)
-
-                    Picker("Stile", selection: $selectedStyle) {
-                        ForEach(styles, id: \.self) { style in
-                            Text(style).tag(style)
-                        }
+                Text("Seleziona lo stile")
+                    .font(.headline)
+                Picker("Stile", selection: $selectedStyle) {
+                    ForEach(styles, id: \.self) { style in
+                        Text(style)
                     }
-                    .pickerStyle(.menu)
-                    .padding(.horizontal)
-                    .padding(.vertical, 6)
-                    .background(Color(.systemGray6))
-                    .cornerRadius(12)
-                    .padding(.horizontal)
                 }
+                .pickerStyle(SegmentedPickerStyle())
 
                 Spacer()
 
-                // Bottone di generazione stile Shazam
                 HStack {
                     Spacer()
                     Button(action: {
-                        generateOutfit(for: selectedStyle)
+                        generateOutfitWithGroq(for: selectedStyle)
                     }) {
                         ZStack {
                             Circle()
@@ -75,42 +47,36 @@ struct OutfitGeneratorView: View {
                     Spacer()
                 }
                 Spacer()
+
+                NavigationLink(
+                    destination: OutfitDescriptionView(allItems: allItems, aiMessage: aiMessage),
+                    isActive: $navigateToDescription
+                ) { EmptyView() }
             }
             .padding(.top)
             .background(Color(.systemGroupedBackground))
-            .sheet(isPresented: $showPopup) {
-                GeneratedOutfitPopupView(outfitItems: outfitItems, onClose: {
-                    showPopup = false
-                }, onRegenerate: {
-                    generateOutfit(for: selectedStyle)
-                })
+            .alert(isPresented: Binding<Bool>(
+                get: { generationError != nil },
+                set: { _ in generationError = nil }
+            )) {
+                Alert(title: Text("Errore"), message: Text(generationError ?? ""), dismissButton: .default(Text("OK")))
             }
         }
     }
 
-    func generateOutfit(for style: String) {
+    func generateOutfitWithGroq(for style: String) {
         isGenerating = true
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { // Simula elaborazione AI
-            let filtered = allItems.filter {
-                ($0.details ?? "").lowercased().contains(style.lowercased())
-            }
-            let categories = ["Maglie", "Pantaloni", "Giacche", "Scarpe", "Accessori"]
-            var selected: [ClothingItem] = []
-
-            for cat in categories {
-                if let match = filtered.first(where: { $0.category == cat }) {
-                    selected.append(match)
-                    if selected.count >= 4 { break }
+        generationError = nil
+        LlamaGroqAPI.generateOutfitCombo(from: allItems, targetStyle: style) { result in
+            DispatchQueue.main.async {
+                isGenerating = false
+                if let output = result {
+                    self.aiMessage = output
+                    self.navigateToDescription = true
+                } else {
+                    self.generationError = "Errore nella generazione dell'outfit."
                 }
             }
-
-            outfitItems = selected
-            isGenerating = false
-            showPopup = true
         }
     }
-}
-
-#Preview {
-    OutfitGeneratorView()
 }
