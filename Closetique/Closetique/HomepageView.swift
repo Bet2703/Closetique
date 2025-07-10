@@ -1,66 +1,37 @@
 import SwiftUI
 
 struct HomepageView: View {
-    @State private var showSettings = false  //per il controllo della schermata
+    @Binding var items: [ClothingItem]
+    @State private var showSettings = false
     @State private var showOutfitGenerator = false
     @State private var showWardrobe = false
-    @State private var wardrobeItems: [ClothingItem] = []
-    @State private var navigateToWardrobe = false
-    
 
     var body: some View {
         NavigationStack {
             VStack(alignment: .leading, spacing: 32) {
-                   // Titolo e icona impostazioni sulla stessa riga
-                   HStack {
-                       Text("CLOSETIQUE")
-                           .font(.custom("Poppins-Bold", size: 40))
-                           .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
+                // Titolo e icona impostazioni sulla stessa riga
+                HStack {
+                    Text("CLOSETIQUE")
+                        .font(.custom("Poppins-Bold", size: 40))
+                        .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
 
-                       Spacer()
+                    Spacer()
 
-                       Button(action: {
-                           showSettings = true
-                       }) {
-                           Image(systemName: "gearshape.fill")
-                               .font(.system(size: 30, weight: .bold))
-                               .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
-                               .padding(8)
-                               .background(Color(red: 246/255, green: 232/255, blue: 234/255))
-                               .clipShape(Circle())
-                       }
-                       .fullScreenCover(isPresented: $showSettings) {
-                           NavigationStack {
-                               SettingsView()
-                                   .toolbar {
-                                       ToolbarItem(placement: .navigationBarLeading) {
-                                           Button("Chiudi") {
-                                               showSettings = false
-                                           }
-                                       }
-                                   }
-                           }
-                       }
-                       .fullScreenCover(isPresented: $showOutfitGenerator) {
-                           NavigationStack {
-                               OutfitGeneratorView()
-                                   .toolbar {
-                                       ToolbarItem(placement: .navigationBarLeading) {
-                                           Button("Chiudi") {
-                                               showOutfitGenerator = false
-                                           }
-                                       }
-                                   }
-                           }
-                       }
-
-
-                   }
-                   .padding([.top, .horizontal])
+                    Button(action: {
+                        showSettings = true
+                    }) {
+                        Image(systemName: "gearshape.fill")
+                            .font(.system(size: 30, weight: .bold))
+                            .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
+                            .padding(8)
+                            .background(Color(red: 246/255, green: 232/255, blue: 234/255))
+                            .clipShape(Circle())
+                    }
+                }
+                .padding([.top, .horizontal])
 
                 VStack(alignment: .center, spacing: 16) {
                     Button(action: {
-                        // Azione del bottone
                         showOutfitGenerator = true
                     }) {
                         AnimatedPulsingCircle()
@@ -75,92 +46,125 @@ struct HomepageView: View {
                     .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
                     .frame(maxWidth: .infinity, alignment: .center)
 
-                // Sezione Armadio + Preview
-                               Text("Armadio")
-                                   .font(.custom("Poppins-Medium", size: 20))
-                                   .frame(maxWidth: .infinity, alignment: .leading)
-                                   .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
-                                   .padding(.leading)
+                Text("Armadio")
+                    .font(.custom("Poppins-Medium", size: 20))
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
+                    .padding(.leading)
 
-                               ScrollView(.horizontal, showsIndicators: false) {
-                                   NavigationLink(destination: WardrobeView(items: UserDefaultsManager.shared.loadItems()), isActive: $navigateToWardrobe) {
-                                       EmptyView()
-                                   }
-                                   .hidden()
-                                   HStack(spacing: 16) {
-                                       ForEach(wardrobeItems.prefix(5)) { item in
-                                           if let image = imageFrom(item.imageData) {
-                                               Image(uiImage: image)
-                                                   .resizable()
-                                                   .aspectRatio(contentMode: .fill)
-                                                   .frame(width: 80, height: 80)
-                                                   .clipped()
-                                                   .cornerRadius(12)
-                                           }
-                                       }
-                                   }
-                                   .padding(.horizontal)
-                                   .onTapGesture {
-                                       navigateToWardrobe = true
-                                   }
+                // Armadio Preview
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 70) {
+                        if items.isEmpty {
+                            Text("Nessun capo nell'armadio")
+                                .foregroundColor(.secondary)
+                                .padding(.vertical, 24)
+                        } else {
+                            ForEach(items.prefix(5), id: \.id) { item in
+                                WardrobePreviewItemView(item: item)
+                            }
+                        }
+                    }
+                    .padding(.horizontal)
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        showWardrobe = true
+                    }
+                }
 
-                               }
+                Spacer()
+            }
+            .navigationTitle("")
+            .navigationBarTitleDisplayMode(.inline)
+            
+        }
+        // FullScreenCover impostazioni
+        .fullScreenCover(isPresented: $showSettings) {
+            NavigationStack {
+                SettingsView()
+                    .toolbar {
+                        ToolbarItem(placement: .navigationBarLeading) {
+                            Button("Chiudi") {
+                                showSettings = false
+                            }
+                        }
+                    }
+            }
+        }
+        // FullScreenCover generatore di outfit
+        .fullScreenCover(isPresented: $showOutfitGenerator) {
+            NavigationStack {
+                OutfitGeneratorView()
+                    .toolbar {
+                        ToolbarItem(placement: .navigationBarLeading) {
+                            Button("Chiudi") {
+                                showOutfitGenerator = false
+                            }
+                        }
+                    }
+            }
+        }
+        // FullScreenCover armadio
+        .fullScreenCover(isPresented: $showWardrobe) {
+            NavigationStack {
+                WardrobeView(items: $items)
+                    .toolbar {
+                        ToolbarItem(placement: .navigationBarLeading) {
+                            Button("Chiudi") {
+                                showWardrobe = false
+                            }
+                        }
+                    }
+            }
+        }
+    }
+}
 
-                               Spacer()
-                           }
-                           .navigationTitle("")
-                           .navigationBarTitleDisplayMode(.inline)
-                           .onAppear {
-                               wardrobeItems = UserDefaultsManager.shared.loadItems()
-                           }
-                           .fullScreenCover(isPresented: $showSettings) {
-                               NavigationStack {
-                                   SettingsView()
-                                       .toolbar {
-                                           ToolbarItem(placement: .navigationBarLeading) {
-                                               Button("Chiudi") {
-                                                   showSettings = false
-                                               }
-                                           }
-                                       }
-                               }
-                           }
-                           .fullScreenCover(isPresented: $showOutfitGenerator) {
-                               NavigationStack {
-                                   OutfitGeneratorView()
-                                       .toolbar {
-                                           ToolbarItem(placement: .navigationBarLeading) {
-                                               Button("Chiudi") {
-                                                   showOutfitGenerator = false
-                                               }
-                                           }
-                                       }
-                               }
-                           }
-                           .fullScreenCover(isPresented: $showWardrobe) {
-                               NavigationStack {
-                                   WardrobeView(items: UserDefaultsManager.shared.loadItems())
-                                       .toolbar {
-                                           ToolbarItem(placement: .navigationBarLeading) {
-                                               Button("Chiudi") {
-                                                   showWardrobe = false
-                                               }
-                                           }
-                                       }
-                               }
-                           }
-                       }
-                   }
+// Vista per il singolo capo in preview
+struct WardrobePreviewItemView: View {
+    @ObservedObject var item: ClothingItem
 
-                   func imageFrom(_ imageData: String?) -> UIImage? {
-                       guard let imageData = imageData else { return nil }
-                       if let data = Data(base64Encoded: imageData),
-                          let image = UIImage(data: data) {
-                           return image
-                       }
-                       return nil
-                   }
-               }
+    var body: some View {
+        VStack {
+            if let imageData = item.imageData,
+               let data = Data(base64Encoded: imageData),
+               let uiImage = UIImage(data: data) {
+                Image(uiImage: uiImage)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: 150, height: 150)
+                    .clipped()
+                    .cornerRadius(12)
+            } else {
+                Rectangle()
+                    .fill(Color.gray.opacity(0.2))
+                    .frame(width: 150, height: 150 )
+                    .cornerRadius(12)
+                    .overlay(
+                        Text("No Image")
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                    )
+            }
+
+        }
+        .frame(width: 90)
+    }
+}
+
+
 #Preview {
-    HomepageView()
+    struct PreviewWrapper: View {
+        @State var items: [ClothingItem] = [
+            ClothingItem(name: "Felpa", category: "Maglie", imageData: nil, isFavorite: false),
+            ClothingItem(name: "Jeans", category: "Pantaloni", imageData: nil, isFavorite: true),
+            ClothingItem(name: "Sneakers", category: "Scarpe", imageData: nil, isFavorite: false),
+            ClothingItem(name: "Cintura", category: "Accessori", imageData: nil, isFavorite: false),
+            ClothingItem(name: "Giacca", category: "Giacche", imageData: nil, isFavorite: false)
+        ]
+        var body: some View {
+            HomepageView(items: $items)
+        }
+    }
+    return PreviewWrapper()
 }

@@ -1,36 +1,16 @@
 import UIKit
 import Vision
 
-/// Estrae il colore dominante SOLO nella bounding box del capo principale (ad esempio ottenuta da un modello AI o da annotazione utente).
-struct ClothingDominantColorExtractor {
-    /// image: l'immagine originale
-    /// boundingBox: CGRect normalizzato [0,1] (x, y, width, height) relativo all'immagine, che delimita il capo principale
-    /// clusterCount: quante "famiglie" di colore cercare (default 4)
-    /// completion: closure che restituisce il colore dominante come HEX (es: "#AABBCC")
-    static func dominantColorInBoundingBox(
-        image: UIImage,
-        boundingBox: CGRect,
-        clusterCount k: Int = 4,
-        completion: @escaping (String?) -> Void
-    ) {
+struct KMeansColorExtractor {
+    /// Estrae il colore dominante eseguendo KMeans solo sui pixel appartenenti alla persona (segmentazione Vision).
+    static func dominantColorViaSegmentation(image: UIImage, clusterCount k: Int = 4, completion: @escaping (String?) -> Void) {
         guard let cgImage = image.cgImage else { completion(nil); return }
-        // Calcola la crop rettangolare in pixel
-        let imgW = CGFloat(cgImage.width)
-        let imgH = CGFloat(cgImage.height)
-        let cropRect = CGRect(
-            x: boundingBox.origin.x * imgW,
-            y: boundingBox.origin.y * imgH,
-            width: boundingBox.width * imgW,
-            height: boundingBox.height * imgH
-        ).integral
-        guard let croppedCG = cgImage.cropping(to: cropRect) else { completion(nil); return }
-        let croppedImg = UIImage(cgImage: croppedCG)
-        
-        // Segmenta SOLO la persona nella crop
+
         let request = VNGeneratePersonSegmentationRequest()
         request.qualityLevel = .accurate
         request.outputPixelFormat = kCVPixelFormatType_OneComponent8
-        let handler = VNImageRequestHandler(cgImage: croppedCG, options: [:])
+
+        let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
         DispatchQueue.global(qos: .userInitiated).async {
             do {
                 try handler.perform([request])
@@ -38,9 +18,9 @@ struct ClothingDominantColorExtractor {
                     DispatchQueue.main.async { completion(nil) }
                     return
                 }
-                // Ridimensiona crop e maschera
+                // Ridimensiona immagine e maschera allo stesso size
                 let thumbSize = CGSize(width: 100, height: 100)
-                guard let thumb = croppedImg.resized(to: thumbSize) else { DispatchQueue.main.async { completion(nil) }; return }
+                guard let thumb = image.resized(to: thumbSize) else { DispatchQueue.main.async { completion(nil) }; return }
                 guard let maskImage = maskPixelBuffer.toUIImage()?.resized(to: thumbSize) else { DispatchQueue.main.async { completion(nil) }; return }
                 guard let maskCG = maskImage.cgImage, let thumbCG = thumb.cgImage,
                       let data = thumbCG.dataProvider?.data, let ptr = CFDataGetBytePtr(data),
@@ -56,7 +36,7 @@ struct ClothingDominantColorExtractor {
                         let idx = (y * width + x) * bytesPerPixel
                         let maskIdx = (y * width + x)
                         let maskVal = maskPtr[maskIdx]
-                        guard maskVal > 127 else { continue } // Prendi solo pixel persona/oggetto!
+                        guard maskVal > 127 else { continue } // Prendi solo pixel persona!
                         let b = CGFloat(ptr[idx]) / 255.0
                         let g = CGFloat(ptr[idx+1]) / 255.0
                         let r = CGFloat(ptr[idx+2]) / 255.0
@@ -73,7 +53,48 @@ struct ClothingDominantColorExtractor {
                 }
                 let clusters = kMeans(points: pointsLAB, k: k, maxIterations: 16)
                 let sorted = clusters.sorted { $0.value.count > $1.value.count }
-                let domLAB = sorted.first!.key
+                // Log dei cluster trovati
+                for (i, cluster) in sorted.enumerated() {
+                    let rgb = labToRGB(l: cluster.key[0], a: cluster.key[1], b: cluster.key[2])
+                    let hex = String(format: "#%02X%02X%02X", Int(rgb.r*255), Int(rgb.g*255), Int(rgb.b*255))
+                    print("Cluster \(i+1): HEX=\(hex), count=\(cluster.value.count)")
+                }
+                // Logica di scelta cluster colorato non pelle
+                let colorThreshold: CGFloat = 0.25
+                let brightnessMin: CGFloat = 0.2
+                let brightnessMax: CGFloat = 0.95
+                func isSkinColor(h: CGFloat, s: CGFloat, v: CGFloat) -> Bool {
+                    return h > 10 && h < 50 && s > 0.15 && s < 0.55 && v > 0.3 && v < 0.85
+                }
+                var bestColorCluster: ([CGFloat], Int)? = nil
+                for (key, value) in sorted {
+                    let rgb = labToRGB(l: key[0], a: key[1], b: key[2])
+                    let hsv = rgbToHSV(r: rgb.r, g: rgb.g, b: rgb.b)
+                    if hsv.s > colorThreshold && hsv.v > brightnessMin && hsv.v < brightnessMax && !isSkinColor(h: hsv.h, s: hsv.s, v: hsv.v) {
+                        if bestColorCluster == nil || value.count > bestColorCluster!.1 {
+                            bestColorCluster = (key, value.count)
+                        }
+                    }
+                }
+                if bestColorCluster == nil {
+                    for (key, value) in sorted {
+                        let rgb = labToRGB(l: key[0], a: key[1], b: key[2])
+                        let hsv = rgbToHSV(r: rgb.r, g: rgb.g, b: rgb.b)
+                        if hsv.s > colorThreshold && hsv.v > brightnessMin && hsv.v < brightnessMax {
+                            bestColorCluster = (key, value.count)
+                            break
+                        }
+                    }
+                }
+                let domLAB: [CGFloat]
+                if let best = bestColorCluster {
+                    domLAB = best.0
+                } else if let first = sorted.first?.key {
+                    domLAB = first
+                } else {
+                    DispatchQueue.main.async { completion(nil) }
+                    return
+                }
                 let domRGB = labToRGB(l: domLAB[0], a: domLAB[1], b: domLAB[2])
                 let hex = String(format: "#%02X%02X%02X", Int(domRGB.r*255), Int(domRGB.g*255), Int(domRGB.b*255))
                 DispatchQueue.main.async { completion(hex) }
@@ -83,7 +104,101 @@ struct ClothingDominantColorExtractor {
         }
     }
 
-    /// KMeans clustering per LAB
+    
+    /// Estrae il colore dominante dalla porzione centrale dell'immagine, senza segmentazione Vision.
+    static func debugCentralKMeans(
+        from image: UIImage,
+        centralPortion: CGFloat = 0.4,
+        clusterCount k: Int = 4
+    ) -> String? {
+        let thumbSize = CGSize(width: 100, height: 100)
+        guard let thumb = image.resized(to: thumbSize),
+              let cgImage = thumb.cgImage,
+              let data = cgImage.dataProvider?.data,
+              let ptr = CFDataGetBytePtr(data)
+        else { return nil }
+        let width = cgImage.width
+        let height = cgImage.height
+        let bytesPerPixel = 4
+
+        let centralW = Int(CGFloat(width) * centralPortion)
+        let centralH = Int(CGFloat(height) * centralPortion)
+        let startX = (width - centralW) / 2
+        let startY = (height - centralH) / 2
+
+        var pointsLAB: [[CGFloat]] = []
+        let totalCentral = centralW * centralH
+        for y in startY..<(startY + centralH) {
+            for x in startX..<(startX + centralW) {
+                let idx = (y * width + x) * bytesPerPixel
+                let b = CGFloat(ptr[idx]) / 255.0
+                let g = CGFloat(ptr[idx+1]) / 255.0
+                let r = CGFloat(ptr[idx+2]) / 255.0
+                let isNearlyWhite = (r > 0.98 && g > 0.98 && b > 0.98)
+                let isNearlyBlack = (r < 0.02 && g < 0.02 && b < 0.02)
+                if !isNearlyWhite && !isNearlyBlack {
+                    pointsLAB.append(rgbToLab(r: r, g: g, b: b))
+                }
+            }
+        }
+        if pointsLAB.count < Int(Double(totalCentral) * 0.05) {
+            pointsLAB = []
+            for y in startY..<(startY + centralH) {
+                for x in startX..<(startX + centralW) {
+                    let idx = (y * width + x) * bytesPerPixel
+                    let b = CGFloat(ptr[idx]) / 255.0
+                    let g = CGFloat(ptr[idx+1]) / 255.0
+                    let r = CGFloat(ptr[idx+2]) / 255.0
+                    pointsLAB.append(rgbToLab(r: r, g: g, b: b))
+                }
+            }
+        }
+        guard !pointsLAB.isEmpty else { return nil }
+        let clusters = kMeans(points: pointsLAB, k: k, maxIterations: 16)
+        let sorted = clusters.sorted { $0.value.count > $1.value.count }
+
+        // Logica di scelta cluster colorato non pelle
+        let colorThreshold: CGFloat = 0.25
+        let brightnessMin: CGFloat = 0.2
+        let brightnessMax: CGFloat = 0.95
+        func isSkinColor(h: CGFloat, s: CGFloat, v: CGFloat) -> Bool {
+            return h > 10 && h < 50 && s > 0.15 && s < 0.55 && v > 0.3 && v < 0.85
+        }
+        var bestColorCluster: ([CGFloat], Int)? = nil
+        for (key, value) in sorted {
+            let rgb = labToRGB(l: key[0], a: key[1], b: key[2])
+            let hsv = rgbToHSV(r: rgb.r, g: rgb.g, b: rgb.b)
+            if hsv.s > colorThreshold && hsv.v > brightnessMin && hsv.v < brightnessMax && !isSkinColor(h: hsv.h, s: hsv.s, v: hsv.v) {
+                if bestColorCluster == nil || value.count > bestColorCluster!.1 {
+                    bestColorCluster = (key, value.count)
+                }
+            }
+        }
+        if bestColorCluster == nil {
+            for (key, value) in sorted {
+                let rgb = labToRGB(l: key[0], a: key[1], b: key[2])
+                let hsv = rgbToHSV(r: rgb.r, g: rgb.g, b: rgb.b)
+                if hsv.s > colorThreshold && hsv.v > brightnessMin && hsv.v < brightnessMax {
+                    bestColorCluster = (key, value.count)
+                    break
+                }
+            }
+        }
+        let domLAB: [CGFloat]
+        if let best = bestColorCluster {
+            domLAB = best.0
+        } else if let first = sorted.first?.key {
+            domLAB = first
+        } else {
+            return nil
+        }
+        let domRGB = labToRGB(l: domLAB[0], a: domLAB[1], b: domLAB[2])
+        let hex = String(format: "#%02X%02X%02X", Int(domRGB.r*255), Int(domRGB.g*255), Int(domRGB.b*255))
+        return hex
+    }
+    
+
+    // KMeans clustering per LAB
     static func kMeans(points: [[CGFloat]], k: Int, maxIterations: Int) -> [ [CGFloat] : [[CGFloat]] ] {
         var centroids = Array(points.shuffled().prefix(k))
         var clusters: [ [CGFloat] : [[CGFloat]] ] = [:]
@@ -112,37 +227,8 @@ struct ClothingDominantColorExtractor {
     }
 }
 
-// --- Utility resize UIImage
-extension UIImage {
-    func resized(to size: CGSize) -> UIImage? {
-        let format = UIGraphicsImageRendererFormat()
-        format.scale = 1
-        let renderer = UIGraphicsImageRenderer(size: size, format: format)
-        return renderer.image { _ in
-            self.draw(in: CGRect(origin: .zero, size: size))
-        }
-    }
-}
+// --- Funzioni di conversione colori globali ---
 
-// --- Utility per convertire CVPixelBuffer in UIImage
-extension CVPixelBuffer {
-    func toUIImage() -> UIImage? {
-        CVPixelBufferLockBaseAddress(self, .readOnly)
-        defer { CVPixelBufferUnlockBaseAddress(self, .readOnly) }
-        guard let baseAddress = CVPixelBufferGetBaseAddress(self) else { return nil }
-        let width = CVPixelBufferGetWidth(self)
-        let height = CVPixelBufferGetHeight(self)
-        let bytesPerRow = CVPixelBufferGetBytesPerRow(self)
-        let colorSpace = CGColorSpaceCreateDeviceGray()
-        if let context = CGContext(data: baseAddress, width: width, height: height, bitsPerComponent: 8, bytesPerRow: bytesPerRow, space: colorSpace, bitmapInfo: 0),
-           let cgImage = context.makeImage() {
-            return UIImage(cgImage: cgImage)
-        }
-        return nil
-    }
-}
-
-// --- Conversione RGB -> LAB
 func rgbToLab(r: CGFloat, g: CGFloat, b: CGFloat) -> [CGFloat] {
     func pivot(_ n: CGFloat) -> CGFloat {
         return n > 0.008856 ? pow(n, 1.0/3.0) : (7.787 * n) + (16.0 / 116.0)
@@ -161,7 +247,6 @@ func rgbToLab(r: CGFloat, g: CGFloat, b: CGFloat) -> [CGFloat] {
     return [l, a, b]
 }
 
-// --- Conversione LAB -> RGB
 func labToRGB(l: CGFloat, a: CGFloat, b: CGFloat) -> (r: CGFloat, g: CGFloat, b: CGFloat) {
     let y = (l + 16.0) / 116.0
     let x = a / 500.0 + y
@@ -182,10 +267,56 @@ func labToRGB(l: CGFloat, a: CGFloat, b: CGFloat) -> (r: CGFloat, g: CGFloat, b:
     return (min(max(R,0),1), min(max(G,0),1), min(max(B,0),1))
 }
 
-// --- Distanza LAB
+func rgbToHSV(r: CGFloat, g: CGFloat, b: CGFloat) -> (h: CGFloat, s: CGFloat, v: CGFloat) {
+    let maxVal = max(r,g,b)
+    let minVal = min(r,g,b)
+    let v = maxVal
+    let delta = maxVal - minVal
+    let s = (maxVal == 0) ? 0 : delta / maxVal
+    var h: CGFloat = 0
+    if delta != 0 {
+        if maxVal == r { h = (g - b) / delta }
+        else if maxVal == g { h = 2 + (b - r) / delta }
+        else { h = 4 + (r - g) / delta }
+        h *= 60
+        if h < 0 { h += 360 }
+    }
+    return (h, s, v)
+}
+
 func distanceLAB(_ a: [CGFloat], _ b: [CGFloat]) -> CGFloat {
     let dl = a[0] - b[0]
     let da = a[1] - b[1]
     let db = a[2] - b[2]
     return sqrt(dl*dl + da*da + db*db)
+}
+
+// Utility per convertire CVPixelBuffer in UIImage
+extension CVPixelBuffer {
+    func toUIImage() -> UIImage? {
+        CVPixelBufferLockBaseAddress(self, .readOnly)
+        defer { CVPixelBufferUnlockBaseAddress(self, .readOnly) }
+        guard let baseAddress = CVPixelBufferGetBaseAddress(self) else { return nil }
+        let width = CVPixelBufferGetWidth(self)
+        let height = CVPixelBufferGetHeight(self)
+        let bytesPerRow = CVPixelBufferGetBytesPerRow(self)
+        let colorSpace = CGColorSpaceCreateDeviceGray()
+        if let context = CGContext(data: baseAddress, width: width, height: height, bitsPerComponent: 8, bytesPerRow: bytesPerRow, space: colorSpace, bitmapInfo: 0),
+           let cgImage = context.makeImage() {
+            return UIImage(cgImage: cgImage)
+        }
+        return nil
+    }
+}
+
+// Utility resize UIImage
+extension UIImage {
+    func resized(to size: CGSize) -> UIImage? {
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = 1
+        let renderer = UIGraphicsImageRenderer(size: size, format: format)
+        return renderer.image { _ in
+            self.draw(in: CGRect(origin: .zero, size: size))
+        }
+    }
 }

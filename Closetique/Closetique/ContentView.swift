@@ -11,15 +11,21 @@ import SwiftUI
 
     struct ContentView: View {
         @State private var selectedTab: Int = 0
-        @State private var items: [ClothingItem] = [ ]
-
+        @State private var items: [ClothingItem] = [
+            ClothingItem(name: "Felpa", category: "Maglie", imageData: nil, isFavorite: false),
+            ClothingItem(name: "Jeans", category: "Pantaloni", imageData: nil, isFavorite: true),
+            ClothingItem(name: "Sneakers", category: "Scarpe", imageData: nil, isFavorite: false),
+            ClothingItem(name: "Cintura", category: "Accessori", imageData: nil, isFavorite: false),
+            ClothingItem(name: "Giacca", category: "Giacche", imageData: nil, isFavorite: false)
+        ]
+        
         var body: some View {
             VStack(spacing: 0) {
                 // Questa parte cambia in base al tab selezionato
                 Group {
                     switch selectedTab {
                     case 0:
-                        HomepageView()
+                        HomepageView(items: $items)
                     case 1:
                         FavoriteView(items: $items)
                     case 2:
@@ -31,7 +37,7 @@ import SwiftUI
                         CategoriesView()
                          */
                     default:
-                        HomepageView()
+                        HomepageView(items: $items)
                     }
                 }
                 .onChange(of: items) { newItems, oldItems in
