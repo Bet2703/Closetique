@@ -104,7 +104,7 @@ struct KMeansColorExtractor {
         }
     }
 
-    
+    /*
     /// Estrae il colore dominante dalla porzione centrale dell'immagine, senza segmentazione Vision.
     static func debugCentralKMeans(
         from image: UIImage,
@@ -196,7 +196,7 @@ struct KMeansColorExtractor {
         let hex = String(format: "#%02X%02X%02X", Int(domRGB.r*255), Int(domRGB.g*255), Int(domRGB.b*255))
         return hex
     }
-    
+    */
 
     // KMeans clustering per LAB
     static func kMeans(points: [[CGFloat]], k: Int, maxIterations: Int) -> [ [CGFloat] : [[CGFloat]] ] {

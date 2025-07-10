@@ -12,18 +12,17 @@ class LlamaGroqAPI {
         completion: @escaping (String?) -> Void
     ) {
         guard let url = URL(string: endpoint) else {
+            print("DEBUG: Endpoint URL non valida.")
             completion(nil)
             return
         }
 
-        // Serializza le variabili rilevanti di ciascun capo
         let itemDescriptions = items.map {
             """
             id: \($0.id.uuidString), category: \($0.category), domColor: \($0.domColor ?? "N/A"), details: \($0.details ?? "N/A"), style: \($0.style)
             """
         }.joined(separator: "\n")
 
-        // Prompt istruttivo per la formattazione richiesta e lo stile
         let userPrompt =
         """
         Questi sono i capi disponibili, ognuno ha id, category, domColor, details, style:
@@ -37,7 +36,7 @@ class LlamaGroqAPI {
         """
 
         let payload: [String: Any] = [
-            "model": "llama3-70b-8192", // Puoi cambiare modello se vuoi
+            "model": "llama3-70b-8192",
             "messages": [
                 [
                     "role": "user",
@@ -55,11 +54,21 @@ class LlamaGroqAPI {
         do {
             request.httpBody = try JSONSerialization.data(withJSONObject: payload)
         } catch {
+            print("DEBUG: Errore serializzazione payload \(error)")
             completion(nil)
             return
         }
 
         URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                print("DEBUG: Errore di rete: \(error.localizedDescription)")
+            }
+            if let response = response as? HTTPURLResponse {
+                print("DEBUG: Codice HTTP: \(response.statusCode)")
+            }
+            if let data = data, let raw = String(data: data, encoding: .utf8) {
+                print("DEBUG: Risposta raw dalla API:\n\(raw)")
+            }
             guard let data = data, error == nil else {
                 completion(nil)
                 return
@@ -69,11 +78,18 @@ class LlamaGroqAPI {
                    let choices = json["choices"] as? [[String: Any]],
                    let message = choices.first?["message"] as? [String: Any],
                    let content = message["content"] as? String {
+                    print("DEBUG: Contenuto generato dalla AI: \(content)")
+                    let parts = content.components(separatedBy: "|")
+                    if parts.count != 2 {
+                        print("DEBUG: ⚠️ Formato NON valido. La risposta NON contiene un pipe '|' per separare id e descrizione.")
+                    }
                     completion(content.trimmingCharacters(in: .whitespacesAndNewlines))
                 } else {
+                    print("DEBUG: Parsing JSON fallito o campo mancante.")
                     completion(nil)
                 }
             } catch {
+                print("DEBUG: Errore parsing JSON: \(error)")
                 completion(nil)
             }
         }.resume()
