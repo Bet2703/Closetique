@@ -67,7 +67,7 @@ struct DetailView: View {
                         .font(.custom("Poppins-Bold", size: 30))
                         .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
                     
-                    Text(item.detail ?? "")
+                    Text(item.details ?? "")
                         .font(.custom("Poppins-Regular", size: 18))
                     
                     Spacer()
