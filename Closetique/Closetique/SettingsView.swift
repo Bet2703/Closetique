@@ -8,7 +8,7 @@ import SwiftUI
 
 struct SettingsView: View {
     @State private var showResetAlert = false
-    @State private var items: [ClothingItem] = []
+    @Binding var items: [ClothingItem]
 
     var body: some View {
         NavigationStack {
@@ -47,5 +47,14 @@ struct SettingsView: View {
 }
 
 #Preview {
-    SettingsView()
+    struct PreviewWrapper: View {
+        @State var items: [ClothingItem] = [
+            ClothingItem(name: "Felpa", category: "Maglie", imageData: nil, isFavorite: false),
+            ClothingItem(name: "Jeans", category: "Pantaloni", imageData: nil, isFavorite: true)
+        ]
+        var body: some View {
+            SettingsView(items: $items)
+        }
+    }
+    return PreviewWrapper()
 }

@@ -86,7 +86,7 @@ struct HomepageView: View {
         // FullScreenCover impostazioni
         .fullScreenCover(isPresented: $showSettings) {
             NavigationStack {
-                SettingsView()
+                SettingsView(items: $items)
                     .toolbar {
                         ToolbarItem(placement: .navigationBarLeading) {
                             Button("Chiudi") {
@@ -144,8 +144,7 @@ struct WardrobePreviewItemView: View {
     }
 }
 
-
-/*#Preview {
+#Preview {
     struct PreviewWrapper: View {
         @State var items: [ClothingItem] = [
             ClothingItem(name: "Felpa", category: "Maglie", imageData: nil, isFavorite: false),
@@ -154,14 +153,11 @@ struct WardrobePreviewItemView: View {
             ClothingItem(name: "Cintura", category: "Accessori", imageData: nil, isFavorite: false),
             ClothingItem(name: "Giacca", category: "Giacche", imageData: nil, isFavorite: false)
         ]
+        @State var selectedTab: Int = 0
+
         var body: some View {
-            HomepageView(items: $items)
+            HomepageView(items: $items, selectedTab: $selectedTab)
         }
     }
     return PreviewWrapper()
-}
-*/
-
-#Preview {
-    ContentView()
 }
