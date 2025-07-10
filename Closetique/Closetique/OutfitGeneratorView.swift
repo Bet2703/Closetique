@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct OutfitGeneratorView: View {
-    @State private var selectedStyle: String = ""
+    @State private var selectedStyle: String = "Casual"
     @State private var isGenerating: Bool = false
     @State private var generationError: String? = nil
     @State private var navigateToDescription: Bool = false
