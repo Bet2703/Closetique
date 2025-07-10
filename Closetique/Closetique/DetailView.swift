@@ -150,11 +150,11 @@ struct DetailView_Previews: PreviewProvider {
     static var previews: some View {
         // Esempio di dati di test
         let exampleItems = [
-            ClothingItem(name: "Felpa", category: "Maglie", imageData: nil, detail: "Stringa di dettagli per prova", isFavorite: false),
-            ClothingItem(name: "Jeans", category: "Pantaloni", imageData: nil, detail: "Stringa di dettagli per prova", isFavorite: true),
-            ClothingItem(name: "T-shirt", category: "Maglie", imageData: nil, detail: "Stringa di dettagli per prova", isFavorite: false),
-            ClothingItem(name: "Cintura", category: "Accessori", imageData: nil, detail: "Stringa di dettagli per prova", isFavorite: false),
-            ClothingItem(name: "Sneakers", category: "Scarpe", imageData: nil, detail: "Stringa di dettagli per prova", isFavorite: false)
+            ClothingItem(name: "Felpa", category: "Maglie", imageData: nil, details: "Stringa di dettagli per prova", isFavorite: false),
+            ClothingItem(name: "Jeans", category: "Pantaloni", imageData: nil, details: "Stringa di dettagli per prova", isFavorite: true),
+            ClothingItem(name: "T-shirt", category: "Maglie", imageData: nil, details: "Stringa di dettagli per prova", isFavorite: false),
+            ClothingItem(name: "Cintura", category: "Accessori", imageData: nil, details: "Stringa di dettagli per prova", isFavorite: false),
+            ClothingItem(name: "Sneakers", category: "Scarpe", imageData: nil, details: "Stringa di dettagli per prova", isFavorite: false)
         ]
         WardrobeView(items: (exampleItems))
     }
