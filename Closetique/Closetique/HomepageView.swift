@@ -35,7 +35,7 @@ struct HomepageView: View {
                     Button(action: {
                         showOutfitGenerator = true
                     }) {
-                        AnimatedPulsingCircle()
+                        AnimatedPulsingCircle(size: 290)
                     }
                     .accessibilityLabel("Genera outfit")
                 }
