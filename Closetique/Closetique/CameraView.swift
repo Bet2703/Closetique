@@ -133,7 +133,7 @@ struct ClassificationResult {
     var category: String
     var style: String
     var domColor: String?
-    var details: String?   // ATTENZIONE: qui plurale "details"
+    var details: String?
 }
 
 
