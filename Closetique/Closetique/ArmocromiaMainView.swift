@@ -2,7 +2,7 @@ import SwiftUI
 
 struct ArmocromiaMainView: View {
     let seasons = ["Spring", "Summer", "Autumn", "Winter"]
-    @State private var selectedSeason: String? = nil
+    @AppStorage("selectedSeason") private var selectedSeason: String?
     @State private var showSeasonPicker = false
     @State private var showTest: Bool = false
 
