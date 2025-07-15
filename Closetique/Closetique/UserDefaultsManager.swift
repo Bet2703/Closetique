@@ -10,6 +10,9 @@ import Foundation
 class UserDefaultsManager {
     static let shared = UserDefaultsManager()
     private let key = "closetItems"
+    
+    private let savedOutfitsKey = "savedOutfits"
+
 
     private init() {}
 
@@ -57,8 +60,9 @@ class UserDefaultsManager {
         saveItems(currentItems)
     }
     
+    // Resetta l'applicazione cancellando tutti i capi
     func reset(){
-        saveItems([])
+        UserDefaults.standard.removeObject(forKey: self.key)
     }
 
     // Aggiorna un capo esistente
@@ -76,9 +80,46 @@ class UserDefaultsManager {
         currentItems.removeAll { idsToDelete.contains($0.id) }
         saveItems(currentItems)
     }
-    
-    // Elimina tutto
-    func clearAll() {
-        UserDefaults.standard.removeObject(forKey: key)
+
+    func saveOutfit(_ outfit: MatchOutfit) {
+        var existing = loadOutfits()
+        existing.append(outfit)
+        do {
+            let data = try JSONEncoder().encode(existing)
+            UserDefaults.standard.set(data, forKey: savedOutfitsKey)
+        } catch {
+            print("Errore nel salvataggio outfit: \(error)")
+        }
     }
+
+    func loadOutfits() -> [MatchOutfit] {
+        guard let data = UserDefaults.standard.data(forKey: savedOutfitsKey) else {
+            return []
+        }
+        do {
+            return try JSONDecoder().decode([MatchOutfit].self, from: data)
+        } catch {
+            print("Errore nel caricamento outfit: \(error)")
+            return []
+        }
+    }
+
+    // SALVA TUTTI GLI OUTFIT
+    func saveOutfits(_ outfits: [MatchOutfit]) {
+        do {
+            let data = try JSONEncoder().encode(outfits)
+            UserDefaults.standard.set(data, forKey: savedOutfitsKey)
+        } catch {
+            print("Errore nel salvataggio outfit: \(error)")
+        }
+    }
+
+    // SALVA UNO SINGOLO (APPEND)
+    func addOutfit(_ outfit: MatchOutfit) {
+        var current = loadOutfits()
+        current.append(outfit)
+        saveOutfits(current) 
+    }
+
+
 }

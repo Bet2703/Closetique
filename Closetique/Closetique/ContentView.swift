@@ -11,13 +11,7 @@ import SwiftUI
 
     struct ContentView: View {
         @State private var selectedTab: Int = 0
-        @State private var items: [ClothingItem] = [
-            ClothingItem(name: "Felpa", category: "Maglie", imageData: nil, isFavorite: false),
-            ClothingItem(name: "Jeans", category: "Pantaloni", imageData: nil, isFavorite: true),
-            ClothingItem(name: "Sneakers", category: "Scarpe", imageData: nil, isFavorite: false),
-            ClothingItem(name: "Cintura", category: "Accessori", imageData: nil, isFavorite: false),
-            ClothingItem(name: "Giacca", category: "Giacche", imageData: nil, isFavorite: false)
-        ]
+        @State private var items: [ClothingItem] = []
         
         var body: some View {
             VStack(spacing: 0) {
@@ -27,7 +21,7 @@ import SwiftUI
                     case 0:
                         HomepageView(items: $items, selectedTab: $selectedTab)
                     case 1:
-                        FavoriteView(items: $items)
+                        SavedOutfitsView()
                     case 2:
                         CameraView(items: $items)
                     case 3:
@@ -40,9 +34,10 @@ import SwiftUI
                         HomepageView(items: $items, selectedTab: $selectedTab)
                     }
                 }
+                /*
                 .onChange(of: items) { newItems, oldItems in
                     UserDefaultsManager.shared.saveItems(newItems)
-                }
+                }*/
                 .onAppear {
                     items = UserDefaultsManager.shared.loadItems()
                 }
@@ -71,7 +66,7 @@ struct CustomTabBar: View {
             Spacer()
             // Star (favorites)
             TabBarItem(
-                systemName: "star",
+                systemName: "bookmark",
                 isSelected: selectedTab == 1,
                 tabColor: tabColor
             ) { selectedTab = 1 }

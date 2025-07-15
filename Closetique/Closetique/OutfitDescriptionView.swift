@@ -3,6 +3,7 @@ import SwiftUI
 struct OutfitDescriptionView: View {
     let allItems: [ClothingItem]
     let aiMessage: String
+    let onRegenerate: () -> Void
 
     // Parsing: estrae [ClothingItem] e descrizione dal messaggio AI
     private var parsed: (items: [ClothingItem], description: String) {
@@ -20,8 +21,8 @@ struct OutfitDescriptionView: View {
         ScrollView {
             VStack(spacing: 24) {
                 Text("Outfit Generato")
-                    .font(.largeTitle)
-                    .bold()
+                    .font(.custom("Poppins-Bold", size: 40))
+                    .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
                     .padding(.top, 10)
 
                 // Immagini dei capi selezionati
@@ -33,12 +34,12 @@ struct OutfitDescriptionView: View {
                             Image(uiImage: uiImage)
                                 .resizable()
                                 .aspectRatio(contentMode: .fit)
-                                .frame(width: 100, height: 120)
+                                .frame(width: 110, height: 120)
                                 .cornerRadius(12)
                         } else {
                             RoundedRectangle(cornerRadius: 12)
-                                .fill(Color.gray.opacity(0.2))
-                                .frame(width: 100, height: 120)
+                                .fill(Color(red: 246/255, green: 232/255, blue: 234/255))
+                                .frame(width: 110, height: 120)
                                 .overlay(
                                     Text(item.name.prefix(1))
                                         .font(.largeTitle)
@@ -47,30 +48,109 @@ struct OutfitDescriptionView: View {
                         }
                     }
                 }
-                .padding(.vertical, 8)
-
+                .padding(.vertical, 10)
+                
                 // Info sintetiche sui capi (opzionale)
                 VStack(alignment: .leading, spacing: 8) {
                     ForEach(parsed.items) { item in
                         Text("\(item.name) • \(item.category) • \(item.domColor ?? "-") • \(item.style)")
-                            .font(.subheadline)
+                            .font(.custom("Poppins-Light", size: 16))
                     }
+                    
                 }
 
-                Spacer(minLength: 40)
+                Spacer(minLength: 50)
 
                 // Descrizione outfit in fondo
-                VStack(spacing: 12) {
+                VStack(spacing: 10) {
                     Divider()
                     Text(parsed.description)
-                        .font(.title2)
+                        .font(.custom("Poppins-Italic", size: 18))
                         .multilineTextAlignment(.center)
                         .padding(.top, 12)
                 }
+                .padding(.bottom, 16)
+                
+                //Bottoni rigenera e salva
+                HStack(spacing: 24){
+                    Button(action: {
+                        onRegenerate()
+                    }) {
+                        Label("Rigenera", systemImage: "arrow.triangle.2.circlepath")
+                            .font(.custom("Poppins-Regular", size: 18))
+                            .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
+                            .padding(.vertical, 10)
+                            .frame(maxWidth: .infinity)
+                            .background(Color(red: 246/255, green: 232/255, blue: 234/255).opacity(0.5))
+                            .cornerRadius(10)
+                    }
+                    
+                    Button(action:{
+                        let newOutfit = MatchOutfit(items: parsed.items, description: parsed.description)
+                        UserDefaultsManager.shared.saveOutfit(newOutfit)
+                    }){
+                        Label("Salva", systemImage: "bookmark")
+                            .font(.custom("Poppins-Regular", size: 18))
+                            .foregroundColor(Color(red: 246/255, green: 232/255, blue: 234/255))
+                            .padding(.vertical, 10)
+                            .frame(maxWidth: .infinity)
+                            .background(Color(red: 112/255, green: 41/255, blue: 99/255))
+                            .cornerRadius(10)
+                    }
+                }
+                .padding(.horizontal)
                 .padding(.bottom, 32)
             }
             .padding(.horizontal)
         }
         .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+
+struct OutfitDescriptionView_Previews: PreviewProvider {
+    static var previews: some View {
+        // Crea alcuni ClothingItem di esempio
+        let items = [
+            ClothingItem(
+                name: "Felpa",
+                category: "Maglie",
+                imageData: nil,
+                domColor: "Blu",
+                details: "Felpa in cotone",
+                style: "Casual",
+                isFavorite: false
+            ),
+            ClothingItem(
+                name: "Jeans",
+                category: "Pantaloni",
+                imageData: nil,
+                domColor: "Blu",
+                details: "Jeans slim fit",
+                style: "Casual",
+                isFavorite: true
+            ),
+            ClothingItem(
+                name: "Sneakers",
+                category: "Scarpe",
+                imageData: nil,
+                domColor: "Bianco",
+                details: "Sneakers leggere",
+                style: "Sportivo",
+                isFavorite: false
+            )
+        ]
+        
+        // Prepara una stringa aiMessage che seleziona il primo, secondo e terzo capo
+        let selectedIDs = "\(items[0].id.uuidString);\(items[1].id.uuidString);\(items[2].id.uuidString)"
+        let aiMessage = "\(selectedIDs)|Perfetto per una giornata informale: la felpa blu e le sneakers bianche creano un look rilassato e moderno."
+        
+        NavigationStack {
+            OutfitDescriptionView(
+                allItems: items,
+                aiMessage: aiMessage,
+                onRegenerate: { print("SI") }
+            )
+        }
     }
 }

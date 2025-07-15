@@ -4,8 +4,9 @@ struct WardrobeView: View {
     
     @Binding var items: [ClothingItem]
         
-    let categories = ["Maglie", "Pantaloni", "Giacche", "Scarpe", "Accessori"]
+    
     @State private var selectedCategory: String? = nil
+    @State private var showFavorites = false
 
     // Modalità selezione
     @State private var isSelecting = false
@@ -13,6 +14,7 @@ struct WardrobeView: View {
 
     @State var showDeleteAlert: Bool = false
     
+    let categories = ["Maglie", "Pantaloni", "Giacche", "Scarpe", "Accessori"]
         
     var filteredItems: [ClothingItem] {
         if let selected = selectedCategory {
@@ -37,6 +39,18 @@ struct WardrobeView: View {
                             .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
                         Spacer()
                         
+                        Button(action: {
+                            showFavorites = true
+                        }) {
+                            Image(systemName: "heart")
+                                .font(.system(size: 22, weight: .bold))
+                                .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
+                                .padding(10)
+                                .background(Color(red: 246/255, green: 232/255, blue: 234/255))
+                                .clipShape(Circle())
+                        }
+                        .padding(.trailing, 8)
+
                         // "Seleziona" o "Annulla"
                         Button(action: {
                             withAnimation {
@@ -46,9 +60,9 @@ struct WardrobeView: View {
                         }) {
                             Image(systemName: isSelecting ? "xmark" : "checkmark.circle")
                                 .font(.system(size: 22, weight: .bold))
-                                .foregroundColor(.purple)
+                                .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
                                 .padding(10)
-                                .background(Color.purple.opacity(0.13))
+                                .background(Color(red: 246/255, green: 232/255, blue: 234/255))
                                 .clipShape(Circle())
                         }
                         .padding(.trailing, 8)
@@ -58,9 +72,9 @@ struct WardrobeView: View {
                             NavigationLink(destination: CameraView(items: $items)) {
                                 Image(systemName: "plus")
                                     .font(.title2)
-                                    .foregroundColor(.purple)
+                                    .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
                                     .padding(10)
-                                    .background(Color.purple.opacity(0.15))
+                                    .background(Color(red: 246/255, green: 232/255, blue: 234/255))
                                     .clipShape(Circle())
                             }
                         }
@@ -74,20 +88,20 @@ struct WardrobeView: View {
                             Button(action: { selectedCategory = nil }) {
                                 Text("Tutti")
                                     .font(.custom("Poppins-Regular", size: 18))
+                                    .foregroundColor(selectedCategory == nil ? Color.white : Color.black)
                                     .padding(.horizontal)
                                     .padding(.vertical, 8)
-                                    .background(selectedCategory == nil ? Color.purple.opacity(0.2) : Color.gray.opacity(0.1))
-                                    .foregroundColor(.primary)
+                                    .background(selectedCategory == nil ? Color(red: 112/255, green: 41/255, blue: 99/255) : Color.gray.opacity(0.1))
                                     .cornerRadius(16)
                             }
                             ForEach(categories, id: \.self) { cat in
                                 Button(action: { selectedCategory = cat }) {
                                     Text(cat)
                                         .font(.custom("Poppins-Regular", size: 18))
+                                        .foregroundColor(selectedCategory == cat ? Color.white : Color.black)
                                         .padding(.horizontal)
                                         .padding(.vertical, 8)
-                                        .background(selectedCategory == cat ? Color.purple.opacity(0.2) : Color.gray.opacity(0.1))
-                                        .foregroundColor(.primary)
+                                        .background(selectedCategory == cat ? Color(red: 112/255, green: 41/255, blue: 99/255) : Color.gray.opacity(0.1))
                                         .cornerRadius(16)
                                 }
                             }
@@ -172,6 +186,19 @@ struct WardrobeView: View {
                     .transition(.move(edge: .bottom))
                 }
             }
+            .sheet(isPresented: $showFavorites) {
+                NavigationStack {
+                    FavoriteView(items: $items)
+                        .toolbar {
+                            ToolbarItem(placement: .navigationBarLeading) {
+                                Button("Chiudi") {
+                                    showFavorites = false
+                                }
+                            }
+                        }
+                }
+            }
+
         }
     }
 }
