@@ -137,7 +137,6 @@ struct PaletteGridView: View {
         VStack(alignment: .leading, spacing: 10) {
             Text("Palette \(season)")
                 .font(.custom("Poppins-SemiBold", size: 26))
-                .foregroundColor(.black)
 
             Text(palette.1)
                 .font(.custom("Poppins-Regular", size: 18))
@@ -167,7 +166,6 @@ struct PaletteGridView: View {
                         
                         Text(palette.0[i].name)
                             .font(.custom("Poppins-Regular", size: 15))
-                            .foregroundColor(.black)
                             .multilineTextAlignment(.center)
                             .frame(maxWidth: 100)
                             .lineLimit(2)

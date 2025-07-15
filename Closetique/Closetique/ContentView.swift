@@ -95,7 +95,6 @@ struct CustomTabBar: View {
             Spacer()
         }
         .frame(height: 80)
-        .background(Color.white.shadow(color: .black.opacity(0.04), radius: 8, x: 0, y: -2))
     }
 }
 
