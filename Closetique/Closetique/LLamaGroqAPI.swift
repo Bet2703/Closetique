@@ -2,14 +2,22 @@ import Foundation
 
 class LlamaGroqAPI {
     static let apiKey = APIKeys.LLamaGroq
-    
     static let endpoint = "https://api.groq.com/openai/v1/chat/completions"
 
-    /// Genera una combinazione di 3/4 capi, restituendo i loro id separati da `;` + descrizione separata da `|`
+    /// Genera una combinazione di capi, restituendo i loro id separati da `;` + descrizione separata da `|`
     static func generateOutfitCombo(
         from items: [ClothingItem],
         targetStyle: String,
         completion: @escaping (String?) -> Void
+    ) {
+        generateOutfitComboInternal(from: items, targetStyle: targetStyle, completion: completion, attempt: 1)
+    }
+    
+    private static func generateOutfitComboInternal(
+        from items: [ClothingItem],
+        targetStyle: String,
+        completion: @escaping (String?) -> Void,
+        attempt: Int
     ) {
         guard let url = URL(string: endpoint) else {
             print("DEBUG: Endpoint URL non valida.")
@@ -24,7 +32,6 @@ class LlamaGroqAPI {
         }.joined(separator: "\n")
 
         let userPrompt =
-        // Prompt rafforzato
         """
         Questi sono i capi disponibili, ognuno ha id, category, domColor, details, style:
         \(itemDescriptions)
@@ -38,7 +45,6 @@ class LlamaGroqAPI {
 
         Rispondi SOLO in questo formato (nessun testo extra):
         <id1>;<id2>;<id3>;... | <descrizione creativa e sintetica dell'outfit, con voto X/10 e motivazione. Se non hai rispettato le regole, spiega l'errore nella descrizione.>
-        
         """
 
         let payload: [String: Any] = [
@@ -85,10 +91,26 @@ class LlamaGroqAPI {
                    let message = choices.first?["message"] as? [String: Any],
                    let content = message["content"] as? String {
                     print("DEBUG: Contenuto generato dalla AI: \(content)")
-                    let parts = content.components(separatedBy: "|")
-                    if parts.count != 2 {
-                        print("DEBUG: ⚠️ Formato NON valido. La risposta NON contiene un pipe '|' per separare id e descrizione.")
+                    let ids = content.components(separatedBy: "|").first?
+                        .split(separator: ";")
+                        .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+                        .filter { !$0.isEmpty } ?? []
+
+                    if !isValidOutfit(items: items, ids: ids, targetStyle: targetStyle) {
+                        print("DEBUG: Outfit non valido (2 maglie/pantaloni), rigenero... Tentativo \(attempt)")
+                        // Limita a massimo 5 tentativi per evitare loop infinito
+                        if attempt < 5 {
+                            // Rigenera dopo un piccolo delay (esponenziale)
+                            let delay = pow(2.0, Double(attempt))
+                            DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                                generateOutfitComboInternal(from: items, targetStyle: targetStyle, completion: completion, attempt: attempt + 1)
+                            }
+                        } else {
+                            completion("Non è stato possibile generare un outfit valido dopo diversi tentativi.")
+                        }
+                        return
                     }
+
                     completion(content.trimmingCharacters(in: .whitespacesAndNewlines))
                 } else {
                     print("DEBUG: Parsing JSON fallito o campo mancante.")
@@ -99,5 +121,30 @@ class LlamaGroqAPI {
                 completion(nil)
             }
         }.resume()
+    }
+    
+    /// Verifica se l'outfit contiene più di una maglia o più di un pantalone (tranne eccezione camicia+maglia in casual/street)
+    private static func isValidOutfit(items: [ClothingItem], ids: [String], targetStyle: String) -> Bool {
+        // Seleziona solo gli oggetti inclusi nell'outfit
+        let selected = items.filter { ids.contains($0.id.uuidString) }
+        let macroByCat = Dictionary(grouping: selected, by: { $0.macrocategory })
+
+        let maglie = macroByCat["Maglie"] ?? []
+        let pantaloni = macroByCat["Pantaloni"] ?? []
+
+        // Eccezione: camicia+maglia solo se stile casual/street
+        if maglie.count > 1 {
+            let hasMaglia = maglie.contains { $0.category.lowercased().contains("maglia") }
+            let hasCamicia = maglie.contains { $0.category.lowercased().contains("camicia") }
+            let isCasualOrStreet = targetStyle.lowercased().contains("casual") || targetStyle.lowercased().contains("street")
+            if !(hasMaglia && hasCamicia && isCasualOrStreet) {
+                return false
+            }
+        }
+        // Più di un pantalone: sempre non valido
+        if pantaloni.count > 1 {
+            return false
+        }
+        return true
     }
 }

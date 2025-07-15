@@ -1,6 +1,5 @@
 import UIKit
 
-// Estensione per ridimensionare le immagini facilmente
 extension UIImage {
     /// Ridimensiona l'immagine alla larghezza specificata mantenendo le proporzioni.
     func resized(toWidth width: CGFloat) -> UIImage? {
@@ -21,7 +20,7 @@ class GeminiVisionAnalyzer {
     private var endpoint: URL {
         return URL(string: "https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=\(APIKeys.geminiVision)")!
     }
-
+    
     /// Analizza tipologia, vestibilità e dettaglio distintivo principale del capo visibile
     func analyzeFit(image: UIImage, completion: @escaping (String?) -> Void) {
         let prompt = """
@@ -52,23 +51,18 @@ class GeminiVisionAnalyzer {
         Non aggiungere altro testo.
         """
         print("Prompt inviato a GeminiVisionAnalyzer: \(prompt)")
-        analyze(image: image, prompt: prompt) { fit in
-            guard let fit = fit else {
-                completion(nil)
-                return
-            }
-            // Prendi solo la prima riga, massimo 7 parole
-            let fitShort = fit.components(separatedBy: .newlines).first?
-                .components(separatedBy: " ")
-                .prefix(7).joined(separator: " ")
-            print("GeminiVisionAnalyzer risposta (analyzeFit): \(fitShort ?? "")")
-            completion(fitShort)
-        }
+        analyzeWithRetry(image: image, prompt: prompt, completion: completion)
     }
 
-    /// Funzione interna, non va usata direttamente dall'esterno
-    private func analyze(image: UIImage, prompt: String, completion: @escaping (String?) -> Void) {
-        print("Prompt inviato a GeminiVisionAnalyzer: \(prompt)")
+    /// Funzione con retry progressivo, mostra alert se Gemini è sovraccarico
+    private func analyzeWithRetry(
+        image: UIImage,
+        prompt: String,
+        completion: @escaping (String?) -> Void,
+        attempt: Int = 1
+    ) {
+        let retryIntervals: [Double] = [5, 10, 15, 30, 30] // secondi
+
         // Riduci la dimensione dell'immagine a 600px di larghezza e qualità JPEG al 40%
         let resizedImage = image.resized(toWidth: 600) ?? image
         guard let imageData = resizedImage.jpegData(compressionQuality: 0.4) else {
@@ -105,6 +99,35 @@ class GeminiVisionAnalyzer {
         request.httpBody = httpBody
 
         URLSession.shared.dataTask(with: request) { data, response, error in
+            // Gestione errore 503 Gemini sovraccarico
+            if let data = data,
+               let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+               let errorJson = json["error"] as? [String: Any],
+               let code = errorJson["code"] as? Int,
+               code == 503 {
+                print("DEBUG: Gemini Vision sovraccarico, tentativo \(attempt)")
+                DispatchQueue.main.async {
+                    // Mostra alert di caricamento/problemi solo al primo tentativo
+                    if attempt == 1 {
+                        // Mostra alert custom nel tuo UI, ad esempio:
+                        showGeminiLoadingAlert(message: "Caricamento, Gemini sta avendo problemi. Attendi...")
+                    }
+                }
+                if attempt < retryIntervals.count {
+                    let delay = retryIntervals[attempt - 1]
+                    DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                        self.analyzeWithRetry(image: image, prompt: prompt, completion: completion, attempt: attempt + 1)
+                    }
+                } else {
+                    // Dopo tutti i tentativi, chiudi alert e mostra errore
+                    DispatchQueue.main.async {
+                        hideGeminiLoadingAlert()
+                    }
+                    completion(nil)
+                }
+                return
+            }
+            // Gestione errori di rete
             if let error = error {
                 print("Errore di rete GeminiVisionAnalyzer: \(error)")
                 completion(nil)
@@ -121,6 +144,10 @@ class GeminiVisionAnalyzer {
                let parts = content["parts"] as? [[String: Any]],
                let text = parts.first?["text"] as? String {
                 print("GeminiVisionAnalyzer risposta ricevuta: \(text)")
+                // Successo: chiudi alert se era stato mostrato
+                DispatchQueue.main.async {
+                    hideGeminiLoadingAlert()
+                }
                 completion(text)
             } else {
                 if let responseString = String(data: data, encoding: .utf8) {
@@ -130,4 +157,15 @@ class GeminiVisionAnalyzer {
             }
         }.resume()
     }
+}
+
+// MARK: - Gestione Alert
+func showGeminiLoadingAlert(message: String) {
+    // Implementa qui la tua logica per mostrare l'alert in UI (ad esempio con UIAlertController o custom overlay)
+    print("ALERT: \(message)")
+}
+
+func hideGeminiLoadingAlert() {
+    // Implementa qui la logica per chiudere l'alert
+    print("ALERT: chiudi")
 }
