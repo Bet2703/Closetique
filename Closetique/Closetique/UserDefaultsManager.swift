@@ -10,34 +10,27 @@ import Foundation
 class UserDefaultsManager {
     static let shared = UserDefaultsManager()
     private let key = "closetItems"
-    
     private let savedOutfitsKey = "savedOutfits"
-
 
     private init() {}
 
     // Salva l'array di ClothingItem
     func saveItems(_ items: [ClothingItem]) {
         do {
-            // Codifica l'array di ClothingItem in dati JSON
             let encoded = try JSONEncoder().encode(items)
-            // Salva i dati in UserDefaults con la chiave specificata
             UserDefaults.standard.set(encoded, forKey: key)
         } catch {
-            // Messaggio di errore in caso di problemi di codifica
             print("Errore durante la codifica degli items: \(error)")
         }
     }
 
     // Carica l'array di ClothingItem
     func loadItems() -> [ClothingItem] {
-        // Recupera i dati salvati con la chiave specifica
         guard let data = UserDefaults.standard.data(forKey: key) else {
             return []
         }
 
         do {
-            // Tenta di decodificare i dati in un array di ClothingItem
             let decoded = try JSONDecoder().decode([ClothingItem].self, from: data)
             return decoded
         } catch {
@@ -81,6 +74,7 @@ class UserDefaultsManager {
         saveItems(currentItems)
     }
 
+    // Salva outfit
     func saveOutfit(_ outfit: MatchOutfit) {
         var existing = loadOutfits()
         existing.append(outfit)
@@ -92,6 +86,7 @@ class UserDefaultsManager {
         }
     }
 
+    // Carica outfit
     func loadOutfits() -> [MatchOutfit] {
         guard let data = UserDefaults.standard.data(forKey: savedOutfitsKey) else {
             return []
@@ -104,7 +99,7 @@ class UserDefaultsManager {
         }
     }
 
-    // SALVA TUTTI GLI OUTFIT
+    // Salva tutti gli outfit
     func saveOutfits(_ outfits: [MatchOutfit]) {
         do {
             let data = try JSONEncoder().encode(outfits)
@@ -114,12 +109,17 @@ class UserDefaultsManager {
         }
     }
 
-    // SALVA UNO SINGOLO (APPEND)
+    // Elimina outfit individuale
+    func deleteOutfit(_ outfit: MatchOutfit) {
+        var all = loadOutfits()
+        all.removeAll { $0.id == outfit.id }
+        saveOutfits(all)
+    }
+
+    // Salva singolo (append)
     func addOutfit(_ outfit: MatchOutfit) {
         var current = loadOutfits()
         current.append(outfit)
-        saveOutfits(current) 
+        saveOutfits(current)
     }
-
-
 }

@@ -1,9 +1,3 @@
-//
-//  SettingsView.swift
-//  Closetique
-//
-//  Created by Studente on 07/07/25.
-//
 import SwiftUI
 
 struct SettingsView: View {
@@ -51,8 +45,8 @@ struct SettingsView: View {
 #Preview {
     struct PreviewWrapper: View {
         @State var items: [ClothingItem] = [
-            ClothingItem(name: "Felpa", category: "Maglie", imageData: nil, isFavorite: false),
-            ClothingItem(name: "Jeans", category: "Pantaloni", imageData: nil, isFavorite: true)
+            ClothingItem(name: "Felpa", category: "Felpa", macrocategory: "Maglie", imageData: nil, style: "Casual", isFavorite: false),
+            ClothingItem(name: "Jeans", category: "Jeans", macrocategory: "Pantaloni", imageData: nil, style: "Street", isFavorite: true)
         ]
         @State var selectedTab: Int = 0
         

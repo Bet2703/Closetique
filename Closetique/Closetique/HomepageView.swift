@@ -138,7 +138,10 @@ struct WardrobePreviewItemView: View {
                             .foregroundColor(.secondary)
                     )
             }
-
+            // Mostra anche la macrocategoria sotto l'immagine (opzionale)
+            Text(item.macrocategory)
+                .font(.caption)
+                .foregroundColor(.secondary)
         }
         .frame(width: 90)
     }
@@ -147,11 +150,11 @@ struct WardrobePreviewItemView: View {
 #Preview {
     struct PreviewWrapper: View {
         @State var items: [ClothingItem] = [
-            ClothingItem(name: "Felpa", category: "Maglie", imageData: nil, isFavorite: false),
-            ClothingItem(name: "Jeans", category: "Pantaloni", imageData: nil, isFavorite: true),
-            ClothingItem(name: "Sneakers", category: "Scarpe", imageData: nil, isFavorite: false),
-            ClothingItem(name: "Cintura", category: "Accessori", imageData: nil, isFavorite: false),
-            ClothingItem(name: "Giacca", category: "Giacche", imageData: nil, isFavorite: false)
+            ClothingItem(name: "Felpa", category: "Felpa", macrocategory: "Maglie", imageData: nil, style: "Casual", isFavorite: false),
+            ClothingItem(name: "Jeans", category: "Jeans", macrocategory: "Pantaloni", imageData: nil, style: "Street", isFavorite: true),
+            ClothingItem(name: "Sneakers", category: "Sneakers", macrocategory: "Scarpe", imageData: nil, style: "Urban", isFavorite: false),
+            ClothingItem(name: "Cintura", category: "Cintura", macrocategory: "Accessori", imageData: nil, style: "Classico", isFavorite: false),
+            ClothingItem(name: "Giacca", category: "Giacca", macrocategory: "Giacche", imageData: nil, style: "Elegante", isFavorite: false)
         ]
         @State var selectedTab: Int = 0
 

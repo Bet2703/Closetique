@@ -1,5 +1,20 @@
 import UIKit
 
+// Estensione per ridimensionare le immagini facilmente
+extension UIImage {
+    /// Ridimensiona l'immagine alla larghezza specificata mantenendo le proporzioni.
+    func resized(toWidth width: CGFloat) -> UIImage? {
+        let scale = width / self.size.width
+        let newHeight = self.size.height * scale
+        let newSize = CGSize(width: width, height: newHeight)
+        UIGraphicsBeginImageContextWithOptions(newSize, false, 1.0)
+        self.draw(in: CGRect(origin: .zero, size: newSize))
+        let resizedImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        return resizedImage
+    }
+}
+
 class GeminiVisionAnalyzer {
     static let shared = GeminiVisionAnalyzer()
 
@@ -10,14 +25,31 @@ class GeminiVisionAnalyzer {
     /// Analizza tipologia, vestibilità e dettaglio distintivo principale del capo visibile
     func analyzeFit(image: UIImage, completion: @escaping (String?) -> Void) {
         let prompt = """
-        Scrivi solo la tipologia, la vestibilità e un dettaglio ben riconoscibile del capo principale nell'immagine, in massimo 20 parole. Non aggiungere dettagli sulla persona o sull'ambiente. Esempi:
-        - "jeans baggy con strappi"
-        -"jeans "lavato""
-        - "maglia aderente a righe bianche e nere"
-        - "t-shirt oversize con grafica palme"
-        In pratica scrivi tutto ciò di particolare che vedi del capo.
-        Se non vedi nessun capo, rispondi: "non determinabile".
-        Rispondi solo simile agli esempi, senza aggiungere altro.
+        Scrivi la categoria specifica del capo, la macrocategoria di appartenenza (scegliendo obbligatoriamente solo tra queste classi: Maglie, Pantaloni, Giacche, Scarpe, Accessori, Extra), lo stile (casual, elegante, urban, gotic, relaxed...), il colore principale e nella descrizione sia la vestibilità (es: oversize, regular, slim, ecc.) sia un dettaglio visivo ben riconoscibile (es: grafica, righe, strappi, ecc.).
+
+        Esegui il mapping automatico dei capi:
+        - "cappello", "berretto", "bucket hat", "cuffia", "beanie", ecc. → Accessori
+        - "maglia", "top", "t-shirt", "camicia", "felpa", ecc. → Maglie
+        - "jeans", "pantalone", "shorts", "leggings", ecc. → Pantaloni
+        - "giacca", "blazer", "cappotto", "parka", ecc. → Giacche
+        - "sneakers", "scarpe", "stivali", "sandali", ecc. → Scarpe
+        - Oggetti non indossabili o non riconducibili alle precedenti categorie → Extra
+
+        Rispondi in una sola riga, separando i valori con il carattere | (pipe), nel formato:
+
+        Capo|Macrocategoria|Stile|Colore|Descrizione
+
+        Esempi:
+        maglia|Maglie|casual|bianco|oversize, righe bianche e nere
+        jeans|Pantaloni|urban|blu|slim, strappi
+        giacca|Giacche|elegante|nero|regular, doppiopetto
+        sneakers|Scarpe|gotic|nero|platform, suola alta
+        cappello|Accessori|relaxed|rosso|regular, logo frontale
+        cintura|Accessori|relaxed|marrone|regular, fibbia grande
+        zaino|Extra|urban|nero|grande, tasche multiple
+
+        Se non vedi nessun capo, rispondi: non determinabile|||| (e lascia gli altri campi vuoti).
+        Non aggiungere altro testo.
         """
         print("Prompt inviato a GeminiVisionAnalyzer: \(prompt)")
         analyze(image: image, prompt: prompt) { fit in
@@ -37,10 +69,14 @@ class GeminiVisionAnalyzer {
     /// Funzione interna, non va usata direttamente dall'esterno
     private func analyze(image: UIImage, prompt: String, completion: @escaping (String?) -> Void) {
         print("Prompt inviato a GeminiVisionAnalyzer: \(prompt)")
-        guard let imageData = image.jpegData(compressionQuality: 0.8) else {
+        // Riduci la dimensione dell'immagine a 600px di larghezza e qualità JPEG al 40%
+        let resizedImage = image.resized(toWidth: 600) ?? image
+        guard let imageData = resizedImage.jpegData(compressionQuality: 0.4) else {
             completion(nil)
             return
         }
+        print("Dimensione immagine JPEG inviata: \(Double(imageData.count) / 1024.0) KB")
+
         let base64Image = imageData.base64EncodedString()
 
         let payload: [String: Any] = [

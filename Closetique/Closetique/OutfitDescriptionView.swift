@@ -53,10 +53,9 @@ struct OutfitDescriptionView: View {
                 // Info sintetiche sui capi (opzionale)
                 VStack(alignment: .leading, spacing: 8) {
                     ForEach(parsed.items) { item in
-                        Text("\(item.name) • \(item.category) • \(item.domColor ?? "-") • \(item.style)")
+                        Text("\(item.name) • \(item.macrocategory) • \(item.category) • \(item.domColor ?? "-") • \(item.style)")
                             .font(.custom("Poppins-Light", size: 16))
                     }
-                    
                 }
 
                 Spacer(minLength: 50)
@@ -114,7 +113,8 @@ struct OutfitDescriptionView_Previews: PreviewProvider {
         let items = [
             ClothingItem(
                 name: "Felpa",
-                category: "Maglie",
+                category: "Felpa",
+                macrocategory: "Maglie",
                 imageData: nil,
                 domColor: "Blu",
                 details: "Felpa in cotone",
@@ -123,7 +123,8 @@ struct OutfitDescriptionView_Previews: PreviewProvider {
             ),
             ClothingItem(
                 name: "Jeans",
-                category: "Pantaloni",
+                category: "Jeans",
+                macrocategory: "Pantaloni",
                 imageData: nil,
                 domColor: "Blu",
                 details: "Jeans slim fit",
@@ -132,7 +133,8 @@ struct OutfitDescriptionView_Previews: PreviewProvider {
             ),
             ClothingItem(
                 name: "Sneakers",
-                category: "Scarpe",
+                category: "Sneakers",
+                macrocategory: "Scarpe",
                 imageData: nil,
                 domColor: "Bianco",
                 details: "Sneakers leggere",
@@ -140,7 +142,7 @@ struct OutfitDescriptionView_Previews: PreviewProvider {
                 isFavorite: false
             )
         ]
-        
+
         // Prepara una stringa aiMessage che seleziona il primo, secondo e terzo capo
         let selectedIDs = "\(items[0].id.uuidString);\(items[1].id.uuidString);\(items[2].id.uuidString)"
         let aiMessage = "\(selectedIDs)|Perfetto per una giornata informale: la felpa blu e le sneakers bianche creano un look rilassato e moderno."

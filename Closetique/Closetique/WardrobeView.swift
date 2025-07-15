@@ -1,24 +1,18 @@
 import SwiftUI
 
 struct WardrobeView: View {
-    
     @Binding var items: [ClothingItem]
-        
-    
     @State private var selectedCategory: String? = nil
     @State private var showFavorites = false
-
-    // Modalità selezione
     @State private var isSelecting = false
     @State private var selectedItems = Set<UUID>() // UUID degli item selezionati
-
     @State var showDeleteAlert: Bool = false
-    
+
     let categories = ["Maglie", "Pantaloni", "Giacche", "Scarpe", "Accessori"]
-        
+
     var filteredItems: [ClothingItem] {
         if let selected = selectedCategory {
-            return items.filter { $0.category == selected }
+            return items.filter { $0.macrocategory == selected }
         } else {
             return items
         }
@@ -38,7 +32,7 @@ struct WardrobeView: View {
                             .font(.custom("Poppins-Bold", size: 40))
                             .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
                         Spacer()
-                        
+
                         Button(action: {
                             showFavorites = true
                         }) {
@@ -166,7 +160,6 @@ struct WardrobeView: View {
                             }.alert("Sei sicuro di voler eliminare?", isPresented: $showDeleteAlert) {
                                 Button("Annulla", role: .cancel) { }
                                 Button("Elimina", role: .destructive) {
-                                    // Qui metti l'azione di eliminazione
                                     items.removeAll { selectedItems.contains($0.id) }
                                     UserDefaultsManager.shared.deleteItems(selectedItems)
                                     selectedItems.removeAll()
@@ -176,7 +169,6 @@ struct WardrobeView: View {
                             } message: {
                                 Text("Questa azione non può essere annullata.")
                             }
-                            
                             .disabled(selectedItems.isEmpty)
                             Spacer()
                         }
@@ -206,7 +198,7 @@ struct WardrobeView: View {
 // Cella normale
 struct WardrobeItemCell: View {
     @ObservedObject var item: ClothingItem
-    
+
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
             Group {
@@ -296,11 +288,11 @@ struct WardrobeSelectableItemCell: View {
 struct WardrobeView_Previews: PreviewProvider {
     struct PreviewWrapper: View {
         @State var exampleItems = [
-            ClothingItem(name: "Felpa", category: "Maglie", imageData: nil, details: "Stringa di dettagli per prova", isFavorite: false),
-            ClothingItem(name: "Jeans", category: "Pantaloni", imageData: nil, details: "Stringa di dettagli per prova", isFavorite: true),
-            ClothingItem(name: "T-shirt", category: "Maglie", imageData: nil, details: "Stringa di dettagli per prova", isFavorite: false),
-            ClothingItem(name: "Cintura", category: "Accessori", imageData: nil, details: "Stringa di dettagli per prova", isFavorite: false),
-            ClothingItem(name: "Sneakers", category: "Scarpe", imageData: nil, details: "Stringa di dettagli per prova", isFavorite: false)
+            ClothingItem(name: "Felpa", category: "Felpa", macrocategory: "Maglie", imageData: nil, details: "Stringa di dettagli per prova", style: "Casual", isFavorite: false),
+            ClothingItem(name: "Jeans", category: "Jeans", macrocategory: "Pantaloni", imageData: nil, details: "Stringa di dettagli per prova", style: "Street", isFavorite: true),
+            ClothingItem(name: "T-shirt", category: "T-shirt", macrocategory: "Maglie", imageData: nil, details: "Stringa di dettagli per prova", style: "Sport", isFavorite: false),
+            ClothingItem(name: "Cintura", category: "Cintura", macrocategory: "Accessori", imageData: nil, details: "Stringa di dettagli per prova", style: "Classico", isFavorite: false),
+            ClothingItem(name: "Sneakers", category: "Sneakers", macrocategory: "Scarpe", imageData: nil, details: "Stringa di dettagli per prova", style: "Urban", isFavorite: false)
         ]
         var body: some View {
             WardrobeView(items: $exampleItems)

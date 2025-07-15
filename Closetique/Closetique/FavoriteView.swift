@@ -120,11 +120,11 @@ struct FavoriteItemCell: View {
 struct FavoriteView_Previews: PreviewProvider {
     struct PreviewWrapper: View {
         @State var exampleItems = [
-            ClothingItem(name: "Felpa", category: "Maglie", imageData: nil, isFavorite: false),
-            ClothingItem(name: "Jeans", category: "Pantaloni", imageData: nil, isFavorite: true),
-            ClothingItem(name: "T-shirt", category: "Maglie", imageData: nil, isFavorite: true),
-            ClothingItem(name: "Cintura", category: "Accessori", imageData: nil, isFavorite: false),
-            ClothingItem(name: "Sneakers", category: "Scarpe", imageData: nil, isFavorite: false)
+            ClothingItem(name: "Felpa", category: "Felpa", macrocategory: "Maglie", imageData: nil, style: "Casual", isFavorite: false),
+            ClothingItem(name: "Jeans", category: "Jeans", macrocategory: "Pantaloni", imageData: nil, style: "Street", isFavorite: true),
+            ClothingItem(name: "T-shirt", category: "T-shirt", macrocategory: "Maglie", imageData: nil, style: "Sport", isFavorite: true),
+            ClothingItem(name: "Cintura", category: "Cintura", macrocategory: "Accessori", imageData: nil, style: "Classico", isFavorite: false),
+            ClothingItem(name: "Sneakers", category: "Sneakers", macrocategory: "Scarpe", imageData: nil, style: "Urban", isFavorite: false)
         ]
         var body: some View {
             FavoriteView(items: $exampleItems)
