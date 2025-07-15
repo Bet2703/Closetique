@@ -33,11 +33,12 @@ class LlamaGroqAPI {
         IMPORTANTE:
         - Scegli una combinazione di N capi diversi (N >= 2, può essere superiore a 5/6).
         - NON accoppiare 2 maglie o 2 pantaloni nello stesso outfit (salvo eccezione: camicia sopra maglia SOLO se lo stile è casual o street).
-        - Se includi due maglie o due pantaloni, il voto finale dell'outfit deve essere severamente penalizzato (max 5/10) e devi scrivere nella descrizione che l'outfit non è valido perché contiene due maglie o due pantaloni.
+        - Se includi due maglie o due pantaloni, il voto finale dell'outfit deve essere severamente penalizzato (max 5/10) e devi scrivere nella descrizione che l'outfit non è valido perché contiene due maglie o due pantaloni e devi essere molto severo.
         - Preferisci sempre macro-categorie differenti.
 
         Rispondi SOLO in questo formato (nessun testo extra):
         <id1>;<id2>;<id3>;... | <descrizione creativa e sintetica dell'outfit, con voto X/10 e motivazione. Se non hai rispettato le regole, spiega l'errore nella descrizione.>
+        
         """
 
         let payload: [String: Any] = [
