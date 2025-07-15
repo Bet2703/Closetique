@@ -26,10 +26,8 @@ import SwiftUI
                         CameraView(items: $items)
                     case 3:
                         WardrobeView(items: $items)
-                        /*
                     case 4:
-                        CategoriesView()
-                         */
+                        ArmocromiaMainView()
                     default:
                         HomepageView(items: $items, selectedTab: $selectedTab)
                     }
