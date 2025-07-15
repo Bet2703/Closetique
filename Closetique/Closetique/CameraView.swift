@@ -1,18 +1,22 @@
-//
-//  CameraView.swift
-//  Closetique
-//
-//  Created by Studente on 02/07/25.
-//
-
 import SwiftUI
 import UIKit
 
+// MARK: - ClassificationResult struct
+
+struct ClassificationResult {
+    let category: String
+    let macrocategory: String
+    let style: String
+    let domColor: String
+    let details: String
+}
+
+// MARK: - CameraView
+
 struct CameraView: View {
-    
     @Binding var items: [ClothingItem]
     @Environment(\.dismiss) private var dismiss
-    
+
     @State private var showImagePicker = false
     @State private var imageSource: UIImagePickerController.SourceType = .camera
     @State private var pickedImage: UIImage?
@@ -24,7 +28,7 @@ struct CameraView: View {
     var body: some View {
         VStack {
             if let image = pickedImage, let result = classificationResult, showPreview {
-                // Preview con classificazione
+                // Preview con classificazione e possibilità di modifica
                 ClassificationPreviewView(
                     image: image,
                     result: result,
@@ -49,7 +53,6 @@ struct CameraView: View {
                     ProgressView("Analisi in corso...")
                         .padding()
                 } else if let image = pickedImage {
-                    // Mostra comunque l'immagine finché non si avvia la classificazione
                     Image(uiImage: image)
                         .resizable()
                         .scaledToFit()
@@ -71,7 +74,6 @@ struct CameraView: View {
                     }
                     .padding()
                 }
-
                 Spacer()
             }
         }
@@ -107,22 +109,23 @@ struct CameraView: View {
             self.showPreview = true
         }
     }
-    
+
     private func saveItem(image: UIImage, result: ClassificationResult) {
-        // Codifica l'immagine in base64
         let imageData: String? = image.jpegData(compressionQuality: 0.8)?.base64EncodedString()
         let newItem = ClothingItem(
-            name: result.category, // puoi cambiare come preferisci
+            name: result.category,
             category: result.category,
+            macrocategory: result.macrocategory,
             imageData: imageData,
             domColor: result.domColor,
-            details: result.details ?? "",
+            details: result.details,
             style: result.style,
             isFavorite: false
         )
         items.append(newItem)
         UserDefaultsManager.shared.addItem(newItem)
     }
+
     private func reset() {
         pickedImage = nil
         classificationResult = nil
@@ -131,34 +134,25 @@ struct CameraView: View {
     }
 }
 
-// MARK: - ClassificationResult struct
-
-struct ClassificationResult {
-    var category: String
-    var style: String
-    var domColor: String?
-    var details: String?
-}
-
-
-// MARK: - Preview View
+// MARK: - ClassificationPreviewView
 
 struct ClassificationPreviewView: View {
     let image: UIImage
     let result: ClassificationResult
     let onConfirm: (ClassificationResult) -> Void
     let onRetake: () -> Void
-    let availableCategories: [String] = ["Maglie", "Pantaloni", "Giacche", "Scarpe", "Accessori"]
-    
+    let availableCategories: [String] = ["Maglie", "Pantaloni", "Giacche", "Scarpe", "Accessori", "Extra"]
+
     // Editing states
     @State private var editedCategory: String = ""
+    @State private var editedMacrocategory: String = ""
     @State private var editedStyle: String = ""
     @State private var editedDomColor: String = ""
     @State private var editedDetails: String = ""
-    
     @State private var editingField: EditingField? = nil
+    @State private var isSaving = false
 
-    enum EditingField { case category, style, domColor, details }
+    enum EditingField { case category, macrocategory, style, domColor, details }
 
     var body: some View {
         VStack(spacing: 24) {
@@ -170,26 +164,21 @@ struct ClassificationPreviewView: View {
                 .padding()
 
             VStack(spacing: 12) {
-                //Categoria
+                // Categoria specifica: modificabile tramite TextField
                 HStack {
                     Text("Categoria:")
                         .font(.custom("Poppins-Regular", size: 16))
                     Spacer()
                     if editingField == .category {
-                        Picker("Categoria", selection: $editedCategory) {
-                            ForEach(availableCategories + ["Altro"], id: \.self) { cat in
-                                Text(cat)
-                            }
-                        }
-                        .pickerStyle(MenuPickerStyle())
-                        Button(action: {
-                            editingField = nil
-                        }) {
+                        TextField("Categoria", text: $editedCategory)
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                            .frame(width: 120)
+                        Button(action: { editingField = nil }) {
                             Image(systemName: "checkmark")
-                                .font(.system(size: 20, weight: .bold)) // icona grande e bold
+                                .font(.system(size: 20, weight: .bold))
                                 .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
                         }
-                    }else {
+                    } else {
                         Text(editedCategory.isEmpty ? result.category : editedCategory)
                             .bold()
                         Button(action: {
@@ -197,14 +186,44 @@ struct ClassificationPreviewView: View {
                             editingField = .category
                         }) {
                             Image(systemName: "pencil")
-                                .font(.system(size: 20, weight: .bold)) // icona grande e bold
+                                .font(.system(size: 20, weight: .bold))
                                 .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
                         }
                     }
-                    
                 }
-                
-                //Stile
+
+                // Macrocategoria: modificabile tramite Picker (enum)
+                HStack {
+                    Text("Macrocategoria:")
+                        .font(.custom("Poppins-Regular", size: 16))
+                    Spacer()
+                    if editingField == .macrocategory {
+                        Picker("Macrocategoria", selection: $editedMacrocategory) {
+                            ForEach(availableCategories, id: \.self) { cat in
+                                Text(cat)
+                            }
+                        }
+                        .pickerStyle(MenuPickerStyle())
+                        Button(action: { editingField = nil }) {
+                            Image(systemName: "checkmark")
+                                .font(.system(size: 20, weight: .bold))
+                                .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
+                        }
+                    } else {
+                        Text(editedMacrocategory.isEmpty ? result.macrocategory : editedMacrocategory)
+                            .bold()
+                        Button(action: {
+                            editedMacrocategory = result.macrocategory
+                            editingField = .macrocategory
+                        }) {
+                            Image(systemName: "pencil")
+                                .font(.system(size: 20, weight: .bold))
+                                .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
+                        }
+                    }
+                }
+
+                // Stile: modificabile tramite TextField
                 HStack {
                     Text("Stile:")
                         .font(.custom("Poppins-Regular", size: 16))
@@ -213,11 +232,9 @@ struct ClassificationPreviewView: View {
                         TextField("Stile", text: $editedStyle)
                             .textFieldStyle(RoundedBorderTextFieldStyle())
                             .frame(width: 120)
-                        Button(action: {
-                            editingField = nil
-                        }) {
+                        Button(action: { editingField = nil }) {
                             Image(systemName: "checkmark")
-                                .font(.system(size: 20, weight: .bold)) // icona grande e bold
+                                .font(.system(size: 20, weight: .bold))
                                 .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
                         }
                     } else {
@@ -228,46 +245,44 @@ struct ClassificationPreviewView: View {
                             editingField = .style
                         }) {
                             Image(systemName: "pencil")
-                                .font(.system(size: 20, weight: .bold)) // icona grande e bold
+                                .font(.system(size: 20, weight: .bold))
                                 .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
                         }
                     }
                 }
-                
-                //Colore
+
+                // Colore: modificabile tramite TextField
                 HStack {
                     Text("Colore:")
                         .font(.custom("Poppins-Regular", size: 16))
                     Spacer()
                     Circle()
-                        .fill(Color(Hex: result.domColor ?? "#CCCCCC"))
+                        .fill(Color(Hex: result.domColor))
                         .frame(width: 32, height: 32)
                     if editingField == .domColor {
                         TextField("Colore (hex o nome)", text: $editedDomColor)
                             .textFieldStyle(RoundedBorderTextFieldStyle())
                             .frame(width: 80)
-                        Button(action: {
-                            editingField = nil
-                        }) {
+                        Button(action: { editingField = nil }) {
                             Image(systemName: "checkmark")
-                                .font(.system(size: 20, weight: .bold)) // icona grande e bold
+                                .font(.system(size: 20, weight: .bold))
                                 .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
                         }
                     } else {
-                        Text(editedDomColor.isEmpty ? (result.domColor ?? "N/A") : editedDomColor)
+                        Text(editedDomColor.isEmpty ? result.domColor : editedDomColor)
                             .font(.caption)
                         Button(action: {
-                            editedDomColor = result.domColor ?? ""
+                            editedDomColor = result.domColor
                             editingField = .domColor
                         }) {
                             Image(systemName: "pencil")
-                                .font(.system(size: 20, weight: .bold)) // icona grande e bold
+                                .font(.system(size: 20, weight: .bold))
                                 .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
                         }
                     }
                 }
-                
-                // Dettagli
+
+                // Dettagli: modificabile tramite TextField
                 HStack(alignment: .top) {
                     Text("Dettagli:")
                         .font(.custom("Poppins-Regular", size: 16))
@@ -276,31 +291,28 @@ struct ClassificationPreviewView: View {
                         TextField("Dettagli", text: $editedDetails)
                             .textFieldStyle(RoundedBorderTextFieldStyle())
                             .frame(width: 160)
-                        Button(action: {
-                            editingField = nil
-                        }) {
+                        Button(action: { editingField = nil }) {
                             Image(systemName: "checkmark")
-                                .font(.system(size: 20, weight: .bold)) // icona grande e bold
+                                .font(.system(size: 20, weight: .bold))
                                 .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
                         }
                     } else {
-                        Text(editedDetails.isEmpty ? (result.details ?? "") : editedDetails)
+                        Text(editedDetails.isEmpty ? result.details : editedDetails)
                             .font(.custom("Poppins-Italic", size: 14))
                             .italic()
                             .foregroundColor(.gray)
                             .multilineTextAlignment(.trailing)
                         Button(action: {
-                            editedDetails = result.details ?? ""
+                            editedDetails = result.details
                             editingField = .details
                         }) {
                             Image(systemName: "pencil")
-                                .font(.system(size: 20, weight: .bold)) // icona grande e bold
+                                .font(.system(size: 20, weight: .bold))
                                 .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
                         }
                     }
                 }
             }
-
             .padding()
             .background(Color(.systemGroupedBackground))
             .cornerRadius(12)
@@ -310,8 +322,10 @@ struct ClassificationPreviewView: View {
                     .foregroundColor(.red)
                     .bold()
                 Button("Aggiungi all'armadio") {
+                    isSaving = true
                     let newResult = ClassificationResult(
                         category: editedCategory.isEmpty ? result.category : editedCategory,
+                        macrocategory: editedMacrocategory.isEmpty ? result.macrocategory : editedMacrocategory,
                         style: editedStyle.isEmpty ? result.style : editedStyle,
                         domColor: editedDomColor.isEmpty ? result.domColor : editedDomColor,
                         details: editedDetails.isEmpty ? result.details : editedDetails
@@ -320,6 +334,7 @@ struct ClassificationPreviewView: View {
                 }
                 .foregroundColor(.green)
                 .bold()
+                .disabled(isSaving)
             }
             .padding(.top)
         }
@@ -327,9 +342,7 @@ struct ClassificationPreviewView: View {
     }
 }
 
-
-
-// MARK: - ImagePicker (camera o galleria)
+// MARK: - ImagePicker
 
 struct ImagePicker: UIViewControllerRepresentable {
     let sourceType: UIImagePickerController.SourceType

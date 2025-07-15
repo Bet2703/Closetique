@@ -1,4 +1,4 @@
-import UIKit
+/*import UIKit
 import Vision
 import CoreML
 
@@ -142,4 +142,4 @@ class ImageClassifierOLD {
             }
         }
     }
-}
+}*/

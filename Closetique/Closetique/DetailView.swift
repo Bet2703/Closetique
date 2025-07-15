@@ -1,10 +1,3 @@
-//
-//  DetailView.swift
-//  Closetique
-//
-//  Created by Studente on 04/07/25.
-//
-
 import SwiftUI
 
 struct DetailView: View {
@@ -42,7 +35,6 @@ struct DetailView: View {
                                     }
                                     
                                     Button(action: {
-                    
                                         if item.isFavorite {
                                             print("true->false")
                                             item.isFavorite = false
@@ -67,6 +59,11 @@ struct DetailView: View {
                         .font(.custom("Poppins-Bold", size: 30))
                         .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
                     
+                    // Mostra la macrocategoria
+                    Text(item.macrocategory)
+                        .font(.custom("Poppins-Regular", size: 20))
+                        .foregroundColor(.secondary)
+                    
                     Text(item.details ?? "")
                         .font(.custom("Poppins-Regular", size: 18))
                     
@@ -86,7 +83,6 @@ struct DetailView: View {
                 }.alert("Sei sicuro di voler eliminare?", isPresented: $showDeleteAlert) {
                     Button("Annulla", role: .cancel) { }
                     Button("Elimina", role: .destructive) {
-                        // Qui metti l'azione di eliminazione
                         UserDefaultsManager.shared.deleteItem(item)
                         onDelete?()
                         dismiss()
@@ -143,16 +139,15 @@ struct DetailView: View {
     }
 }
 
-
 #if DEBUG
 struct DetailView_Previews: PreviewProvider {
     struct PreviewWrapper: View {
         @State var exampleItems = [
-            ClothingItem(name: "Felpa", category: "Maglie", imageData: nil, details: "Stringa di dettagli per prova", isFavorite: false),
-            ClothingItem(name: "Jeans", category: "Pantaloni", imageData: nil, details: "Stringa di dettagli per prova", isFavorite: true),
-            ClothingItem(name: "T-shirt", category: "Maglie", imageData: nil, details: "Stringa di dettagli per prova", isFavorite: false),
-            ClothingItem(name: "Cintura", category: "Accessori", imageData: nil, details: "Stringa di dettagli per prova", isFavorite: false),
-            ClothingItem(name: "Sneakers", category: "Scarpe", imageData: nil, details: "Stringa di dettagli per prova", isFavorite: false)
+            ClothingItem(name: "Felpa", category: "Felpa", macrocategory: "Maglie", imageData: nil, details: "Stringa di dettagli per prova", style: "Casual", isFavorite: false),
+            ClothingItem(name: "Jeans", category: "Jeans", macrocategory: "Pantaloni", imageData: nil, details: "Stringa di dettagli per prova", style: "Street", isFavorite: true),
+            ClothingItem(name: "T-shirt", category: "T-shirt", macrocategory: "Maglie", imageData: nil, details: "Stringa di dettagli per prova", style: "Sport", isFavorite: false),
+            ClothingItem(name: "Cintura", category: "Cintura", macrocategory: "Accessori", imageData: nil, details: "Stringa di dettagli per prova", style: "Classico", isFavorite: false),
+            ClothingItem(name: "Sneakers", category: "Sneakers", macrocategory: "Scarpe", imageData: nil, details: "Stringa di dettagli per prova", style: "Urban", isFavorite: false)
         ]
         var body: some View {
             WardrobeView(items: $exampleItems)
@@ -167,4 +162,3 @@ struct DetailView_Previews: PreviewProvider {
 /*#Preview {
     ContentView()
 }*/
-

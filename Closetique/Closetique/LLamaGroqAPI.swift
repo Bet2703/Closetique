@@ -28,9 +28,9 @@ class LlamaGroqAPI {
         Questi sono i capi disponibili, ognuno ha id, category, domColor, details, style:
         \(itemDescriptions)
         Lo stile target per l'outfit è: "\(targetStyle)"
-        Scegli una combinazione di 3 o 4 capi diversi che insieme creino un outfit coerente con lo stile target.
-        Restituisci SOLO in questo formato:
-        <id1>;<id2>;<id3>[;<id4>] | <descrizione creativa e sintetica dell'outfit>
+        Scegli una combinazione di N capi diversi (dove N rappresenta il numero di capi, può essere superiore a 5/6 ma non deve mai essere inferiore a 2) che insieme creino un outfit coerente con lo stile target.
+        Restituisci SOLO in questo formato e con almeno 2 capi OBBLIGATORIAMENTE:
+        <id1>;<id2>;<id3>;... | <descrizione creativa e sintetica dell'outfit, inserisci un voto nel formato X/10 (es. 8/10, 7.5/10) e motivazione dell'abbinamento anche attraverso colori>
 
         Nessuna spiegazione, nessun testo aggiuntivo. Solo la risposta nel formato richiesto.
         """

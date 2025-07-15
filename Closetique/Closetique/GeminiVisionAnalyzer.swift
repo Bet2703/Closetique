@@ -10,27 +10,30 @@ class GeminiVisionAnalyzer {
     /// Analizza tipologia, vestibilità e dettaglio distintivo principale del capo visibile
     func analyzeFit(image: UIImage, completion: @escaping (String?) -> Void) {
         let prompt = """
-        Scrivi solo la tipologia, la vestibilità e un dettaglio ben riconoscibile del capo principale nell'immagine, in massimo 20 parole.
-        Rispondi sempre nel formato:
+        Scrivi la categoria specifica del capo, la macrocategoria di appartenenza (scegliendo obbligatoriamente solo tra queste classi: Maglie, Pantaloni, Giacche, Scarpe, Accessori, Extra), lo stile (casual, elegante, urban, gotic, relaxed...), il colore principale e nella descrizione sia la vestibilità (es: oversize, regular, slim, ecc.) sia un dettaglio visivo ben riconoscibile (es: grafica, righe, strappi, ecc.).
 
-        Tipologia: <tipologia>
-        Vestibilità: <vestibilità>
-        Dettaglio: <dettaglio>
+        Esegui il mapping automatico dei capi:
+        - "cappello", "berretto", "bucket hat", "cuffia", "beanie", ecc. → Accessori
+        - "maglia", "top", "t-shirt", "camicia", "felpa", ecc. → Maglie
+        - "jeans", "pantalone", "shorts", "leggings", ecc. → Pantaloni
+        - "giacca", "blazer", "cappotto", "parka", ecc. → Giacche
+        - "sneakers", "scarpe", "stivali", "sandali", ecc. → Scarpe
+        - Oggetti non indossabili o non riconducibili alle precedenti categorie → Extra
+
+        Rispondi in una sola riga, separando i valori con il carattere | (pipe), nel formato:
+
+        Capo|Macrocategoria|Stile|Colore|Descrizione
 
         Esempi:
-        Tipologia: jeans
-        Vestibilità: baggy
-        Dettaglio: strappi
+        maglia|Maglie|casual|bianco|oversize, righe bianche e nere
+        jeans|Pantaloni|urban|blu|slim, strappi
+        giacca|Giacche|elegante|nero|regular, doppiopetto
+        sneakers|Scarpe|gotic|nero|platform, suola alta
+        cappello|Accessori|relaxed|rosso|regular, logo frontale
+        cintura|Accessori|relaxed|marrone|regular, fibbia grande
+        zaino|Extra|urban|nero|grande, tasche multiple
 
-        Tipologia: maglia
-        Vestibilità: aderente
-        Dettaglio: righe bianche e nere
-
-        Tipologia: t-shirt
-        Vestibilità: oversize
-        Dettaglio: grafica palme
-
-        Se non vedi nessun capo, rispondi: "non determinabile" nel campo Tipologia, lasciando vuoti gli altri.
+        Se non vedi nessun capo, rispondi: non determinabile|||| (e lascia gli altri campi vuoti).
         Non aggiungere altro testo.
         """
         print("Prompt inviato a GeminiVisionAnalyzer: \(prompt)")
