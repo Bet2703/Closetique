@@ -10,14 +10,28 @@ class GeminiVisionAnalyzer {
     /// Analizza tipologia, vestibilità e dettaglio distintivo principale del capo visibile
     func analyzeFit(image: UIImage, completion: @escaping (String?) -> Void) {
         let prompt = """
-        Scrivi solo la tipologia, la vestibilità e un dettaglio ben riconoscibile del capo principale nell'immagine, in massimo 20 parole. Non aggiungere dettagli sulla persona o sull'ambiente. Esempi:
-        - "jeans baggy con strappi"
-        -"jeans "lavato""
-        - "maglia aderente a righe bianche e nere"
-        - "t-shirt oversize con grafica palme"
-        In pratica scrivi tutto ciò di particolare che vedi del capo.
-        Se non vedi nessun capo, rispondi: "non determinabile".
-        Rispondi solo simile agli esempi, senza aggiungere altro.
+        Scrivi solo la tipologia, la vestibilità e un dettaglio ben riconoscibile del capo principale nell'immagine, in massimo 20 parole.
+        Rispondi sempre nel formato:
+
+        Tipologia: <tipologia>
+        Vestibilità: <vestibilità>
+        Dettaglio: <dettaglio>
+
+        Esempi:
+        Tipologia: jeans
+        Vestibilità: baggy
+        Dettaglio: strappi
+
+        Tipologia: maglia
+        Vestibilità: aderente
+        Dettaglio: righe bianche e nere
+
+        Tipologia: t-shirt
+        Vestibilità: oversize
+        Dettaglio: grafica palme
+
+        Se non vedi nessun capo, rispondi: "non determinabile" nel campo Tipologia, lasciando vuoti gli altri.
+        Non aggiungere altro testo.
         """
         print("Prompt inviato a GeminiVisionAnalyzer: \(prompt)")
         analyze(image: image, prompt: prompt) { fit in
