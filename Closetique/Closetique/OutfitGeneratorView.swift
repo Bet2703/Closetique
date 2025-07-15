@@ -8,6 +8,8 @@ struct OutfitGeneratorView: View {
     @State private var navigateToDescription: Bool = false
     @State private var aiMessage: String = ""    
     
+    @State private var includePalette: Bool = false
+    
     let styles = ["Casual", "Elegante", "Sportivo", "Streetwear"]
     let allItems: [ClothingItem] = UserDefaultsManager.shared.loadItems()
 
@@ -25,6 +27,7 @@ struct OutfitGeneratorView: View {
                 }
                 .pickerStyle(SegmentedPickerStyle())
                 .scaleEffect(CGSize(width: 1, height: 1.3))
+                
                 Spacer()
 
                 HStack {
@@ -38,6 +41,15 @@ struct OutfitGeneratorView: View {
                     Spacer()
                 }
                 Spacer()
+                
+                HStack {
+                    Toggle(isOn: $includePalette) {
+                        Text("Includi palette di colori nella generazione dell'outfit")
+                            .font(.custom("Poppins-Regular", size: 20))
+                    }
+                    .toggleStyle(SwitchToggleStyle(tint: Color(red: 112/255, green: 41/255, blue: 99/255)))
+                }
+                .padding(20)
 
                 NavigationLink(
                     destination: OutfitDescriptionView(selectedTab: $selectedTab,allItems: allItems, aiMessage: aiMessage, onRegenerate: {
