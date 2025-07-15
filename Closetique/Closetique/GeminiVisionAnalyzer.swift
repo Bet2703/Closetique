@@ -61,7 +61,7 @@ class GeminiVisionAnalyzer {
         completion: @escaping (String?) -> Void,
         attempt: Int = 1
     ) {
-        let retryIntervals: [Double] = [5, 10, 15, 30, 30] // secondi
+        let retryIntervals: [Double] = [5, 10, 15] // secondi
 
         // Riduci la dimensione dell'immagine a 600px di larghezza e qualità JPEG al 40%
         let resizedImage = image.resized(toWidth: 600) ?? image
