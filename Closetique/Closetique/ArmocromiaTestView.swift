@@ -16,14 +16,16 @@ struct ArmocromiaTestView: View {
     let onResult: (String) -> Void
 
     let questions: [Question] = [
-        Question(text: "Come reagisce la tua pelle al sole?", options: ["Si abbronza facilmente", "Si scotta subito"]),
-        Question(text: "Hai lentiggini?", options: ["Sì", "No"]),
-        Question(text: "La tua pelle si arrossa facilmente?", options: ["Sì, spesso", "No, raramente"]),
-        Question(text: "Che tipo di pelle hai?", options: ["Chiara e delicata", "Olivastra o dorata"]),
-        Question(text: "Di che colore sono i tuoi occhi?", options: ["Chiari (azzurri, verdi)", "Scuri (marroni, neri)"]),
-        Question(text: "Come sono le tue sopracciglia?", options: ["Chiare e sottili", "Scure e marcate"]),
-        Question(text: "Di che colore hai la sclera (parte bianca degli occhi)?", options: ["Molto bianca", "Tendente al crema"]),
-        Question(text: "Hai mai tinto i capelli? Se sì, come reagiscono al colore?", options: ["Assorbono bene il colore", "Sbiadiscono o cambiano tono"])
+        //sottotono caldo o freddo
+        Question(text: "Come reagisce la tua pelle al sole?", options: ["Mi scotto facilmente", "Mi abbronzo facilmente"]),
+        Question(text: "Qual è il colore dei gioielli che ti sembra valorizzi di più la tua carnagione?", options: ["Argento o platino", "Oro giallo o bronzo"]),
+        Question(text: "Come appare la tua pelle sotto la luce del sole o delle luci artificiali?", options: ["Appare più rosata o rossastra", "Appare più dorata o olivastra"]),
+        
+        //sottotono freddo: estate o inverno, sottotono caldo: primavera o autunno
+        Question(text: "Qual è il colore predominante dei tuoi occhi?", options: ["Blu, grigio o verde chiaro", "Marrone, nocciola o ambra"]),
+        Question(text: "Qual è il colore naturale dei tuoi capelli?", options: ["Biondo cenere o castano chiaro", "Biondo chiaro o castano dorato", "Castano scuro, ramato o nero."]),
+        Question(text: "Preferisci indossare colori più chiari o colori più scuri?", options: ["Colori chiari come il celeste, il rosa pallido o il grigio chiaro", "Colori scuri come il blu navy, il bordeaux o il viola scuro", "Colori chiari e pastello come il giallo chiaro, il pesca o il verde acqua.", "Colori terrosi e caldi come il marrone, l'arancione o il verde oliva."]),
+        Question(text: "Com'è il contrasto tra la tua pelle e i tuoi capelli?", options: ["Basso, perchè sono bionda/o o castana/o molto chiaro e ho la pelle chiara", "Alto, perchè sono bionda/o o castana/o scuro e ho la pelle olivastra o dorata", "Basso, sono tutta chiara perché sono bionda/o, rossa/o o castana/o molto chiaro con pelle chiarissima.", "Medio, perché sono castana/o medio/intenso e pelle da media a chiara"])
     ]
 
     var body: some View {
@@ -94,34 +96,36 @@ struct ArmocromiaTestView: View {
 
         for answer in answers {
             let lower = answer.lowercased()
-
-            if lower.contains("abbronza") || lower.contains("dorata") || lower.contains("assorbono") {
-                scores["Spring", default: 0] += 2
-                scores["Autumn", default: 0] += 1
-            }
-            if lower.contains("scotta") || lower.contains("chiara") || lower.contains("arrossa") {
-                scores["Summer", default: 0] += 2
+            
+            if lower.contains("scotto") || lower.contains("argento") || lower.contains("rosata") {
+                scores["Summer", default: 0] += 1
                 scores["Winter", default: 0] += 1
             }
-            if lower.contains("olivastra") || lower.contains("crema") || lower.contains("tendente al crema") {
-                scores["Autumn", default: 0] += 2
+            if lower.contains("abbronzo") || lower.contains("dorata") || lower.contains("oro") {
                 scores["Spring", default: 0] += 1
-            }
-            if lower.contains("scure") || lower.contains("marroni") || lower.contains("neri") || lower.contains("marcate") {
-                scores["Winter", default: 0] += 2
                 scores["Autumn", default: 0] += 1
             }
-            if lower.contains("chiare") || lower.contains("azzurri") || lower.contains("verdi") || lower.contains("sottili") {
-                scores["Summer", default: 0] += 2
+            if lower.contains("celeste") || lower.contains("cenere") || lower.contains("chiara") {
+                scores["Summer", default: 0] += 1
+            }
+            if lower.contains("grigio") {
+                scores["Summer", default: 0] += 1
                 scores["Spring", default: 0] += 1
             }
-            if lower.contains("molto bianca") {
-                scores["Winter", default: 0] += 2
+            if lower.contains("bordeaux") || lower.contains("nero") || lower.contains("alto"){
+                scores["Winter", default: 0] += 1
             }
-            if lower.contains("sbiadiscono") || lower.contains("cambiano tono") {
-                scores["Summer", default: 0] += 1
-                scores["Winter", default: 0] += 2
+            if lower.contains("pastello") || lower.contains("dorato") || lower.contains("chiarissima") {
+                scores["Spring", default: 0] += 1
             }
+            if lower.contains("terrosi") || lower.contains("ramato") || lower.contains("medio"){
+                scores["Autumn", default: 0] += 1
+            }
+            if lower.contains("nocciola") {
+                scores["Autumn", default: 0] += 1
+                scores["Winter", default: 0] += 1
+            }
+            
         }
 
         return scores.max(by: { $0.value < $1.value })?.key ?? "Summer"
