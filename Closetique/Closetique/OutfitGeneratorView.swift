@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct OutfitGeneratorView: View {
+    @Binding var selectedTab: Int
     @State private var selectedStyle: String = "Casual"
     @State private var isGenerating: Bool = false
     @State private var generationError: String? = nil
@@ -39,7 +40,7 @@ struct OutfitGeneratorView: View {
                 Spacer()
 
                 NavigationLink(
-                    destination: OutfitDescriptionView(allItems: allItems, aiMessage: aiMessage, onRegenerate: {
+                    destination: OutfitDescriptionView(selectedTab: $selectedTab,allItems: allItems, aiMessage: aiMessage, onRegenerate: {
                         generateOutfitWithGroq(for: selectedStyle)
                     }),
                     isActive: $navigateToDescription

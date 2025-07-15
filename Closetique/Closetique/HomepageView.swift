@@ -99,7 +99,7 @@ struct HomepageView: View {
         // FullScreenCover generatore di outfit
         .fullScreenCover(isPresented: $showOutfitGenerator) {
             NavigationStack {
-                OutfitGeneratorView()
+                OutfitGeneratorView(selectedTab: $selectedTab)
                     .toolbar {
                         ToolbarItem(placement: .navigationBarLeading) {
                             Button("Chiudi") {

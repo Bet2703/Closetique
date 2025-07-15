@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct OutfitDescriptionView: View {
+    @Binding var selectedTab: Int
     let allItems: [ClothingItem]
     let aiMessage: String
     let onRegenerate: () -> Void
@@ -87,6 +88,7 @@ struct OutfitDescriptionView: View {
                     Button(action:{
                         let newOutfit = MatchOutfit(items: parsed.items, description: parsed.description)
                         UserDefaultsManager.shared.saveOutfit(newOutfit)
+                        selectedTab = 1
                     }){
                         Label("Salva", systemImage: "bookmark")
                             .font(.custom("Poppins-Regular", size: 18))
@@ -106,7 +108,7 @@ struct OutfitDescriptionView: View {
     }
 }
 
-
+/*
 struct OutfitDescriptionView_Previews: PreviewProvider {
     static var previews: some View {
         // Crea alcuni ClothingItem di esempio
@@ -156,3 +158,4 @@ struct OutfitDescriptionView_Previews: PreviewProvider {
         }
     }
 }
+*/
