@@ -3,18 +3,18 @@ import SwiftUI
 struct WardrobeView: View {
     @Binding var items: [ClothingItem]
     @State private var selectedCategory: String? = nil
-    @State private var showFavorites = false
+    @State private var showOnlyFavorites = false // nuovo stato!
     @State private var isSelecting = false
-    @State private var selectedItems = Set<UUID>() // UUID degli item selezionati
+    @State private var selectedItems = Set<UUID>()
     @State var showDeleteAlert: Bool = false
-
+    
     let categories = ["Maglie", "Pantaloni", "Giubbini", "Gonne", "Abiti", "Scarpe", "Accessori", "Extra"]
 
     var filteredItems: [ClothingItem] {
-        if let selected = selectedCategory {
-            return items.filter { $0.macrocategory == selected }
-        } else {
-            return items
+        items.filter { item in
+            let matchesCategory = selectedCategory == nil || item.macrocategory == selectedCategory
+            let matchesFavorite = !showOnlyFavorites || item.isFavorite
+            return matchesCategory && matchesFavorite
         }
     }
 
@@ -32,18 +32,6 @@ struct WardrobeView: View {
                             .font(.custom("Poppins-Bold", size: 40))
                             .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
                         Spacer()
-
-                        Button(action: {
-                            showFavorites = true
-                        }) {
-                            Image(systemName: "heart")
-                                .font(.system(size: 22, weight: .bold))
-                                .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
-                                .padding(10)
-                                .background(Color(red: 246/255, green: 232/255, blue: 234/255))
-                                .clipShape(Circle())
-                        }
-                        .padding(.trailing, 8)
 
                         // "Seleziona" o "Annulla"
                         Button(action: {
@@ -77,31 +65,44 @@ struct WardrobeView: View {
                     .padding(.top)
 
                     // Categorie
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 12) {
-                            Button(action: { selectedCategory = nil }) {
-                                Text("Tutti")
-                                    .font(.custom("Poppins-Regular", size: 18))
-                                    .foregroundColor(selectedCategory == nil ? Color.white : Color.black)
-                                    .padding(.horizontal)
-                                    .padding(.vertical, 8)
-                                    .background(selectedCategory == nil ? Color(red: 112/255, green: 41/255, blue: 99/255) : Color.gray.opacity(0.1))
-                                    .cornerRadius(16)
-                            }
-                            ForEach(categories, id: \.self) { cat in
-                                Button(action: { selectedCategory = cat }) {
-                                    Text(cat)
+                    HStack(alignment: .center){
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 12) {
+                                Button(action: { selectedCategory = nil }) {
+                                    Text("Tutti")
                                         .font(.custom("Poppins-Regular", size: 18))
-                                        .foregroundColor(selectedCategory == cat ? Color.white : Color.black)
+                                        .foregroundColor(selectedCategory == nil ? Color.white : Color.black)
                                         .padding(.horizontal)
                                         .padding(.vertical, 8)
-                                        .background(selectedCategory == cat ? Color(red: 112/255, green: 41/255, blue: 99/255) : Color.gray.opacity(0.1))
+                                        .background(selectedCategory == nil ? Color(red: 112/255, green: 41/255, blue: 99/255) : Color.gray.opacity(0.1))
                                         .cornerRadius(16)
                                 }
+                                ForEach(categories, id: \.self) { cat in
+                                    Button(action: { selectedCategory = cat }) {
+                                        Text(cat)
+                                            .font(.custom("Poppins-Regular", size: 18))
+                                            .foregroundColor(selectedCategory == cat ? Color.white : Color.black)
+                                            .padding(.horizontal)
+                                            .padding(.vertical, 8)
+                                            .background(selectedCategory == cat ? Color(red: 112/255, green: 41/255, blue: 99/255) : Color.gray.opacity(0.1))
+                                            .cornerRadius(16)
+                                    }
+                                }
                             }
+                            .padding(.horizontal)
+                            .padding(.top, 12)
                         }
-                        .padding(.horizontal)
-                        .padding(.top, 12)
+                        Button(action: {
+                            showOnlyFavorites.toggle()
+                        }) {
+                            Image(systemName: showOnlyFavorites ? "heart.fill" : "heart")
+                                .font(.system(size: 35, weight: .bold))
+                                .foregroundColor(.white)
+                                .padding(10)
+                                .background(Color(red: 112/255, green: 41/255, blue: 99/255))
+                                .clipShape(Circle())
+                        }
+                        .padding(.trailing, 8)
                     }
 
                     // Griglia immagini
@@ -178,19 +179,6 @@ struct WardrobeView: View {
                     .transition(.move(edge: .bottom))
                 }
             }
-            .sheet(isPresented: $showFavorites) {
-                NavigationStack {
-                    FavoriteView(items: $items)
-                        .toolbar {
-                            ToolbarItem(placement: .navigationBarLeading) {
-                                Button("Chiudi") {
-                                    showFavorites = false
-                                }
-                            }
-                        }
-                }
-            }
-
         }
     }
 }
