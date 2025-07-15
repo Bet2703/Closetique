@@ -8,7 +8,7 @@ struct WardrobeView: View {
     @State private var selectedItems = Set<UUID>() // UUID degli item selezionati
     @State var showDeleteAlert: Bool = false
 
-    let categories = ["Maglie", "Pantaloni", "Giacche", "Scarpe", "Accessori"]
+    let categories = ["Maglie", "Pantaloni", "Giubbini", "Gonne", "Abiti", "Scarpe", "Accessori", "Extra"]
 
     var filteredItems: [ClothingItem] {
         if let selected = selectedCategory {
