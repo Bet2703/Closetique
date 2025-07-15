@@ -1,9 +1,10 @@
 import Foundation
+import SwiftUI
 
 class LlamaGroqAPI {
     static let apiKey = APIKeys.LLamaGroq
     static let endpoint = "https://api.groq.com/openai/v1/chat/completions"
-
+    
     /// Genera una combinazione di capi, restituendo i loro id separati da `;` + descrizione separata da `|`
     static func generateOutfitCombo(
         from items: [ClothingItem],
@@ -24,19 +25,22 @@ class LlamaGroqAPI {
             completion(nil)
             return
         }
-
+        
+        // Recupera la stagione sempre aggiornata
+        let selectedSeason = UserDefaults.standard.string(forKey: "selectedSeason") ?? "N/A"
+        
         let itemDescriptions = items.map {
             """
             id: \($0.id.uuidString), category: \($0.category), domColor: \($0.domColor ?? "N/A"), details: \($0.details ?? "N/A"), style: \($0.style), macro:\($0.macrocategory)
             """
         }.joined(separator: "\n")
-
+        
         let userPrompt =
         """
         Questi sono i capi disponibili, ognuno ha id, category, domColor, details, style:
         \(itemDescriptions)
         Lo stile target per l'outfit è: "\(targetStyle)"
-
+        La palette è \(selectedSeason)
         IMPORTANTE:
         - Scegli una combinazione di N capi diversi (N >= 2, può essere superiore a 5/6).
         - NON accoppiare 2 maglie o 2 pantaloni nello stesso outfit (salvo eccezione: camicia sopra maglia SOLO se lo stile è casual o street).
@@ -158,7 +162,6 @@ class LlamaGroqAPI {
         otherItems: [ClothingItem],
         completion: @escaping (String?) -> Void
     ) {
-        // Passa tutta la lista, come sopra!
         let allItems = [fixedItem] + otherItems
         let itemDescriptions = allItems.map {
             """

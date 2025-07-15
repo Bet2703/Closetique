@@ -6,8 +6,8 @@ struct OutfitGeneratorView: View {
     @State private var isGenerating: Bool = false
     @State private var generationError: String? = nil
     @State private var navigateToDescription: Bool = false
-    @State private var aiMessage: String = ""
-
+    @State private var aiMessage: String = ""    
+    
     let styles = ["Casual", "Elegante", "Sportivo", "Streetwear"]
     let allItems: [ClothingItem] = UserDefaultsManager.shared.loadItems()
 
