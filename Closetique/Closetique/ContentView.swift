@@ -66,7 +66,7 @@ struct CustomTabBar: View {
             Spacer()
             // Star (favorites)
             TabBarItem(
-                systemName: "star",
+                systemName: "bookmark",
                 isSelected: selectedTab == 1,
                 tabColor: tabColor
             ) { selectedTab = 1 }

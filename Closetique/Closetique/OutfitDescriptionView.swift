@@ -89,7 +89,7 @@ struct OutfitDescriptionView: View {
                         let newOutfit = MatchOutfit(items: parsed.items, description: parsed.description)
                         UserDefaultsManager.shared.saveOutfit(newOutfit)
                     }){
-                        Label("Salva", systemImage: "heart")
+                        Label("Salva", systemImage: "bookmark")
                             .font(.custom("Poppins-Regular", size: 18))
                             .foregroundColor(Color(red: 246/255, green: 232/255, blue: 234/255))
                             .padding(.vertical, 10)
