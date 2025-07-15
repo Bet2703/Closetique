@@ -61,7 +61,7 @@ struct HomepageView: View {
                                 .foregroundColor(.secondary)
                                 .padding(.vertical, 24)
                         } else {
-                            ForEach(items.prefix(5), id: \.id) { item in
+                            ForEach(items.prefix(7), id: \.id) { item in
                                 Button {
                                     selectedTab = 3
                                 } label: {
@@ -75,7 +75,7 @@ struct HomepageView: View {
                     .onTapGesture {
                         showWardrobe = true
                     }
-                }
+                }.padding(.leading, 10)
 
                 Spacer()
             }
@@ -99,7 +99,7 @@ struct HomepageView: View {
         // FullScreenCover generatore di outfit
         .fullScreenCover(isPresented: $showOutfitGenerator) {
             NavigationStack {
-                OutfitGeneratorView()
+                OutfitGeneratorView(selectedTab: $selectedTab)
                     .toolbar {
                         ToolbarItem(placement: .navigationBarLeading) {
                             Button("Chiudi") {

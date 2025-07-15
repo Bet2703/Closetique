@@ -21,7 +21,6 @@ struct ArmocromiaTestView: View {
         Question(text: "La tua pelle si arrossa facilmente?", options: ["Sì, spesso", "No, raramente"]),
         Question(text: "Che tipo di pelle hai?", options: ["Chiara e delicata", "Olivastra o dorata"]),
         Question(text: "Di che colore sono i tuoi occhi?", options: ["Chiari (azzurri, verdi)", "Scuri (marroni, neri)"]),
-        Question(text: "Usi il rossetto?", options: ["Sì, spesso", "No, raramente"]),
         Question(text: "Come sono le tue sopracciglia?", options: ["Chiare e sottili", "Scure e marcate"]),
         Question(text: "Di che colore hai la sclera (parte bianca degli occhi)?", options: ["Molto bianca", "Tendente al crema"]),
         Question(text: "Hai mai tinto i capelli? Se sì, come reagiscono al colore?", options: ["Assorbono bene il colore", "Sbiadiscono o cambiano tono"])
@@ -29,7 +28,7 @@ struct ArmocromiaTestView: View {
 
     var body: some View {
         ScrollView {
-            VStack(spacing: 24) {
+            VStack(spacing: 20) {
                 if let season = resultSeason {
                     // Schermata risultato
                     Text("La tua stagione è:")
@@ -55,16 +54,20 @@ struct ArmocromiaTestView: View {
                     Text(questions[currentQuestionIndex].text)
                         .font(.custom("Poppins-Medium", size: 22))
                         .multilineTextAlignment(.center)
+                        .padding(.top, 150)
                     
                     ForEach(questions[currentQuestionIndex].options, id: \.self) { option in
-                        Button(option) {
+                        Button(action: {
                             answers.append(option)
                             next()
+                        }) {
+                            Text(option)
+                                .foregroundColor(.black)
+                                .frame(width: 300, height: 50)
+                                .background(Color(red: 250/255, green: 232/255, blue: 234/255))
+                                .cornerRadius(10)
                         }
-                        .padding()
-                        .frame(maxWidth: .infinity)
-                        .background(Color.pink.opacity(0.2))
-                        .cornerRadius(10)
+                        .contentShape(Rectangle())
                     }
                 }
             }
@@ -119,10 +122,6 @@ struct ArmocromiaTestView: View {
                 scores["Summer", default: 0] += 1
                 scores["Winter", default: 0] += 2
             }
-            if lower.contains("rossetto") {
-                scores["Winter", default: 0] += 1
-                scores["Spring", default: 0] += 1
-            }
         }
 
         return scores.max(by: { $0.value < $1.value })?.key ?? "Summer"
@@ -132,4 +131,8 @@ struct ArmocromiaTestView: View {
         var text: String
         var options: [String]
     }
+}
+
+#Preview {
+    ArmocromiaMainView()
 }
