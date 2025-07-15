@@ -19,20 +19,25 @@ class LlamaGroqAPI {
 
         let itemDescriptions = items.map {
             """
-            id: \($0.id.uuidString), category: \($0.category), domColor: \($0.domColor ?? "N/A"), details: \($0.details ?? "N/A"), style: \($0.style)
+            id: \($0.id.uuidString), category: \($0.category), domColor: \($0.domColor ?? "N/A"), details: \($0.details ?? "N/A"), style: \($0.style), macro:\($0.macrocategory)
             """
         }.joined(separator: "\n")
 
         let userPrompt =
+        // Prompt rafforzato
         """
         Questi sono i capi disponibili, ognuno ha id, category, domColor, details, style:
         \(itemDescriptions)
         Lo stile target per l'outfit è: "\(targetStyle)"
-        Scegli una combinazione di N capi diversi (dove N rappresenta il numero di capi, può essere superiore a 5/6 ma non deve mai essere inferiore a 2) che insieme creino un outfit coerente con lo stile target.
-        Restituisci SOLO in questo formato e con almeno 2 capi OBBLIGATORIAMENTE:
-        <id1>;<id2>;<id3>;... | <descrizione creativa e sintetica dell'outfit, inserisci un voto nel formato X/10 (es. 8/10, 7.5/10) e motivazione dell'abbinamento anche attraverso colori>
 
-        Nessuna spiegazione, nessun testo aggiuntivo. Solo la risposta nel formato richiesto.
+        IMPORTANTE:
+        - Scegli una combinazione di N capi diversi (N >= 2, può essere superiore a 5/6).
+        - NON accoppiare 2 maglie o 2 pantaloni nello stesso outfit (salvo eccezione: camicia sopra maglia SOLO se lo stile è casual o street).
+        - Se includi due maglie o due pantaloni, il voto finale dell'outfit deve essere severamente penalizzato (max 5/10) e devi scrivere nella descrizione che l'outfit non è valido perché contiene due maglie o due pantaloni.
+        - Preferisci sempre macro-categorie differenti.
+
+        Rispondi SOLO in questo formato (nessun testo extra):
+        <id1>;<id2>;<id3>;... | <descrizione creativa e sintetica dell'outfit, con voto X/10 e motivazione. Se non hai rispettato le regole, spiega l'errore nella descrizione.>
         """
 
         let payload: [String: Any] = [

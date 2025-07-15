@@ -1,5 +1,20 @@
 import UIKit
 
+// Estensione per ridimensionare le immagini facilmente
+extension UIImage {
+    /// Ridimensiona l'immagine alla larghezza specificata mantenendo le proporzioni.
+    func resized(toWidth width: CGFloat) -> UIImage? {
+        let scale = width / self.size.width
+        let newHeight = self.size.height * scale
+        let newSize = CGSize(width: width, height: newHeight)
+        UIGraphicsBeginImageContextWithOptions(newSize, false, 1.0)
+        self.draw(in: CGRect(origin: .zero, size: newSize))
+        let resizedImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        return resizedImage
+    }
+}
+
 class GeminiVisionAnalyzer {
     static let shared = GeminiVisionAnalyzer()
 
@@ -54,10 +69,14 @@ class GeminiVisionAnalyzer {
     /// Funzione interna, non va usata direttamente dall'esterno
     private func analyze(image: UIImage, prompt: String, completion: @escaping (String?) -> Void) {
         print("Prompt inviato a GeminiVisionAnalyzer: \(prompt)")
-        guard let imageData = image.jpegData(compressionQuality: 0.8) else {
+        // Riduci la dimensione dell'immagine a 600px di larghezza e qualità JPEG al 40%
+        let resizedImage = image.resized(toWidth: 600) ?? image
+        guard let imageData = resizedImage.jpegData(compressionQuality: 0.4) else {
             completion(nil)
             return
         }
+        print("Dimensione immagine JPEG inviata: \(Double(imageData.count) / 1024.0) KB")
+
         let base64Image = imageData.base64EncodedString()
 
         let payload: [String: Any] = [
