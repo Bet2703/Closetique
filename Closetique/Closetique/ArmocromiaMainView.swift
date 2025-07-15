@@ -76,6 +76,143 @@ struct ArmocromiaMainView: View {
     }
 }
 
+struct SeasonPickerView: View {
+    let seasons: [String]
+    @Binding var selectedSeason: String?
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationStack {
+            List(seasons, id: \.self) { season in
+                Button(action: {
+                    selectedSeason = season
+                    dismiss()
+                }) {
+                    HStack {
+                        Text(season)
+                            .foregroundColor(.primary)
+                        Spacer()
+                        if selectedSeason == season {
+                            Image(systemName: "checkmark")
+                                .foregroundColor(.accentColor)
+                        }
+                    }
+                }
+            }
+            .navigationTitle("Scegli la stagione")
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Chiudi") {
+                        dismiss()
+                    }
+                }
+            }
+        }
+    }
+}
+
+struct PaletteGridView: View {
+    var season: String
+    @State private var selectedColor: PaletteColor? = nil
+    @State private var showColorPopup = false
+
+    private var palette: ([PaletteColor], String) {
+        switch season {
+        case "Spring":
+            return (Palette.spring, "Hai un sottotono caldo e dorato, con intensità e contrasto alti. Ti valorizzano colori accesi e caldi (verdi vivaci, rossi aranciati, rosa pesca, albicocca). Perfetti anche il cammello e il royal blu. Evita colori spenti o troppo freddi.")
+        case "Summer":
+            return (Palette.summer, "Hai un sottotono freddo, con intensità e contrasto bassi. Stanno bene su di te colori freddi e delicati: blu polverosi, grigi morbidi, rosa cipria e malva, verdi acqua. Da evitare i toni caldi e troppo intensi.")
+        case "Autumn":
+            return (Palette.autumn, "Hai un sottotono caldo, intensità e contrasto bassi. I colori ideali sono quelli caldi e terrosi: oro, ocra, marrone, oliva, arancione e rosso mattone. Il bianco crema ti dona, mentre è meglio evitare blu e colori troppo freddi.")
+        case "Winter":
+            return (Palette.winter, "Hai un sottotono freddo, con intensità e contrasto alti. Ti stanno bene colori freddi e brillanti: blu intensi, verdi smeraldo, bianchi ottici e ghiaccio, rossi e rosa freddi e vivaci. Evita beige e arancioni; il nero valorizza solo te!")
+        default:
+            return ([], "")
+        }
+    }
+
+    let columns = Array(repeating: GridItem(.flexible(), spacing: 20), count: 3)
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Palette \(season)")
+                .font(.custom("Poppins-SemiBold", size: 26))
+                .foregroundColor(.black)
+
+            Text(palette.1)
+                .font(.custom("Poppins-Regular", size: 18))
+                .foregroundColor(.black)
+                .padding(.bottom, 6)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color(red: 246/255, green: 232/255, blue: 234/255))
+                )
+
+            LazyVGrid(columns: columns, spacing: 25) {
+                ForEach(0..<palette.0.count, id: \.self) { i in
+                    VStack(spacing: 6) {
+                        Circle()
+                            .fill(palette.0[i].color)
+                            .frame(width: 70, height: 70)
+                            .overlay(
+                                Circle().stroke(Color.gray, lineWidth: 1)
+                            )
+                            .shadow(color: .black.opacity(0.07), radius: 2, x: 0, y: 1)
+                            .onTapGesture {
+                                    selectedColor = palette.0[i]
+                                    showColorPopup = true
+                                }
+                        
+                        Text(palette.0[i].name)
+                            .font(.custom("Poppins-Regular", size: 15))
+                            .foregroundColor(.black)
+                            .multilineTextAlignment(.center)
+                            .frame(maxWidth: 100)
+                            .lineLimit(2)
+                    }
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 10)
+                }
+            }
+            .padding(.vertical, 2)
+        }
+        .padding(.vertical)
+        .sheet(isPresented: $showColorPopup) {
+            if let color = selectedColor {
+                PaletteColorPopup(color: color)
+            }
+        }
+    }
+}
+
+struct PaletteColorPopup: View {
+    let color: PaletteColor
+
+    var body: some View {
+        VStack(spacing: 24) {
+            RoundedRectangle(cornerRadius: 24)
+                .fill(color.color)
+                .frame(width: 140, height: 140)
+                .shadow(radius: 8)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 24)
+                        .stroke(Color.gray.opacity(0.2), lineWidth: 2)
+                )
+
+            Text(color.name)
+                .font(.custom("Poppins-SemiBold", size: 22))
+                .foregroundColor(.primary)
+
+            Spacer()
+        }
+        .padding()
+        .presentationDetents([.fraction(0.35), .medium])
+    }
+}
+
+
 struct PaletteColor {
     let color: Color
     let name: String
@@ -210,106 +347,6 @@ struct Palette {
         PaletteColor(color: Color(red: 0.96, green: 0.96, blue: 0.96), name: "Grafite chiarissimo"),
         PaletteColor(color: Color(red: 0.69, green: 0.77, blue: 0.87), name: "Azzurro polvere freddo")
     ]
-}
-
-struct PaletteGridView: View {
-    var season: String
-
-    private var palette: ([PaletteColor], String) {
-        switch season {
-        case "Spring":
-            return (Palette.spring, "Hai un sottotono caldo e dorato, con intensità e contrasto alti. Ti valorizzano colori accesi e caldi (verdi vivaci, rossi aranciati, rosa pesca, albicocca). Perfetti anche il cammello e il royal blu. Evita colori spenti o troppo freddi.")
-        case "Summer":
-            return (Palette.summer, "Hai un sottotono freddo, con intensità e contrasto bassi. Stanno bene su di te colori freddi e delicati: blu polverosi, grigi morbidi, rosa cipria e malva, verdi acqua. Da evitare i toni caldi e troppo intensi.")
-        case "Autumn":
-            return (Palette.autumn, "Hai un sottotono caldo, intensità e contrasto bassi. I colori ideali sono quelli caldi e terrosi: oro, ocra, marrone, oliva, arancione e rosso mattone. Il bianco crema ti dona, mentre è meglio evitare blu e colori troppo freddi.")
-        case "Winter":
-            return (Palette.winter, "Hai un sottotono freddo, con intensità e contrasto alti. Ti stanno bene colori freddi e brillanti: blu intensi, verdi smeraldo, bianchi ottici e ghiaccio, rossi e rosa freddi e vivaci. Evita beige e arancioni; il nero valorizza solo te!")
-        default:
-            return ([], "")
-        }
-    }
-
-    let columns = Array(repeating: GridItem(.flexible(), spacing: 20), count: 3)
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text("Palette \(season)")
-                .font(.custom("Poppins-SemiBold", size: 26))
-                .foregroundColor(.black)
-
-            Text(palette.1)
-                .font(.custom("Poppins-Regular", size: 18))
-                .foregroundColor(.black)
-                .padding(.bottom, 6)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 8)
-                .background(
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(Color(red: 246/255, green: 232/255, blue: 234/255))
-                )
-
-            LazyVGrid(columns: columns, spacing: 25) {
-                ForEach(0..<palette.0.count, id: \.self) { i in
-                    VStack(spacing: 6) {
-                        Circle()
-                            .fill(palette.0[i].color)
-                            .frame(width: 70, height: 70)
-                            .overlay(
-                                Circle().stroke(Color.gray, lineWidth: 1)
-                            )
-                            .shadow(color: .black.opacity(0.07), radius: 2, x: 0, y: 1)
-                        
-                        Text(palette.0[i].name)
-                            .font(.custom("Poppins-Regular", size: 15))
-                            .foregroundColor(.black)
-                            .multilineTextAlignment(.center)
-                            .frame(maxWidth: 100)
-                            .lineLimit(2)
-                    }
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 10)
-                }
-            }
-            .padding(.vertical, 2)
-        }
-        .padding(.vertical)
-    }
-}
-
-struct SeasonPickerView: View {
-    let seasons: [String]
-    @Binding var selectedSeason: String?
-    @Environment(\.dismiss) private var dismiss
-
-    var body: some View {
-        NavigationStack {
-            List(seasons, id: \.self) { season in
-                Button(action: {
-                    selectedSeason = season
-                    dismiss()
-                }) {
-                    HStack {
-                        Text(season)
-                            .foregroundColor(.primary)
-                        Spacer()
-                        if selectedSeason == season {
-                            Image(systemName: "checkmark")
-                                .foregroundColor(.accentColor)
-                        }
-                    }
-                }
-            }
-            .navigationTitle("Scegli la stagione")
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Chiudi") {
-                        dismiss()
-                    }
-                }
-            }
-        }
-    }
 }
 
 #Preview {
