@@ -1,77 +1,101 @@
 # 👗 Closetique
 
-Benvenutə in **Closetique** – l'app iOS pensata per rivoluzionare il tuo modo di organizzare il guardaroba e creare outfit perfetti grazie all’intelligenza artificiale.
+Closetique è un'app iOS sviluppata in Swift per analizzare, gestire e valorizzare il tuo guardaroba.
 
-> Progetto sviluppato durante il Boot Camp **UNISA - Swift iOS**, interamente in **SwiftUI**.
+## 🚀 Funzionalità principali
 
----
+- **Gestione guardaroba:** Aggiungi, modifica ed elimina i capi dal tuo armadio digitale con facilità.
+- **Analisi foto:** Carica le foto dei tuoi vestiti per una migliore organizzazione e suggerimenti personalizzati.
+- **Combinazioni per stili e palette:** Scopri nuove combinazioni di outfit in base a stili preferiti e palette di colori.
+- **Analisi della stagione della pelle:** Ottieni suggerimenti sui colori più adatti a te tramite l’analisi della tua stagione cromatica personale.
 
-## ✨ Funzionalità principali
+## 🗝️ Configurazione delle API Keys
 
-🔍 **Gestione Armadio**  
-- Aggiungi nuovi capi tramite fotocamera o galleria  
-- Classificazione automatica con AI (categoria, colore, stile, dettagli)  
-- Modifica delle informazioni prima del salvataggio  
-- Visualizzazione a griglia filtrabile per categoria  
-- Contrassegna i tuoi capi preferiti
+Per utilizzare tutte le funzionalità dell'app, è necessario inserire le chiavi API nel file `APIKEYS`.  
+Assicurati di creare un file chiamato `APIKEYS` nella root del progetto e di aggiungere le tue chiavi secondo il formato richiesto dalla documentazione o dagli esempi presenti nel codice.
 
-🧠 **Generazione Outfit AI**  
-- Scegli uno stile: Casual, Elegante, Sportivo, Streetwear  
-- L’AI seleziona e combina i tuoi capi per creare outfit armoniosi  
-- Visualizza i capi, una descrizione e salva il risultato
+Esempio:
+```
+API_KEY_1=la_tua_chiave_api_1
+API_KEY_2=la_tua_chiave_api_2
+```
 
-❤️ **Preferiti e Outfit Salvati**  
-- Consulta facilmente i tuoi capi preferiti  
-- Rivedi tutti gli outfit generati e salvati nel tempo
+## 🏁 Come iniziare
 
-🛠️ **Impostazioni e Reset**  
-- Pagina informazioni  
-- Reset completo dell'app
-
----
+1. Clona la repository:
+   ```
+   git clone https://github.com/Bet2703/Closetique.git
+   ```
+2. Inserisci le chiavi API nel file `APIKEYS` come descritto sopra.
+3. Apri il progetto in Xcode.
+4. Installa le dipendenze (se presenti) con CocoaPods/SPM/Cartage.
+5. Compila ed esegui su un simulatore o dispositivo iOS.
 
 ## 📱 Struttura dell'app
 
-- `ContentView`: struttura base con tab bar
-- `HomepageView`: dashboard con accesso rapido a funzionalità chiave
-- `WardrobeView`: vista armadio con gestione selezioni e filtri
-- `CameraView`: acquisizione e classificazione immagini
-- `OutfitGeneratorView`: selezione stile e generazione outfit AI
-- `OutfitDescriptionView`: mostra il risultato dell'AI
-- `SavedOutfitsView`: storico outfit salvati
-- `FavoriteView`: capi contrassegnati come preferiti
-- `DetailView`: dettaglio di ogni capo
+- **ContentView:** struttura base con tab bar, gestisce la navigazione tra le principali sezioni dell’app.
+- **HomepageView:** dashboard con accesso rapido alle funzionalità chiave (homepage, outfit salvati, Camera, armadio, test palette e impostazioni).
+- **WardrobeView:** visualizza l’armadio e consente gestione, selezione e filtro dei capi. Include selezione multipla ed eliminazione.
+- **CameraView:** gestisce l’acquisizione delle foto dei capi tramite fotocamera o galleria, e invia le immagini per la classificazione IA.
+- **OutfitGeneratorView:** selezione dello stile e generazione outfit tramite IA.
+- **OutfitDescriptionView:** mostra il risultato della generazione outfit, con immagini, descrizione e dettagli dei capi scelti. Permette di rigenerare o salvare l’outfit.
+- **SavedOutfitsView:** storico degli outfit generati e salvati.
+- **DetailView:** mostra il dettaglio di ogni capo selezionato.
+- **AboutView:** presentazione dell’app e degli autori.
+- **ArmocromiaMainView:** analisi della stagione cromatica dell’utente e visualizzazione delle palette colore consigliate.
 
 ---
 
-## 🧠 AI & Persistenza
+## 🏷️ Classi principali
 
-- L'AI analizza i capi e propone abbinamenti coerenti in base allo stile richiesto.
-- Tutti i dati sono salvati localmente tramite `UserDefaults`.
+### Classi normali
 
----
+- **ClothingItem:** modello dati per ogni capo d’abbigliamento (nome, categoria, stile, colore dominante, immagine, ecc).
+- **PaletteColor:** rappresenta un colore della palette armocromatica (usata in ArmocromiaMainView).
+- **ClassificationResult:** risultato della classificazione di un capo tramite IA (categoria, macrocategoria, stile, colore, ecc).
+- **MatchOutfit:** modello dati per ogni outfit generato.
 
-## 📸 Tecnologie utilizzate
+### Controller
 
-- `SwiftUI`
-- `UIKit` per la fotocamera
-- `UserDefaults` per la persistenza dati
-- `Combine` per la gestione dello stato reattivo
-- AI custom per classificazione capi e generazione outfit
+- **ImageClassifier:** controller che gestisce la classificazione delle immagini dei capi. Utilizza esclusivamente **Gemini** per estrarre le feature (categoria, stile, colore, ecc.) a partire dalla foto.
 
 ---
 
-## 🛠️ Per iniziare
+## 🤖 Classi e servizi IA utilizzati
 
-1. Clona il progetto  
-   ```bash
-   git clone https://github.com/Bet2703/Closetique.git
-   ```
-2. Apri `Closetique.xcodeproj` con Xcode 15+
-3. Builda e prova su simulatore o dispositivo fisico
+- **Gemini:** provider AI utilizzato tramite il controller ImageClassifier per l’estrazione delle feature dalle immagini dei capi (classificazione, colore, stile, ecc).
+- **Groq (Llama 3 70B):** provider AI utilizzato per il matching degli outfit. I dati estratti da Gemini vengono inviati a Groq (con modello Llama 3 70B) per generare abbinamenti coerenti, suggerimenti e descrizioni outfit.
+
+Le chiamate ai servizi IA sono orchestrate come segue:
+- **ImageClassifier** si appoggia direttamente a Gemini per la classificazione delle immagini.
+- **Groq (Llama 3 70B)** riceve le feature estratte da Gemini e si occupa della generazione/matching degli outfit e delle relative descrizioni.
 
 ---
 
-## 👥 Autori
+## 👥 Sviluppatori
 
-Progetto sviluppato da studenti del corso **iOS Bootcamp UNISA**, luglio 2025.  
+1. [Andrehahaha (Andrea)](https://github.com/Andrehahaha)
+2. [Bet2703 (Benedetta)](https://github.com/Bet2703)
+3. [gabrieledilieto1 (Gab)](https://github.com/gabrieledilieto1)
+
+---
+
+## 🤝 Contribuire
+
+Contributi, segnalazioni di bug e suggerimenti sono benvenuti!
+1. Fai un fork del progetto.
+2. Crea un branch per la tua feature (`git checkout -b feature/NuovaFeature`)
+3. Fai commit delle tue modifiche (`git commit -am 'Aggiungi nuova feature'`)
+4. Fai push sul branch (`git push origin feature/NuovaFeature`)
+5. Apri una Pull Request
+
+## 📄 Licenza
+
+Questo progetto è distribuito sotto licenza MIT. Consulta il file [LICENSE](LICENSE) per ulteriori dettagli.
+
+---
+
+Sviluppato con ❤️ da  
+[Andrehahaha (Andrea)](https://github.com/Andrehahaha),  
+[Bet2703 (Benedetta)](https://github.com/Bet2703) e  
+[gabrieledilieto1 (Gab)](https://github.com/gabrieledilieto1)
