@@ -127,19 +127,20 @@ struct CameraView: View {
                 name: result.category,
                 category: result.category,
                 macrocategory: result.macrocategory,
-                imagePath: fileURL.path, // 🔄 Salva solo il percorso
+                imagePath: fileURL.path,
                 domColor: result.domColor,
                 details: result.details,
                 style: result.style,
+                hexColor: result.hexColor,
                 isFavorite: false
             )
 
             items.append(newItem)
             UserDefaultsManager.shared.addItem(newItem)
-            print("✅ Immagine salvata con path: \(fileURL.path)")
+            print("Immagine salvata con path: \(fileURL.path)")
 
         } catch {
-            print("❌ Errore nel salvataggio dell'immagine su disco: \(error)")
+            print("Errore nel salvataggio dell'immagine su disco: \(error)")
         }
     }
 
@@ -158,7 +159,7 @@ struct ClassificationPreviewView: View {
     let result: ClassificationResult
     let onConfirm: (ClassificationResult) -> Void
     let onRetake: () -> Void
-    let availableCategories: [String] = ["Maglie", "Pantaloni", "Giubbini", "Gonne", "Abiti", "Scarpe", "Accessori", "Extra"]
+    let availableCategories: [String] = ["Maglie", "Camicie", "Pantaloni", "Gonne", "Abiti", "Giacca", "Giubbino", "Cappotto", "Scarpe", "Accessori", "Extra"]
 
     // Editing states
     @State private var editedCategory: String = ""
@@ -274,7 +275,7 @@ struct ClassificationPreviewView: View {
                         .font(.custom("Poppins-Regular", size: 16))
                     Spacer()
                     Circle()
-                        .fill(Color(Hex: result.domColor))
+                        .fill(Color(Hex: result.hexColor))
                         .frame(width: 32, height: 32)
                     if editingField == .domColor {
                         TextField("Colore (hex o nome)", text: $editedDomColor)
@@ -287,7 +288,7 @@ struct ClassificationPreviewView: View {
                         }
                     } else {
                         Text(editedDomColor.isEmpty ? result.domColor : editedDomColor)
-                            .font(.caption)
+                            .font(.custom("Poppins-Regular", size: 16))
                         Button(action: {
                             editedDomColor = result.domColor
                             editingField = .domColor
@@ -345,7 +346,8 @@ struct ClassificationPreviewView: View {
                         macrocategory: editedMacrocategory.isEmpty ? result.macrocategory : editedMacrocategory,
                         style: editedStyle.isEmpty ? result.style : editedStyle,
                         domColor: editedDomColor.isEmpty ? result.domColor : editedDomColor,
-                        details: editedDetails.isEmpty ? result.details : editedDetails, hexColor: String
+                        details: editedDetails.isEmpty ? result.details : editedDetails,
+                        hexColor: result.hexColor
                     )
                     onConfirm(newResult)
                 }
