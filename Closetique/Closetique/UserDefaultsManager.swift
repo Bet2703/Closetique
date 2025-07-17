@@ -57,6 +57,7 @@ class UserDefaultsManager {
     func reset(){
         UserDefaults.standard.removeObject(forKey: self.key)
         UserDefaults.standard.removeObject(forKey: "selectedSeason")
+        UserDefaults.standard.removeObject(forKey: self.savedOutfitsKey)
     }
 
     // Aggiorna un capo esistente
