@@ -45,8 +45,8 @@ struct SettingsView: View {
 #Preview {
     struct PreviewWrapper: View {
         @State var items: [ClothingItem] = [
-            ClothingItem(name: "Felpa", category: "Felpa", macrocategory: "Maglie", imageData: nil, style: "Casual", isFavorite: false),
-            ClothingItem(name: "Jeans", category: "Jeans", macrocategory: "Pantaloni", imageData: nil, style: "Street", isFavorite: true)
+            ClothingItem(name: "Felpa", category: "Felpa", macrocategory: "Maglie", imagePath: nil, style: "Casual", isFavorite: false),
+            ClothingItem(name: "Jeans", category: "Jeans", macrocategory: "Pantaloni", imagePath: nil, style: "Street", isFavorite: true)
         ]
         @State var selectedTab: Int = 0
         

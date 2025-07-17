@@ -109,21 +109,37 @@ struct CameraView: View {
             self.showPreview = true
         }
     }
-
+    
     private func saveItem(image: UIImage, result: ClassificationResult) {
-        let imageData: String? = image.jpegData(compressionQuality: 0.8)?.base64EncodedString()
-        let newItem = ClothingItem(
-            name: result.category,
-            category: result.category,
-            macrocategory: result.macrocategory,
-            imageData: imageData,
-            domColor: result.domColor,
-            details: result.details,
-            style: result.style,
-            isFavorite: false
-        )
-        items.append(newItem)
-        UserDefaultsManager.shared.addItem(newItem)
+        let id = UUID()
+        let filename = "\(id).jpg"
+        let directory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let fileURL = directory.appendingPathComponent(filename)
+
+        do {
+            if let data = image.jpegData(compressionQuality: 0.8) {
+                try data.write(to: fileURL)
+            }
+
+            let newItem = ClothingItem(
+                id: id,
+                name: result.category,
+                category: result.category,
+                macrocategory: result.macrocategory,
+                imagePath: fileURL.path, // 🔄 Salva solo il percorso
+                domColor: result.domColor,
+                details: result.details,
+                style: result.style,
+                isFavorite: false
+            )
+
+            items.append(newItem)
+            UserDefaultsManager.shared.addItem(newItem)
+            print("✅ Immagine salvata con path: \(fileURL.path)")
+
+        } catch {
+            print("❌ Errore nel salvataggio dell'immagine su disco: \(error)")
+        }
     }
 
     private func reset() {

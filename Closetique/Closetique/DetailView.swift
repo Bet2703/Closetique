@@ -39,7 +39,7 @@ struct DetailView: View {
                             .cornerRadius(12)
                             .overlay(
                                 ZStack(alignment: .bottomTrailing) {
-                                    if let uiImage = imageFrom(item.imageData) {
+                                    if let uiImage = imageFromPath(item.imagePath) {
                                         Image(uiImage: uiImage)
                                             .resizable()
                                             .aspectRatio(contentMode: .fill)
@@ -370,21 +370,9 @@ struct DetailView: View {
         }
     }
 
-    func imageFrom(_ imageData: String?) -> UIImage? {
-        guard let imageData = imageData else { return nil }
-        if let data = Data(base64Encoded: imageData),
-           let image = UIImage(data: data) {
-            return image
-        }
-        if let image = UIImage(contentsOfFile: imageData) {
-            return image
-        }
-        if let url = URL(string: imageData),
-           let data = try? Data(contentsOf: url),
-           let image = UIImage(data: data) {
-            return image
-        }
-        return nil
+    func imageFromPath(_ path: String?) -> UIImage? {
+        guard let path = path else { return nil }
+        return UIImage(contentsOfFile: path)
     }
 
 }
@@ -393,10 +381,10 @@ struct DetailView: View {
 struct DetailView_Previews: PreviewProvider {
     struct PreviewWrapper: View {
         @State var exampleItems = [
-            ClothingItem(name: "Pinocchietto", category: "Pantaloncino", macrocategory: "Pantaloni", imageData: nil, domColor: "Verde", details: "Un pinocchietto di lana corto lungo bianco verde rosso giallo di cotone ah no di lana", style: "Casual", isFavorite: false),
-            ClothingItem(name: "Cappello", category: "Cappello", macrocategory: "Accessori", imageData: nil, details: nil, style: "Boh", isFavorite: false),
-            ClothingItem(name: "Maglia dal gusto discutibile", category: "Maglia dal gusto discutibile", macrocategory: "Maglie", imageData: nil, details: nil, style: "Casual", isFavorite: false),
-            ClothingItem(name: "Maglia", category: "Maglia", macrocategory: "Maglie", imageData: nil, details: nil, style: "casual", isFavorite: false)
+            ClothingItem(name: "Pinocchietto", category: "Pantaloncino", macrocategory: "Pantaloni", imagePath: nil, domColor: "Verde", details: "Un pinocchietto di lana corto lungo bianco verde rosso giallo di cotone ah no di lana", style: "Casual", isFavorite: false),
+            ClothingItem(name: "Cappello", category: "Cappello", macrocategory: "Accessori", imagePath: nil, details: nil, style: "Boh", isFavorite: false),
+            ClothingItem(name: "Maglia dal gusto discutibile", category: "Maglia dal gusto discutibile", macrocategory: "Maglie", imagePath: nil, details: nil, style: "Casual", isFavorite: false),
+            ClothingItem(name: "Maglia", category: "Maglia", macrocategory: "Maglie", imagePath: nil, details: nil, style: "casual", isFavorite: false)
         ]
         var body: some View {
             DetailView(item: exampleItems[0], allItems: exampleItems)

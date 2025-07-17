@@ -61,7 +61,7 @@ struct FavoriteItemCell: View {
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
             Group {
-                if let image = imageFrom(item.imageData) {
+                if let image = imageFromPath(item.imagePath) {
                     GeometryReader { geo in
                         Image(uiImage: image)
                             .resizable()
@@ -98,21 +98,9 @@ struct FavoriteItemCell: View {
             .padding(10)
         }
     }
-    func imageFrom(_ imageData: String?) -> UIImage? {
-        guard let imageData = imageData else { return nil }
-        if let data = Data(base64Encoded: imageData),
-           let image = UIImage(data: data) {
-            return image
-        }
-        if let image = UIImage(contentsOfFile: imageData) {
-            return image
-        }
-        if let url = URL(string: imageData),
-           let data = try? Data(contentsOf: url),
-           let image = UIImage(data: data) {
-            return image
-        }
-        return nil
+    func imageFromPath(_ path: String?) -> UIImage? {
+        guard let path = path else { return nil }
+        return UIImage(contentsOfFile: path)
     }
 }
 
@@ -120,11 +108,11 @@ struct FavoriteItemCell: View {
 struct FavoriteView_Previews: PreviewProvider {
     struct PreviewWrapper: View {
         @State var exampleItems = [
-            ClothingItem(name: "Felpa", category: "Felpa", macrocategory: "Maglie", imageData: nil, style: "Casual", isFavorite: false),
-            ClothingItem(name: "Jeans", category: "Jeans", macrocategory: "Pantaloni", imageData: nil, style: "Street", isFavorite: true),
-            ClothingItem(name: "T-shirt", category: "T-shirt", macrocategory: "Maglie", imageData: nil, style: "Sport", isFavorite: true),
-            ClothingItem(name: "Cintura", category: "Cintura", macrocategory: "Accessori", imageData: nil, style: "Classico", isFavorite: false),
-            ClothingItem(name: "Sneakers", category: "Sneakers", macrocategory: "Scarpe", imageData: nil, style: "Urban", isFavorite: false)
+            ClothingItem(name: "Felpa", category: "Felpa", macrocategory: "Maglie", imagePath: nil, style: "Casual", isFavorite: false),
+            ClothingItem(name: "Jeans", category: "Jeans", macrocategory: "Pantaloni", imagePath: nil, style: "Street", isFavorite: true),
+            ClothingItem(name: "T-shirt", category: "T-shirt", macrocategory: "Maglie", imagePath: nil, style: "Sport", isFavorite: true),
+            ClothingItem(name: "Cintura", category: "Cintura", macrocategory: "Accessori", imagePath: nil, style: "Classico", isFavorite: false),
+            ClothingItem(name: "Sneakers", category: "Sneakers", macrocategory: "Scarpe", imagePath: nil, style: "Urban", isFavorite: false)
         ]
         var body: some View {
             FavoriteView(items: $exampleItems)

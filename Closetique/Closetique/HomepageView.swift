@@ -118,10 +118,8 @@ struct WardrobePreviewItemView: View {
 
     var body: some View {
         VStack {
-            if let imageData = item.imageData,
-               let data = Data(base64Encoded: imageData),
-               let uiImage = UIImage(data: data) {
-                Image(uiImage: uiImage)
+            if let image = imageFromPath(item.imagePath) {
+                Image(uiImage: image)
                     .resizable()
                     .aspectRatio(contentMode: .fill)
                     .frame(width: 150, height: 150)
@@ -138,11 +136,16 @@ struct WardrobePreviewItemView: View {
                             .foregroundColor(.secondary)
                     )
             }
-            // Mostra anche la macrocategoria sotto l'immagine (opzionale)
+
             Text(item.macrocategory)
                 .font(.caption)
                 .foregroundColor(.secondary)
         }
         .frame(width: 90)
+    }
+
+    private func imageFromPath(_ path: String?) -> UIImage? {
+        guard let path = path else { return nil }
+        return UIImage(contentsOfFile: path)
     }
 }
