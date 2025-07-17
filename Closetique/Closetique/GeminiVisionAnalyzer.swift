@@ -24,7 +24,7 @@ class GeminiVisionAnalyzer {
     /// Analizza tipologia, vestibilità e dettaglio distintivo principale del capo visibile
     func analyzeFit(image: UIImage, completion: @escaping (String?) -> Void) {
         let prompt = """
-        Scrivi la categoria specifica del capo, la macrocategoria di appartenenza (scegliendo obbligatoriamente solo tra queste classi: Maglie, Pantaloni, Giacche, Scarpe, Accessori, Extra), lo stile (casual, elegante, urban, gotic, relaxed...), il colore principale e nella descrizione sia la vestibilità (es: oversize, regular, slim, ecc.) sia un dettaglio visivo ben riconoscibile (es: grafica, righe, strappi, ecc.).
+        Scrivi la categoria specifica del capo (t-shirt, Canotta, collant, ecc...), la macrocategoria di appartenenza (scegliendo obbligatoriamente solo tra queste classi: Maglie, Camicie, Pantaloni, Gonne, Abiti, Giacca, Giubbino, Cappotto, Scarpe, Accessori, Extra), lo stile (casual, elegante, urban, gotic, relaxed...), il colore principale e nella descrizione sia la vestibilità (es: oversize, regular, slim, ecc.) sia un dettaglio visivo ben riconoscibile (es: grafica, righe, strappi, ecc.).
 
         Esegui il mapping automatico dei capi:
         - "cappello", "berretto", "bucket hat", "cuffia", "beanie", ecc. → Accessori
