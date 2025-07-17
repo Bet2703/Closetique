@@ -156,12 +156,12 @@ struct DetailView: View {
                         }
                     }
                     .padding(.top, 1)
-
-                    // STILE & COLORE con pencil/check
+                    
+                    //STILECOLORE con pencil/check
                     HStack(alignment: .center) {
                         Text("Stile: ")
                             .font(.custom("Poppins-SemiBold", size: 20))
-                            .padding(.leading, 20)
+                            .padding(.leading, 10)
                         if isEditingStile {
                             TextField("Stile", text: $editableStile)
                                 .font(.custom("Poppins-Regular", size: 20))
@@ -199,18 +199,22 @@ struct DetailView: View {
                                     .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
                             }
                         }
-                        Spacer()
+                        
+                    }
+                    
+                    //COLORE con pencil/check
+                    HStack(alignment: .center) {
                         Text("Colore: ")
                             .font(.custom("Poppins-SemiBold", size: 20))
                         Circle()
                             .stroke(Color.gray)
-                            .fill(.green)
+                            .fill(Color(Hex: item.hexColor))
                             .frame(width: 28)
                         if isEditingColore {
                             TextField("Colore", text: $editableDomColor)
                                 .font(.custom("Poppins-Regular", size: 20))
                                 .padding(.trailing, 10)
-                                .frame(width: 70)
+                                .frame(width: 160)
                             Button(action: {
                                 isEditingColore = false
                                 item.domColor = editableDomColor
@@ -225,6 +229,7 @@ struct DetailView: View {
                             Text(item.domColor ?? "")
                                 .font(.custom("Poppins-Regular", size: 20))
                                 .padding(.trailing, 10)
+                                .multilineTextAlignment(.leading)
                                 .frame(width: 70, alignment: .leading)
                             Button(action: {
                                 isEditingColore = true
@@ -233,6 +238,7 @@ struct DetailView: View {
                                 Image(systemName: "pencil")
                                     .font(.system(size: 20, weight: .bold))
                                     .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
+                                    .padding(.trailing, 10)
                             }
                         }
                     }
