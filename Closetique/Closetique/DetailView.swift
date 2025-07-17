@@ -13,14 +13,25 @@ struct DetailView: View {
 
     let availableCategories: [String] = ["Maglie", "Pantaloni", "Giubbini", "Gonne", "Abiti", "Scarpe", "Accessori", "Extra"]
 
-    // State temporanei per campi opzionali
-    @State private var details: String = ""
-    @State private var domColor: String = ""
+    // Stati per editing per ogni campo
+    @State private var isEditingNome = false
+    @State private var isEditingCategoriaMacro = false
+    @State private var isEditingStile = false
+    @State private var isEditingColore = false
+    @State private var isEditingDettagli = false
+    
+    @State private var editableNome = ""
+    @State private var editableCategoria = ""
+    @State private var editableMacrocategory = ""
+    @State private var editableStile = ""
+    @State private var editableDomColor = ""
+    @State private var editableDettagli = ""
 
     var body: some View {
         ZStack {
             ScrollView {
                 VStack(spacing: 20) {
+                    // Immagine e cuore
                     ZStack {
                         Rectangle()
                             .frame(width: 400, height: 480)
@@ -44,6 +55,8 @@ struct DetailView: View {
                                     }
                                     Button(action: {
                                         item.isFavorite.toggle()
+                                        UserDefaultsManager.shared.updateItem(item)
+                                        allItems = UserDefaultsManager.shared.loadItems()
                                     }) {
                                         Image(systemName: item.isFavorite ? "heart.fill" : "heart")
                                             .foregroundColor(item.isFavorite ? .red : .gray)
@@ -57,85 +70,219 @@ struct DetailView: View {
                             )
                     }
 
-                    TextField("Nome", text: $item.name)
-                        .font(.custom("Poppins-Bold", size: 40))
-                        .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
-                        .multilineTextAlignment(.center)
-
-                    HStack (alignment: .center) {
-                        TextField("Categoria", text: $item.category)
-                            .font(.custom("Poppins-Regular", size: 22))
-                            .frame(maxWidth: 180)
-                        Text("/")
-                            .font(.custom("Poppins-Regular", size: 22))
-                        Menu {
-                            ForEach(availableCategories, id: \.self) { cat in
-                                Button(action: {
-                                    item.macrocategory = cat
-                                }) {
-                                    Text(cat)
-                                }
+                    // NOME con pencil/check
+                    HStack {
+                        if isEditingNome {
+                            TextField("Nome", text: $editableNome)
+                                .font(.custom("Poppins-Bold", size: 40))
+                                .multilineTextAlignment(.center)
+                                .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
+                                .frame(maxWidth: 250)
+                            Button(action: {
+                                isEditingNome = false
+                                item.name = editableNome
+                                UserDefaultsManager.shared.updateItem(item)
+                                allItems = UserDefaultsManager.shared.loadItems()
+                            }) {
+                                Image(systemName: "checkmark")
+                                    .font(.system(size: 20, weight: .bold))
+                                    .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
                             }
-                        } label: {
-                            Text(item.macrocategory)
-                                .font(.custom("Poppins-Regular", size: 22))
-                                .foregroundColor(.black)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 4)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .fill(Color(.systemGray6))
-                                )
+                        } else {
+                            Text(item.name)
+                                .font(.custom("Poppins-Bold", size: 40))
+                                .multilineTextAlignment(.center)
+                                .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
+                            Button(action: {
+                                isEditingNome = true
+                                editableNome = item.name
+                            }) {
+                                Image(systemName: "pencil")
+                                    .font(.system(size: 20, weight: .bold))
+                                    .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
+                            }
                         }
-                        .frame(maxWidth: 180)
+                    }
+
+                    // Categoria/Macrocategoria con pencil/check
+                    HStack(alignment: .center) {
+                        if isEditingCategoriaMacro {
+                            TextField("Categoria", text: $editableCategoria)
+                                .font(.custom("Poppins-Regular", size: 22))
+                                .frame(maxWidth: 110)
+                            Text("/")
+                                .font(.custom("Poppins-Regular", size: 22))
+                            Menu {
+                                ForEach(availableCategories, id: \.self) { cat in
+                                    Button(action: { editableMacrocategory = cat }) {
+                                        Text(cat)
+                                    }
+                                }
+                            } label: {
+                                Text(editableMacrocategory)
+                                    .font(.custom("Poppins-Regular", size: 22))
+                                    .foregroundColor(.black)
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 4)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 8)
+                                            .fill(Color(.systemGray6))
+                                    )
+                            }
+                            .frame(maxWidth: 110)
+                            Button(action: {
+                                isEditingCategoriaMacro = false
+                                item.category = editableCategoria
+                                item.macrocategory = editableMacrocategory
+                                UserDefaultsManager.shared.updateItem(item)
+                                allItems = UserDefaultsManager.shared.loadItems()
+                            }) {
+                                Image(systemName: "checkmark")
+                                    .font(.system(size: 20, weight: .bold))
+                                    .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
+                            }
+                        } else {
+                            Text("\(item.category)/\(item.macrocategory)")
+                                .font(.custom("Poppins-Regular", size: 22))
+                            Button(action: {
+                                isEditingCategoriaMacro = true
+                                editableCategoria = item.category
+                                editableMacrocategory = item.macrocategory
+                            }) {
+                                Image(systemName: "pencil")
+                                    .font(.system(size: 20, weight: .bold))
+                                    .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
+                            }
+                        }
                     }
                     .padding(.top, 1)
 
-                    HStack (alignment: .center){
+                    // STILE & COLORE con pencil/check
+                    HStack(alignment: .center) {
                         Text("Stile: ")
                             .font(.custom("Poppins-SemiBold", size: 20))
                             .padding(.leading, 20)
-                        TextField("Stile", text: $item.style)
-                            .font(.custom("Poppins-Regular", size: 20))
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 4)
-                            .background(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .fill(Color(red: 235/255, green: 235/255, blue: 235/255))
-                            )
+                        if isEditingStile {
+                            TextField("Stile", text: $editableStile)
+                                .font(.custom("Poppins-Regular", size: 20))
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .fill(Color(red: 235/255, green: 235/255, blue: 235/255))
+                                )
+                            Button(action: {
+                                isEditingStile = false
+                                item.style = editableStile
+                                UserDefaultsManager.shared.updateItem(item)
+                                allItems = UserDefaultsManager.shared.loadItems()
+                            }) {
+                                Image(systemName: "checkmark")
+                                    .font(.system(size: 20, weight: .bold))
+                                    .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
+                            }
+                        } else {
+                            Text(item.style)
+                                .font(.custom("Poppins-Regular", size: 20))
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .fill(Color(red: 235/255, green: 235/255, blue: 235/255))
+                                )
+                            Button(action: {
+                                isEditingStile = true
+                                editableStile = item.style
+                            }) {
+                                Image(systemName: "pencil")
+                                    .font(.system(size: 20, weight: .bold))
+                                    .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
+                            }
+                        }
                         Spacer()
                         Text("Colore: ")
                             .font(.custom("Poppins-SemiBold", size: 20))
                         Circle()
                             .stroke(Color.gray)
-                            .fill(colorFromString(domColor))
+                            .fill(.green)
                             .frame(width: 28)
-                        TextField("Colore", text: $domColor)
-                            .font(.custom("Poppins-Regular", size: 20))
-                            .padding(.trailing, 20)
-                            .frame(width: 90)
-                            .onChange(of: domColor) { newValue in
-                                item.domColor = newValue
+                        if isEditingColore {
+                            TextField("Colore", text: $editableDomColor)
+                                .font(.custom("Poppins-Regular", size: 20))
+                                .padding(.trailing, 10)
+                                .frame(width: 70)
+                            Button(action: {
+                                isEditingColore = false
+                                item.domColor = editableDomColor
+                                UserDefaultsManager.shared.updateItem(item)
+                                allItems = UserDefaultsManager.shared.loadItems()
+                            }) {
+                                Image(systemName: "checkmark")
+                                    .font(.system(size: 20, weight: .bold))
+                                    .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
                             }
+                        } else {
+                            Text(item.domColor ?? "")
+                                .font(.custom("Poppins-Regular", size: 20))
+                                .padding(.trailing, 10)
+                                .frame(width: 70, alignment: .leading)
+                            Button(action: {
+                                isEditingColore = true
+                                editableDomColor = item.domColor ?? ""
+                            }) {
+                                Image(systemName: "pencil")
+                                    .font(.system(size: 20, weight: .bold))
+                                    .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
+                            }
+                        }
                     }
 
-                    TextField("Dettagli", text: $details, axis: .vertical)
-                        .font(.custom("Poppins-Regular", size: 20))
-                        .padding(.leading, 10)
-                        .padding(.trailing, 10)
-                        .multilineTextAlignment(.leading)
-                        .lineLimit(3...8)
-                        .onChange(of: details) { newValue in
-                            item.details = newValue
+                    // DETTAGLI con pencil/check
+                    HStack(alignment: .top) {
+                        if isEditingDettagli {
+                            TextField("Dettagli", text: $editableDettagli, axis: .vertical)
+                                .font(.custom("Poppins-Regular", size: 20))
+                                .padding(.leading, 10)
+                                .padding(.trailing, 10)
+                                .multilineTextAlignment(.leading)
+                                .lineLimit(3...8)
+                            Button(action: {
+                                isEditingDettagli = false
+                                item.details = editableDettagli
+                                UserDefaultsManager.shared.updateItem(item)
+                                allItems = UserDefaultsManager.shared.loadItems()
+                            }) {
+                                Image(systemName: "checkmark")
+                                    .font(.system(size: 20, weight: .bold))
+                                    .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
+                            }
+                        } else {
+                            Text(item.details ?? "")
+                                .font(.custom("Poppins-Regular", size: 20))
+                                .padding(.leading, 10)
+                                .padding(.trailing, 10)
+                            Button(action: {
+                                isEditingDettagli = true
+                                editableDettagli = item.details ?? ""
+                            }) {
+                                Image(systemName: "pencil")
+                                    .font(.system(size: 20, weight: .bold))
+                                    .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
+                            }
                         }
+                    }
 
                     Spacer()
                 }
                 .padding(.bottom, 160)
                 .navigationTitle("")
                 .onAppear {
-                    self.details = item.details ?? ""
-                    self.domColor = item.domColor ?? ""
+                    editableNome = item.name
+                    editableCategoria = item.category
+                    editableMacrocategory = item.macrocategory
+                    editableStile = item.style
+                    editableDomColor = item.domColor ?? ""
+                    editableDettagli = item.details ?? ""
                 }
             }
 
@@ -240,53 +387,6 @@ struct DetailView: View {
         return nil
     }
 
-    // Funzione per color dinamico
-    func colorFromString(_ colorString: String?) -> Color {
-        guard let colorString = colorString?.lowercased().trimmingCharacters(in: .whitespacesAndNewlines) else {
-            return .gray
-        }
-        switch colorString {
-        case "verde": return .green
-        case "rosso": return .red
-        case "blu": return .blue
-        case "giallo": return .yellow
-        case "bianco": return .white
-        case "nero": return .black
-        case "grigio": return .gray
-        default:
-            // Tentativo di interpretare un hex code
-            if colorString.hasPrefix("#"), let uiColor = UIColor(hex: colorString) {
-                return Color(uiColor)
-            }
-            return .gray
-        }
-    }
-}
-
-// Extension UIColor per hex string se vuoi gestire codici tipo "#ececec"
-extension UIColor {
-    convenience init?(hex: String) {
-        var hexSanitized = hex.trimmingCharacters(in: .whitespacesAndNewlines)
-        hexSanitized = hexSanitized.replacingOccurrences(of: "#", with: "")
-        var rgb: UInt64 = 0
-        guard Scanner(string: hexSanitized).scanHexInt64(&rgb) else { return nil }
-        let r, g, b, a: CGFloat
-        switch hexSanitized.count {
-        case 6:
-            (r, g, b, a) = (CGFloat((rgb & 0xFF0000) >> 16) / 255,
-                            CGFloat((rgb & 0x00FF00) >> 8) / 255,
-                            CGFloat(rgb & 0x0000FF) / 255,
-                            1)
-        case 8:
-            (r, g, b, a) = (CGFloat((rgb & 0xFF000000) >> 24) / 255,
-                            CGFloat((rgb & 0x00FF0000) >> 16) / 255,
-                            CGFloat((rgb & 0x0000FF00) >> 8) / 255,
-                            CGFloat(rgb & 0x000000FF) / 255)
-        default:
-            return nil
-        }
-        self.init(red: r, green: g, blue: b, alpha: a)
-    }
 }
 
 #if DEBUG
