@@ -63,7 +63,7 @@ struct HomepageView: View {
                         } else {
                             ForEach(items.prefix(7), id: \.id) { item in
                                 Button {
-                                    selectedTab = 3
+                                    selectedTab = 3 // Assicurati che la tab "Armadio" abbia index 3
                                 } label: {
                                     WardrobePreviewItemView(item: item)
                                 }
@@ -75,38 +75,38 @@ struct HomepageView: View {
                     .onTapGesture {
                         showWardrobe = true
                     }
-                }.padding(.leading, 10)
+                }
+                .padding(.leading, 10)
 
                 Spacer()
             }
             .navigationTitle("")
             .navigationBarTitleDisplayMode(.inline)
-            
         }
         // FullScreenCover impostazioni
         .fullScreenCover(isPresented: $showSettings) {
             NavigationStack {
                 SettingsView(items: $items, selectedTab: $selectedTab)
-                    .toolbar {
+                    .toolbar(content: {
                         ToolbarItem(placement: .navigationBarLeading) {
                             Button("Chiudi") {
                                 showSettings = false
                             }
                         }
-                    }
+                    })
             }
         }
         // FullScreenCover generatore di outfit
         .fullScreenCover(isPresented: $showOutfitGenerator) {
             NavigationStack {
-                OutfitGeneratorView(selectedTab: $selectedTab)
-                    .toolbar {
+                OutfitGeneratorView(selectedTab: $selectedTab) // <--- Passa il binding!
+                    .toolbar(content: {
                         ToolbarItem(placement: .navigationBarLeading) {
                             Button("Chiudi") {
                                 showOutfitGenerator = false
                             }
                         }
-                    }
+                    })
             }
         }
     }
@@ -130,7 +130,7 @@ struct WardrobePreviewItemView: View {
             } else {
                 Rectangle()
                     .fill(Color.gray.opacity(0.2))
-                    .frame(width: 150, height: 150 )
+                    .frame(width: 150, height: 150)
                     .cornerRadius(12)
                     .overlay(
                         Text("No Image")
@@ -145,22 +145,4 @@ struct WardrobePreviewItemView: View {
         }
         .frame(width: 90)
     }
-}
-
-#Preview {
-    struct PreviewWrapper: View {
-        @State var items: [ClothingItem] = [
-            ClothingItem(name: "Felpa", category: "Felpa", macrocategory: "Maglie", imageData: nil, style: "Casual", isFavorite: false),
-            ClothingItem(name: "Jeans", category: "Jeans", macrocategory: "Pantaloni", imageData: nil, style: "Street", isFavorite: true),
-            ClothingItem(name: "Sneakers", category: "Sneakers", macrocategory: "Scarpe", imageData: nil, style: "Urban", isFavorite: false),
-            ClothingItem(name: "Cintura", category: "Cintura", macrocategory: "Accessori", imageData: nil, style: "Classico", isFavorite: false),
-            ClothingItem(name: "Giacca", category: "Giacca", macrocategory: "Giacche", imageData: nil, style: "Elegante", isFavorite: false)
-        ]
-        @State var selectedTab: Int = 0
-
-        var body: some View {
-            HomepageView(items: $items, selectedTab: $selectedTab)
-        }
-    }
-    return PreviewWrapper()
 }

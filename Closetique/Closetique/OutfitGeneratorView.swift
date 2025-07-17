@@ -6,10 +6,9 @@ struct OutfitGeneratorView: View {
     @State private var isGenerating: Bool = false
     @State private var generationError: String? = nil
     @State private var navigateToDescription: Bool = false
-    @State private var aiMessage: String = ""    
-    
+    @State private var aiMessage: String = ""
     @State private var includePalette: Bool = false
-    
+
     let styles = ["Casual", "Elegante", "Sportivo", "Streetwear"]
     let allItems: [ClothingItem] = UserDefaultsManager.shared.loadItems()
 
@@ -22,12 +21,12 @@ struct OutfitGeneratorView: View {
                 Picker("Stile", selection: $selectedStyle) {
                     ForEach(styles, id: \.self) { style in
                         Text(style)
-                            .font(.custom("Poppins-Regular", size: 200))
+                            .font(.custom("Poppins-Regular", size: 20))
                     }
                 }
                 .pickerStyle(SegmentedPickerStyle())
                 .scaleEffect(CGSize(width: 1, height: 1.3))
-                
+
                 Spacer()
 
                 HStack {
@@ -41,7 +40,7 @@ struct OutfitGeneratorView: View {
                     Spacer()
                 }
                 Spacer()
-                
+
                 HStack {
                     Toggle(isOn: $includePalette) {
                         Text("Includi palette di colori nella generazione dell'outfit")
@@ -52,9 +51,14 @@ struct OutfitGeneratorView: View {
                 .padding(20)
 
                 NavigationLink(
-                    destination: OutfitDescriptionView(selectedTab: $selectedTab,allItems: allItems, aiMessage: aiMessage, onRegenerate: {
-                        generateOutfitWithGroq(for: selectedStyle)
-                    }),
+                    destination: OutfitDescriptionView(
+                        selectedTab: $selectedTab,
+                        allItems: allItems,
+                        aiMessage: aiMessage,
+                        onRegenerate: {
+                            generateOutfitWithGroq(for: selectedStyle)
+                        }
+                    ),
                     isActive: $navigateToDescription
                 ) { EmptyView() }
             }
@@ -72,7 +76,11 @@ struct OutfitGeneratorView: View {
     func generateOutfitWithGroq(for style: String) {
         isGenerating = true
         generationError = nil
-        LlamaGroqAPI.generateOutfitCombo(from: allItems, targetStyle: style) { result in
+        LlamaGroqAPI.generateOutfitCombo(
+            from: allItems,
+            targetStyle: style,
+            includePalette: includePalette
+        ) { result in
             DispatchQueue.main.async {
                 isGenerating = false
                 if let output = result {
@@ -85,9 +93,3 @@ struct OutfitGeneratorView: View {
         }
     }
 }
-
-#Preview {
-    ContentView()
-}
-
-
