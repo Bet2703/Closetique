@@ -11,7 +11,7 @@ struct DetailView: View {
     @State var generatedOutfit: String? = nil
     @State var showOutfitView: Bool = false
 
-    let availableCategories: [String] = ["Maglie", "Pantaloni", "Giubbini", "Gonne", "Abiti", "Scarpe", "Accessori", "Extra"]
+    let availableCategories: [String] = ["Maglie", "Camicie", "Pantaloni", "Gonne", "Abiti", "Giacca", "Giubbino", "Cappotto", "Scarpe", "Accessori", "Extra"]
 
     // Stati per editing per ogni campo
     @State private var isEditingNome = false
