@@ -10,6 +10,7 @@ struct DetailView: View {
     @State var allItems: [ClothingItem] = UserDefaultsManager.shared.loadItems()
     @State var generatedOutfit: String? = nil
     @State var showOutfitView: Bool = false
+    @State var outfitGenerationError: String? = nil // <-- Stato per l'errore
 
     let availableCategories: [String] = ["Maglie", "Camicie", "Pantaloni", "Gonne", "Abiti", "Giacca", "Giubbino", "Cappotto", "Scarpe", "Accessori", "Extra"]
 
@@ -283,8 +284,21 @@ struct DetailView: View {
                             otherItems: otherItems
                         ) { result in
                             DispatchQueue.main.async {
-                                generatedOutfit = result
-                                showOutfitView = true
+                                if let output = result {
+                                    if output.starts(with: "Outfit non valido") || output.starts(with: "Non è stato possibile") {
+                                        self.outfitGenerationError = output
+                                        self.generatedOutfit = ""
+                                        self.showOutfitView = true
+                                    } else {
+                                        self.generatedOutfit = output
+                                        self.outfitGenerationError = nil
+                                        self.showOutfitView = true
+                                    }
+                                } else {
+                                    self.outfitGenerationError = "Errore nella generazione dell'outfit."
+                                    self.generatedOutfit = ""
+                                    self.showOutfitView = true
+                                }
                             }
                         }
                     }) {
@@ -314,10 +328,22 @@ struct DetailView: View {
                                 otherItems: otherItems
                             ) { result in
                                 DispatchQueue.main.async {
-                                    generatedOutfit = result
+                                    if let output = result {
+                                        if output.starts(with: "Outfit non valido") || output.starts(with: "Non è stato possibile") {
+                                            self.outfitGenerationError = output
+                                            self.generatedOutfit = ""
+                                        } else {
+                                            self.generatedOutfit = output
+                                            self.outfitGenerationError = nil
+                                        }
+                                    } else {
+                                        self.outfitGenerationError = "Errore nella generazione dell'outfit."
+                                        self.generatedOutfit = ""
+                                    }
                                 }
                             }
-                        }
+                        },
+                        errorMessage: outfitGenerationError // <-- Passaggio errore qui!
                     ),
                     isActive: $showOutfitView
                 ) {
@@ -361,7 +387,6 @@ struct DetailView: View {
         }
         return nil
     }
-
 }
 
 #if DEBUG

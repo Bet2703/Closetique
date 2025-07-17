@@ -12,7 +12,6 @@ struct OutfitGeneratorView: View {
     @State private var showPaletteAlert = false
     @State private var goToPaletteView = false
 
-
     let styles = ["Casual", "Elegante", "Sportivo", "Streetwear"]
     let allItems: [ClothingItem] = UserDefaultsManager.shared.loadItems()
 
@@ -49,20 +48,20 @@ struct OutfitGeneratorView: View {
                     Toggle(isOn: Binding(
                         get: { includePalette },
                         set: { newValue in
-                                if newValue && selectedSeason == nil {
-                                    showPaletteAlert = true
-                                } else {
-                                    includePalette = newValue
-                                }
-                                }
-                                )) {
-                                    Text("Includi palette di colori nella generazione dell'outfit")
-                                    .font(.custom("Poppins-Regular", size: 20))
-                                    }
-                                    .toggleStyle(SwitchToggleStyle(tint: Color(red: 112/255, green: 41/255, blue: 99/255)))
-                                    }
-                                    .padding(20)
-                
+                            if newValue && selectedSeason == nil {
+                                showPaletteAlert = true
+                            } else {
+                                includePalette = newValue
+                            }
+                        }
+                    )) {
+                        Text("Includi palette di colori nella generazione dell'outfit")
+                            .font(.custom("Poppins-Regular", size: 20))
+                    }
+                    .toggleStyle(SwitchToggleStyle(tint: Color(red: 112/255, green: 41/255, blue: 99/255)))
+                }
+                .padding(20)
+
                 NavigationLink(
                     destination: OutfitDescriptionView(
                         selectedTab: $selectedTab,
@@ -70,15 +69,15 @@ struct OutfitGeneratorView: View {
                         aiMessage: aiMessage,
                         onRegenerate: {
                             generateOutfitWithGroq(for: selectedStyle)
-                        }
+                        },
+                        errorMessage: generationError // <-- AGGIUNTO QUI
                     ),
                     isActive: $navigateToDescription
                 ) { EmptyView() }
-                
+
                 NavigationLink(destination: ArmocromiaMainView(), isActive: $goToPaletteView) {
                     EmptyView()
                 }
-                
             }
             .padding(.top)
             .background(Color(.systemGroupedBackground))
@@ -89,13 +88,13 @@ struct OutfitGeneratorView: View {
                 Alert(title: Text("Errore"), message: Text(generationError ?? ""), dismissButton: .default(Text("OK")))
             }
             .alert("Palette non selezionata", isPresented: $showPaletteAlert) {
-                            Button("Vai al test") {
-                                goToPaletteView = true
-                            }
-                            Button("Annulla", role: .cancel) {}
-                        } message: {
-                            Text("Per includere la palette nei suggerimenti, devi prima completare il test di armocromia.")
-                        }
+                Button("Vai al test") {
+                    goToPaletteView = true
+                }
+                Button("Annulla", role: .cancel) {}
+            } message: {
+                Text("Per includere la palette nei suggerimenti, devi prima completare il test di armocromia.")
+            }
         }
     }
 
@@ -110,8 +109,15 @@ struct OutfitGeneratorView: View {
             DispatchQueue.main.async {
                 isGenerating = false
                 if let output = result {
-                    self.aiMessage = output
-                    self.navigateToDescription = true
+                    if output.starts(with: "Outfit non valido") || output.starts(with: "Non è stato possibile") {
+                        self.generationError = output
+                        self.aiMessage = ""
+                        self.navigateToDescription = true
+                    } else {
+                        self.aiMessage = output
+                        self.generationError = nil
+                        self.navigateToDescription = true
+                    }
                 } else {
                     self.generationError = "Errore nella generazione dell'outfit."
                 }
