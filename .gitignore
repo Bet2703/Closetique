@@ -10,7 +10,7 @@ profile
 # File temporanei generati da Xcode
 # ===============================
 *~.nib
-
+**.project.pbxproj
 # ===============================
 # Cache e build locali di Xcode
 # ===============================
