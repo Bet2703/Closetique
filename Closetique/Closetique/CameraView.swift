@@ -277,27 +277,8 @@ struct ClassificationPreviewView: View {
                     Circle()
                         .fill(Color(Hex: result.hexColor))
                         .frame(width: 32, height: 32)
-                    if editingField == .domColor {
-                        TextField("Colore (hex o nome)", text: $editedDomColor)
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
-                            .frame(width: 80)
-                        Button(action: { editingField = nil }) {
-                            Image(systemName: "checkmark")
-                                .font(.system(size: 20, weight: .bold))
-                                .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
-                        }
-                    } else {
-                        Text(editedDomColor.isEmpty ? result.domColor : editedDomColor)
-                            .font(.custom("Poppins-Regular", size: 16))
-                        Button(action: {
-                            editedDomColor = result.domColor
-                            editingField = .domColor
-                        }) {
-                            Image(systemName: "pencil")
-                                .font(.system(size: 20, weight: .bold))
-                                .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
-                        }
-                    }
+                    Text(editedDomColor.isEmpty ? result.domColor : editedDomColor)
+                        .font(.custom("Poppins-Regular", size: 16))
                 }
 
                 // Dettagli: modificabile tramite TextField

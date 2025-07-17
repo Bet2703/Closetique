@@ -157,7 +157,7 @@ struct DetailView: View {
                     }
                     .padding(.top, 1)
                     
-                    //STILECOLORE con pencil/check
+                    //STILE con pencil/check
                     HStack(alignment: .center) {
                         Text("Stile: ")
                             .font(.custom("Poppins-SemiBold", size: 20))
@@ -210,37 +210,11 @@ struct DetailView: View {
                             .stroke(Color.gray)
                             .fill(Color(Hex: item.hexColor))
                             .frame(width: 28)
-                        if isEditingColore {
-                            TextField("Colore", text: $editableDomColor)
-                                .font(.custom("Poppins-Regular", size: 20))
-                                .padding(.trailing, 10)
-                                .frame(width: 160)
-                            Button(action: {
-                                isEditingColore = false
-                                item.domColor = editableDomColor
-                                UserDefaultsManager.shared.updateItem(item)
-                                allItems = UserDefaultsManager.shared.loadItems()
-                            }) {
-                                Image(systemName: "checkmark")
-                                    .font(.system(size: 20, weight: .bold))
-                                    .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
-                            }
-                        } else {
-                            Text(item.domColor ?? "")
-                                .font(.custom("Poppins-Regular", size: 20))
-                                .padding(.trailing, 10)
-                                .multilineTextAlignment(.leading)
-                                .frame(width: 70, alignment: .leading)
-                            Button(action: {
-                                isEditingColore = true
-                                editableDomColor = item.domColor ?? ""
-                            }) {
-                                Image(systemName: "pencil")
-                                    .font(.system(size: 20, weight: .bold))
-                                    .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
-                                    .padding(.trailing, 10)
-                            }
-                        }
+                        Text(item.domColor ?? "")
+                            .font(.custom("Poppins-Regular", size: 20))
+                            .padding(.trailing, 10)
+                            .multilineTextAlignment(.leading)
+                            .frame(width: 150, alignment: .leading)
                     }
 
                     // DETTAGLI con pencil/check
@@ -394,7 +368,7 @@ struct DetailView: View {
 struct DetailView_Previews: PreviewProvider {
     struct PreviewWrapper: View {
         @State var exampleItems = [
-            ClothingItem(name: "Pinocchietto", category: "Pantaloncino", macrocategory: "Pantaloni", imagePath: nil, domColor: "Verde", details: "Un pinocchietto di lana corto lungo bianco verde rosso giallo di cotone ah no di lana", style: "Casual", isFavorite: false),
+            ClothingItem(name: "Pinocchietto", category: "Pantaloncino", macrocategory: "Pantaloni", imagePath: nil, domColor: "Borgogna", details: "Un pinocchietto di lana corto lungo bianco verde rosso giallo di cotone ah no di lana", style: "Casual", isFavorite: false),
             ClothingItem(name: "Cappello", category: "Cappello", macrocategory: "Accessori", imagePath: nil, details: nil, style: "Boh", isFavorite: false),
             ClothingItem(name: "Maglia dal gusto discutibile", category: "Maglia dal gusto discutibile", macrocategory: "Maglie", imagePath: nil, details: nil, style: "Casual", isFavorite: false),
             ClothingItem(name: "Maglia", category: "Maglia", macrocategory: "Maglie", imagePath: nil, details: nil, style: "casual", isFavorite: false)
