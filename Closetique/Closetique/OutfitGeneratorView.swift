@@ -12,6 +12,8 @@ struct OutfitGeneratorView: View {
     @State private var showPaletteAlert = false
     @State private var goToPaletteView = false
 
+    @State private var insertStyle = ""
+    
     let styles = ["Casual", "Elegante", "Sportivo", "Streetwear"]
     let allItems: [ClothingItem] = UserDefaultsManager.shared.loadItems()
 
@@ -29,13 +31,33 @@ struct OutfitGeneratorView: View {
                 }
                 .pickerStyle(SegmentedPickerStyle())
                 .scaleEffect(CGSize(width: 1, height: 1.3))
+                
+                HStack {
+                    TextField("Inserisci lo stile...", text: $insertStyle)
+                        .foregroundColor(.black)
+                        .autocapitalization(.none)
+                }
+                .padding(10)
+                .background(Color(.systemGray6))
+                .cornerRadius(8)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(Color.gray.opacity(0.5), lineWidth: 1)
+                )
+                .padding(.horizontal)
 
                 Spacer()
 
                 HStack {
                     Spacer()
                     Button(action: {
-                        generateOutfitWithGroq(for: selectedStyle)
+                        if insertStyle == "" {
+                            generateOutfitWithGroq(for: selectedStyle)
+                            insertStyle = ""
+                        } else {
+                            generateOutfitWithGroq(for: insertStyle)
+                            insertStyle = ""
+                        }
                     }) {
                         AnimatedPulsingCircle(size: 200)
                     }
