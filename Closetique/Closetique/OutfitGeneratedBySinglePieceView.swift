@@ -4,6 +4,7 @@ struct OutfitGeneratedBySinglePieceView: View {
     let allItems: [ClothingItem]
     let aiMessage: String
     let onRegenerate: () -> Void
+    let errorMessage: String? // <--- AGGIUNTO
 
     // Parsing: estrae [ClothingItem] e descrizione dal messaggio AI
     private var parsed: (items: [ClothingItem], description: String) {
@@ -23,7 +24,7 @@ struct OutfitGeneratedBySinglePieceView: View {
             } else {
                 print("DEBUG: NO MATCH for id: \(id)")
             }
-   }
+        }
         return (selected, description)
     }
 
@@ -35,45 +36,63 @@ struct OutfitGeneratedBySinglePieceView: View {
                     .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
                     .padding(.top, 10)
 
-                HStack(spacing: 16) {
-                    ForEach(parsed.items) { item in
-                        if let image = UIImage(contentsOfFile: item.imagePath ?? "") {
-                            Image(uiImage: image)
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .frame(width: 110, height: 120)
-                                .cornerRadius(12)
-                        } else {
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(Color(red: 246/255, green: 232/255, blue: 234/255))
-                                .frame(width: 110, height: 120)
-                                .overlay(
-                                    Text(item.name.prefix(1))
-                                        .font(.largeTitle)
-                                        .foregroundColor(.gray)
-                                )
+                // MESSAGGIO DI ERRORE
+                if let error = errorMessage, !error.isEmpty {
+                    HStack(alignment: .top, spacing: 12) {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundColor(.red)
+                            .font(.system(size: 28))
+                        Text(error)
+                            .foregroundColor(.red)
+                            .font(.custom("Poppins-Bold", size: 18))
+                    }
+                    .padding()
+                    .background(Color(red:1, green:0.95, blue:0.95))
+                    .cornerRadius(12)
+                }
+
+                // Solo se NON c'è errore mostriamo il resto
+                if errorMessage == nil || errorMessage == "" {
+                    HStack(spacing: 16) {
+                        ForEach(parsed.items) { item in
+                            if let image = UIImage(contentsOfFile: item.imagePath ?? "") {
+                                Image(uiImage: image)
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fit)
+                                    .frame(width: 110, height: 120)
+                                    .cornerRadius(12)
+                            } else {
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(Color(red: 246/255, green: 232/255, blue: 234/255))
+                                    .frame(width: 110, height: 120)
+                                    .overlay(
+                                        Text(item.name.prefix(1))
+                                            .font(.largeTitle)
+                                            .foregroundColor(.gray)
+                                    )
+                            }
                         }
                     }
-                }
-                .padding(.vertical, 10)
-                
-                VStack(alignment: .leading, spacing: 8) {
-                    ForEach(parsed.items) { item in
-                        Text("\(item.name) • \(item.macrocategory) • \(item.category) • \(item.domColor ?? "-") • \(item.style)")
-                            .font(.custom("Poppins-Light", size: 16))
+                    .padding(.vertical, 10)
+                    
+                    VStack(alignment: .leading, spacing: 8) {
+                        ForEach(parsed.items) { item in
+                            Text("\(item.name) • \(item.macrocategory) • \(item.category) • \(item.domColor ?? "-") • \(item.style)")
+                                .font(.custom("Poppins-Light", size: 16))
+                        }
                     }
-                }
 
-                Spacer(minLength: 50)
+                    Spacer(minLength: 50)
 
-                VStack(spacing: 10) {
-                    Divider()
-                    Text(parsed.description)
-                        .font(.custom("Poppins-Italic", size: 18))
-                        .multilineTextAlignment(.center)
-                        .padding(.top, 12)
+                    VStack(spacing: 10) {
+                        Divider()
+                        Text(parsed.description)
+                            .font(.custom("Poppins-Italic", size: 18))
+                            .multilineTextAlignment(.center)
+                            .padding(.top, 12)
+                    }
+                    .padding(.bottom, 16)
                 }
-                .padding(.bottom, 16)
                 
                 HStack(spacing: 24){
                     Button(action: {
@@ -89,6 +108,7 @@ struct OutfitGeneratedBySinglePieceView: View {
                     }
                     
                     Button(action:{
+                        guard errorMessage == nil else { return }
                         let newOutfit = MatchOutfit(items: parsed.items, description: parsed.description)
                         UserDefaultsManager.shared.saveOutfit(newOutfit)
                     }){
@@ -100,6 +120,7 @@ struct OutfitGeneratedBySinglePieceView: View {
                             .background(Color(red: 112/255, green: 41/255, blue: 99/255))
                             .cornerRadius(10)
                     }
+                    .disabled(errorMessage != nil)
                 }
                 .padding(.horizontal)
                 .padding(.bottom, 32)
