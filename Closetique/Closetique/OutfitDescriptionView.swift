@@ -5,6 +5,7 @@ struct OutfitDescriptionView: View {
     let allItems: [ClothingItem]
     let aiMessage: String
     let onRegenerate: () -> Void
+    let errorMessage: String?
 
     // Parsing: estrae [ClothingItem] e descrizione dal messaggio AI
     private var parsed: (items: [ClothingItem], description: String) {
@@ -26,50 +27,67 @@ struct OutfitDescriptionView: View {
                     .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
                     .padding(.top, 10)
 
-                // Immagini dei capi selezionati
-                HStack(spacing: 16) {
-                    ForEach(parsed.items) { item in
-                        if let image = UIImage(contentsOfFile: item.imagePath ?? "") {
-                            Image(uiImage: image)
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .frame(width: 110, height: 120)
-                                .cornerRadius(12)
-                        } else {
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(Color(red: 246/255, green: 232/255, blue: 234/255))
-                                .frame(width: 110, height: 120)
-                                .overlay(
-                                    Text(item.name.prefix(1))
-                                        .font(.largeTitle)
-                                        .foregroundColor(.gray)
-                                )
+                // Mostra un messaggio di errore, se presente
+                if let error = errorMessage, !error.isEmpty {
+                    HStack(alignment: .top, spacing: 12) {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundColor(.red)
+                            .font(.system(size: 28))
+                        Text(error)
+                            .foregroundColor(.red)
+                            .font(.custom("Poppins-Bold", size: 18))
+                    }
+                    .padding()
+                    .background(Color(red:1, green:0.95, blue:0.95))
+                    .cornerRadius(12)
+                }
+
+                // Immagini dei capi selezionati, solo se non c'è errore
+                if errorMessage == nil || errorMessage == "" {
+                    HStack(spacing: 16) {
+                        ForEach(parsed.items) { item in
+                            if let image = UIImage(contentsOfFile: item.imagePath ?? "") {
+                                Image(uiImage: image)
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fit)
+                                    .frame(width: 110, height: 120)
+                                    .cornerRadius(12)
+                            } else {
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(Color(red: 246/255, green: 232/255, blue: 234/255))
+                                    .frame(width: 110, height: 120)
+                                    .overlay(
+                                        Text(item.name.prefix(1))
+                                            .font(.largeTitle)
+                                            .foregroundColor(.gray)
+                                    )
+                            }
                         }
                     }
-                }
-                .padding(.vertical, 10)
-                
-                // Info sintetiche sui capi (opzionale)
-                VStack(alignment: .leading, spacing: 8) {
-                    ForEach(parsed.items) { item in
-                        Text("\(item.name) • \(item.macrocategory) • \(item.category) • \(item.domColor ?? "-") • \(item.style)")
-                            .font(.custom("Poppins-Light", size: 16))
+                    .padding(.vertical, 10)
+
+                    // Info sintetiche
+                    VStack(alignment: .leading, spacing: 8) {
+                        ForEach(parsed.items) { item in
+                            Text("\(item.name) • \(item.macrocategory) • \(item.category) • \(item.domColor ?? "-") • \(item.style)")
+                                .font(.custom("Poppins-Light", size: 16))
+                        }
                     }
+
+                    Spacer(minLength: 50)
+
+                    // Descrizione outfit
+                    VStack(spacing: 10) {
+                        Divider()
+                        Text(parsed.description)
+                            .font(.custom("Poppins-Italic", size: 18))
+                            .multilineTextAlignment(.center)
+                            .padding(.top, 12)
+                    }
+                    .padding(.bottom, 16)
                 }
 
-                Spacer(minLength: 50)
-
-                // Descrizione outfit in fondo
-                VStack(spacing: 10) {
-                    Divider()
-                    Text(parsed.description)
-                        .font(.custom("Poppins-Italic", size: 18))
-                        .multilineTextAlignment(.center)
-                        .padding(.top, 12)
-                }
-                .padding(.bottom, 16)
-                
-                //Bottoni rigenera e salva
+                //Bottoni rigenera e salva (anche se errore, puoi rigenerare)
                 HStack(spacing: 24){
                     Button(action: {
                         onRegenerate()
@@ -82,8 +100,9 @@ struct OutfitDescriptionView: View {
                             .background(Color(red: 246/255, green: 232/255, blue: 234/255).opacity(0.5))
                             .cornerRadius(10)
                     }
-                    
+
                     Button(action:{
+                        guard errorMessage == nil else { return }
                         let newOutfit = MatchOutfit(items: parsed.items, description: parsed.description)
                         UserDefaultsManager.shared.saveOutfit(newOutfit)
                         selectedTab = 1 // Cambia questo valore se la tab Armadio ha un altro indice!
@@ -96,6 +115,7 @@ struct OutfitDescriptionView: View {
                             .background(Color(red: 112/255, green: 41/255, blue: 99/255))
                             .cornerRadius(10)
                     }
+                    .disabled(errorMessage != nil)
                 }
                 .padding(.horizontal)
                 .padding(.bottom, 32)
