@@ -190,7 +190,7 @@ struct WardrobeItemCell: View {
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
             Group {
-                if let image = imageFrom(item.imageData) {
+                if let image = imageFromPath(item.imagePath) {
                     GeometryReader { geo in
                         Image(uiImage: image)
                             .resizable()
@@ -227,21 +227,9 @@ struct WardrobeItemCell: View {
         }
     }
 
-    func imageFrom(_ imageData: String?) -> UIImage? {
-        guard let imageData = imageData else { return nil }
-        if let data = Data(base64Encoded: imageData),
-           let image = UIImage(data: data) {
-            return image
-        }
-        if let image = UIImage(contentsOfFile: imageData) {
-            return image
-        }
-        if let url = URL(string: imageData),
-           let data = try? Data(contentsOf: url),
-           let image = UIImage(data: data) {
-            return image
-        }
-        return nil
+    func imageFromPath(_ path: String?) -> UIImage? {
+        guard let path = path else { return nil }
+        return UIImage(contentsOfFile: path)
     }
 }
 
@@ -276,11 +264,11 @@ struct WardrobeSelectableItemCell: View {
 struct WardrobeView_Previews: PreviewProvider {
     struct PreviewWrapper: View {
         @State var exampleItems = [
-            ClothingItem(name: "Felpa", category: "Felpa", macrocategory: "Maglie", imageData: nil, details: "Stringa di dettagli per prova", style: "Casual", isFavorite: false),
-            ClothingItem(name: "Jeans", category: "Jeans", macrocategory: "Pantaloni", imageData: nil, details: "Stringa di dettagli per prova", style: "Street", isFavorite: true),
-            ClothingItem(name: "T-shirt", category: "T-shirt", macrocategory: "Maglie", imageData: nil, details: "Stringa di dettagli per prova", style: "Sport", isFavorite: false),
-            ClothingItem(name: "Cintura", category: "Cintura", macrocategory: "Accessori", imageData: nil, details: "Stringa di dettagli per prova", style: "Classico", isFavorite: false),
-            ClothingItem(name: "Sneakers", category: "Sneakers", macrocategory: "Scarpe", imageData: nil, details: "Stringa di dettagli per prova", style: "Urban", isFavorite: false)
+            ClothingItem(name: "Felpa", category: "Felpa", macrocategory: "Maglie", imagePath: nil, details: "Stringa di dettagli per prova", style: "Casual", isFavorite: false),
+            ClothingItem(name: "Jeans", category: "Jeans", macrocategory: "Pantaloni", imagePath: nil, details: "Stringa di dettagli per prova", style: "Street", isFavorite: true),
+            ClothingItem(name: "T-shirt", category: "T-shirt", macrocategory: "Maglie", imagePath: nil, details: "Stringa di dettagli per prova", style: "Sport", isFavorite: false),
+            ClothingItem(name: "Cintura", category: "Cintura", macrocategory: "Accessori", imagePath: nil, details: "Stringa di dettagli per prova", style: "Classico", isFavorite: false),
+            ClothingItem(name: "Sneakers", category: "Sneakers", macrocategory: "Scarpe", imagePath: nil, details: "Stringa di dettagli per prova", style: "Urban", isFavorite: false)
         ]
         var body: some View {
             WardrobeView(items: $exampleItems)

@@ -37,10 +37,8 @@ struct OutfitGeneratedBySinglePieceView: View {
 
                 HStack(spacing: 16) {
                     ForEach(parsed.items) { item in
-                        if let base64 = item.imageData,
-                           let data = Data(base64Encoded: base64),
-                           let uiImage = UIImage(data: data) {
-                            Image(uiImage: uiImage)
+                        if let image = UIImage(contentsOfFile: item.imagePath ?? "") {
+                            Image(uiImage: image)
                                 .resizable()
                                 .aspectRatio(contentMode: .fit)
                                 .frame(width: 110, height: 120)

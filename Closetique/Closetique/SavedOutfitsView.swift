@@ -118,10 +118,8 @@ struct OutfitCardView: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack {
                     ForEach(outfit.items) { item in
-                        if let base64 = item.imageData,
-                           let data = Data(base64Encoded: base64),
-                           let uiImage = UIImage(data: data) {
-                            Image(uiImage: uiImage)
+                        if let image = UIImage(contentsOfFile: item.imagePath ?? "") {
+                                Image(uiImage: image)
                                 .resizable()
                                 .frame(width: 80, height: 100)
                                 .cornerRadius(8)
@@ -174,10 +172,8 @@ struct OutfitDetailView: View {
 
                 HStack(spacing: 12) {
                     ForEach(outfit.items) { item in
-                        if let base64 = item.imageData,
-                           let data = Data(base64Encoded: base64),
-                           let uiImage = UIImage(data: data) {
-                            Image(uiImage: uiImage)
+                        if let image = UIImage(contentsOfFile: item.imagePath ?? "") {
+                                Image(uiImage: image)
                                 .resizable()
                                 .frame(width: 100, height: 120)
                                 .cornerRadius(10)
@@ -223,9 +219,9 @@ struct OutfitDetailView: View {
 struct SavedOutfitsView_Previews: PreviewProvider {
     static var previews: some View {
         let mockItems = [
-            ClothingItem(name: "Giacca", category: "Giacca", macrocategory: "Giacche", imageData: nil, domColor: "Nero", details: "Giacca elegante", style: "Elegante", isFavorite: false),
-            ClothingItem(name: "Pantaloni", category: "Pantaloni", macrocategory: "Pantaloni", imageData: nil, domColor: "Grigio", details: "Slim fit", style: "Elegante", isFavorite: false),
-            ClothingItem(name: "Scarpe", category: "Scarpe", macrocategory: "Scarpe", imageData: nil, domColor: "Nero", details: "Classiche", style: "Elegante", isFavorite: false)
+            ClothingItem(name: "Giacca", category: "Giacca", macrocategory: "Giacche", imagePath: nil, domColor: "Nero", details: "Giacca elegante", style: "Elegante", isFavorite: false),
+            ClothingItem(name: "Pantaloni", category: "Pantaloni", macrocategory: "Pantaloni", imagePath: nil, domColor: "Grigio", details: "Slim fit", style: "Elegante", isFavorite: false),
+            ClothingItem(name: "Scarpe", category: "Scarpe", macrocategory: "Scarpe", imagePath: nil, domColor: "Nero", details: "Classiche", style: "Elegante", isFavorite: false)
         ]
 
         let mockOutfit1 = MatchOutfit(items: mockItems, description: "Outfit elegante per una serata formale.")
