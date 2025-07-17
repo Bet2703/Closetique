@@ -141,7 +141,7 @@ struct ClassificationPreviewView: View {
     let result: ClassificationResult
     let onConfirm: (ClassificationResult) -> Void
     let onRetake: () -> Void
-    let availableCategories: [String] = ["Maglie", "Pantaloni", "Giacche", "Scarpe", "Accessori", "Extra"]
+    let availableCategories: [String] = ["Maglie", "Pantaloni", "Giubbini", "Gonne", "Abiti", "Scarpe", "Accessori", "Extra"]
 
     // Editing states
     @State private var editedCategory: String = ""
