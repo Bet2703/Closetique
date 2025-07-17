@@ -80,6 +80,9 @@ struct HomepageView: View {
 
                 Spacer()
             }
+            .onAppear{
+                items = UserDefaultsManager.shared.loadItems()
+            }
             .navigationTitle("")
             .navigationBarTitleDisplayMode(.inline)
         }
@@ -144,8 +147,15 @@ struct WardrobePreviewItemView: View {
         .frame(width: 90)
     }
 
+    // Cerca l'immagine nella directory Documents, dato solo il nome file
     private func imageFromPath(_ path: String?) -> UIImage? {
-        guard let path = path else { return nil }
-        return UIImage(contentsOfFile: path)
+        guard let fullPath = path else { return nil }
+        let fileName = URL(fileURLWithPath: fullPath).lastPathComponent
+        print("DEBUG: nome immagine caricata \(fileName) ")
+        if let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
+            let fileURL = documentsDirectory.appendingPathComponent(fileName)
+            return UIImage(contentsOfFile: fileURL.path)
+        }
+        return nil
     }
 }
