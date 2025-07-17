@@ -11,7 +11,7 @@ class ImageClassifier {
             var stile = "NA"
             var colore = "NA"
             var descrizione = "NA"
-
+            var hexColor = "FFFFFF"
             if let text = geminiFit {
                 let fields = text.split(separator: "|").map { $0.trimmingCharacters(in: .whitespaces) }
                 if fields.count > 0, !fields[0].isEmpty { capo = fields[0] }
@@ -19,6 +19,7 @@ class ImageClassifier {
                 if fields.count > 2, !fields[2].isEmpty { stile = fields[2] }
                 if fields.count > 3, !fields[3].isEmpty { colore = fields[3] }
                 if fields.count > 4, !fields[4].isEmpty { descrizione = fields[4] }
+                if fields.count > 5, !fields[5].isEmpty { hexColor = fields[5]}
             }
 
             let result = ClassificationResult(
@@ -26,7 +27,8 @@ class ImageClassifier {
                 macrocategory: macrocategoria,
                 style: stile,
                 domColor: colore,
-                details: descrizione
+                details: descrizione,
+                hexColor: hexColor
             )
             completion(result)
         }

@@ -24,30 +24,24 @@ class GeminiVisionAnalyzer {
     /// Analizza tipologia, vestibilità e dettaglio distintivo principale del capo visibile
     func analyzeFit(image: UIImage, completion: @escaping (String?) -> Void) {
         let prompt = """
-        Scrivi la categoria specifica del capo (t-shirt, Canotta, collant, ecc...), la macrocategoria di appartenenza (scegliendo obbligatoriamente solo tra queste classi: Maglie, Camicie, Pantaloni, Gonne, Abiti, Giacca, Giubbino, Cappotto, Scarpe, Accessori, Extra), lo stile (casual, elegante, urban, gotic, relaxed...), il colore principale e nella descrizione sia la vestibilità (es: oversize, regular, slim, ecc.) sia un dettaglio visivo ben riconoscibile (es: grafica, righe, strappi, ecc.).
-
-        Esegui il mapping automatico dei capi:
-        - "cappello", "berretto", "bucket hat", "cuffia", "beanie", ecc. → Accessori
-        - "maglia", "top", "t-shirt", "camicia", "felpa", ecc. → Maglie
-        - "jeans", "pantalone", "shorts", "leggings", ecc. → Pantaloni
-        - "giacca", "blazer", "cappotto", "parka", ecc. → Giacche
-        - "sneakers", "scarpe", "stivali", "sandali", ecc. → Scarpe
-        - Oggetti non indossabili o non riconducibili alle precedenti categorie → Extra
+        Scrivi la categoria specifica del capo (t-shirt, canotta, collant, ecc...), la macrocategoria di appartenenza (scegliendo obbligatoriamente solo tra queste classi: Maglie, Camicie, Pantaloni, Gonne, Abiti, Giacca, Giubbino, Cappotto, Scarpe, Accessori, Extra), lo stile (casual, elegante, urban, gotic, relaxed...), il colore principale e nella descrizione sia la vestibilità (es: oversize, regular, slim, ecc.) sia un dettaglio visivo ben riconoscibile (es: grafica, righe, strappi, ecc.), **e il codice HEX del colore**.
 
         Rispondi in una sola riga, separando i valori con il carattere | (pipe), nel formato:
 
-        Capo|Macrocategoria|Stile|Colore|Descrizione
+        Capo|Macrocategoria|Stile|Colore|Descrizione|HEX
 
         Esempi:
-        maglia|Maglie|casual|bianco|oversize, righe bianche e nere
-        jeans|Pantaloni|urban|blu|slim, strappi
-        giacca|Giacche|elegante|nero|regular, doppiopetto
-        sneakers|Scarpe|gotic|nero|platform, suola alta
-        cappello|Accessori|relaxed|rosso|regular, logo frontale
-        cintura|Accessori|relaxed|marrone|regular, fibbia grande
-        zaino|Extra|urban|nero|grande, tasche multiple
+        maglia|Maglie|casual|bianco|oversize, righe bianche e nere|#FFFFFF  
+        jeans|Pantaloni|urban|blu|slim, strappi|#0000FF  
+        camicia|Camicie|elegante|azzurro|regular, colletto rigido|#87CEEB  
+        giubbino|Giubbino|casual|nero|regular, zip frontale|#000000  
+        giacca|Giacca|elegante|blu|slim, doppiopetto|#0000FF  
+        cappotto|Cappotto|elegante|beige|oversize, cintura in vita|#F5F5DC  
+        sneakers|Scarpe|gotic|nero|platform, suola alta|#000000  
+        cappello|Accessori|relaxed|rosso|regular, logo frontale|#FF0000  
+        zaino|Extra|urban|nero|grande, tasche multiple|#000000
 
-        Se non vedi nessun capo, rispondi: non determinabile|||| (e lascia gli altri campi vuoti).
+        Se non vedi nessun capo, rispondi: non determinabile||||| (e lascia gli altri campi vuoti).
         Non aggiungere altro testo.
         """
         print("Prompt inviato a GeminiVisionAnalyzer: \(prompt)")

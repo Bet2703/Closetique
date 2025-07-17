@@ -10,10 +10,11 @@ class ClothingItem: Identifiable, ObservableObject, Codable, Equatable {
     var domColor: String?
     var details: String?
     var style: String
+    var hexColor: String
     @Published var isFavorite: Bool
 
     enum CodingKeys: String, CodingKey {
-        case id, name, category, macrocategory, imagePath, domColor, details, style, isFavorite
+        case id, name, category, macrocategory, imagePath, domColor, details, style, hexColor, isFavorite
     }
 
     init(
@@ -25,6 +26,7 @@ class ClothingItem: Identifiable, ObservableObject, Codable, Equatable {
         domColor: String? = nil,
         details: String? = nil,
         style: String = "",
+        hexColor: String = "",
         isFavorite: Bool
     ) {
         self.id = id
@@ -35,8 +37,9 @@ class ClothingItem: Identifiable, ObservableObject, Codable, Equatable {
         self.domColor = domColor
         self.details = details
         self.style = style
+        self.hexColor = hexColor
         self.isFavorite = isFavorite
-        print("DEBUG: ClothingItem creato: name=\(name), category=\(category), macrocategory=\(macrocategory), imagePath nil? \(imagePath == nil), style=\(style), isFavorite=\(isFavorite)")
+        print("DEBUG: ClothingItem creato: name=\(name), category=\(category), macrocategory=\(macrocategory), imagePath nil? \(imagePath == nil), style=\(style), hexColor=\(hexColor), isFavorite=\(isFavorite)")
     }
 
     // MARK: - Codable
@@ -50,8 +53,9 @@ class ClothingItem: Identifiable, ObservableObject, Codable, Equatable {
         domColor = try container.decodeIfPresent(String.self, forKey: .domColor)
         details = try container.decodeIfPresent(String.self, forKey: .details)
         style = try container.decodeIfPresent(String.self, forKey: .style) ?? ""
+        hexColor = try container.decodeIfPresent(String.self, forKey: .hexColor) ?? ""
         isFavorite = try container.decode(Bool.self, forKey: .isFavorite)
-        print("DEBUG: ClothingItem DECODIFICATO: name=\(name), imagePath=\(String(describing: imagePath))")
+        print("DEBUG: ClothingItem DECODIFICATO: name=\(name), imagePath=\(String(describing: imagePath)), hexColor=\(hexColor)")
     }
 
     func encode(to encoder: Encoder) throws {
@@ -64,8 +68,9 @@ class ClothingItem: Identifiable, ObservableObject, Codable, Equatable {
         try container.encodeIfPresent(domColor, forKey: .domColor)
         try container.encodeIfPresent(details, forKey: .details)
         try container.encode(style, forKey: .style)
+        try container.encode(hexColor, forKey: .hexColor)
         try container.encode(isFavorite, forKey: .isFavorite)
-        print("DEBUG: ClothingItem CODIFICATO: name=\(name), imagePath=\(String(describing: imagePath))")
+        print("DEBUG: ClothingItem CODIFICATO: name=\(name), imagePath=\(String(describing: imagePath)), hexColor=\(hexColor)")
     }
 
     // MARK: - Equatable
@@ -78,6 +83,7 @@ class ClothingItem: Identifiable, ObservableObject, Codable, Equatable {
             lhs.domColor == rhs.domColor &&
             lhs.details == rhs.details &&
             lhs.style == rhs.style &&
+            lhs.hexColor == rhs.hexColor &&
             lhs.isFavorite == rhs.isFavorite
         print("DEBUG: Confronto ClothingItem: \(lhs.name) == \(rhs.name)? \(eq)")
         return eq

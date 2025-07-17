@@ -9,6 +9,7 @@ struct ClassificationResult {
     let style: String
     let domColor: String
     let details: String
+    let hexColor: String
 }
 
 // MARK: - CameraView
@@ -344,7 +345,7 @@ struct ClassificationPreviewView: View {
                         macrocategory: editedMacrocategory.isEmpty ? result.macrocategory : editedMacrocategory,
                         style: editedStyle.isEmpty ? result.style : editedStyle,
                         domColor: editedDomColor.isEmpty ? result.domColor : editedDomColor,
-                        details: editedDetails.isEmpty ? result.details : editedDetails
+                        details: editedDetails.isEmpty ? result.details : editedDetails, hexColor: <#String#>
                     )
                     onConfirm(newResult)
                 }
