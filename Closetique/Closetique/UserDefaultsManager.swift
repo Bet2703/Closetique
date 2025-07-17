@@ -56,6 +56,7 @@ class UserDefaultsManager {
     // Resetta l'applicazione cancellando tutti i capi
     func reset(){
         UserDefaults.standard.removeObject(forKey: self.key)
+        UserDefaults.standard.removeObject(forKey: "selectedSeason")
     }
 
     // Aggiorna un capo esistente

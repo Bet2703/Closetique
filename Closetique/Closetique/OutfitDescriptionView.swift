@@ -88,7 +88,7 @@ struct OutfitDescriptionView: View {
                     Button(action:{
                         let newOutfit = MatchOutfit(items: parsed.items, description: parsed.description)
                         UserDefaultsManager.shared.saveOutfit(newOutfit)
-                        selectedTab = 1
+                        selectedTab = 1 // Cambia questo valore se la tab Armadio ha un altro indice!
                     }){
                         Label("Salva", systemImage: "bookmark")
                             .font(.custom("Poppins-Regular", size: 18))
@@ -107,55 +107,3 @@ struct OutfitDescriptionView: View {
         .navigationBarTitleDisplayMode(.inline)
     }
 }
-
-/*
-struct OutfitDescriptionView_Previews: PreviewProvider {
-    static var previews: some View {
-        // Crea alcuni ClothingItem di esempio
-        let items = [
-            ClothingItem(
-                name: "Felpa",
-                category: "Felpa",
-                macrocategory: "Maglie",
-                imageData: nil,
-                domColor: "Blu",
-                details: "Felpa in cotone",
-                style: "Casual",
-                isFavorite: false
-            ),
-            ClothingItem(
-                name: "Jeans",
-                category: "Jeans",
-                macrocategory: "Pantaloni",
-                imageData: nil,
-                domColor: "Blu",
-                details: "Jeans slim fit",
-                style: "Casual",
-                isFavorite: true
-            ),
-            ClothingItem(
-                name: "Sneakers",
-                category: "Sneakers",
-                macrocategory: "Scarpe",
-                imageData: nil,
-                domColor: "Bianco",
-                details: "Sneakers leggere",
-                style: "Sportivo",
-                isFavorite: false
-            )
-        ]
-
-        // Prepara una stringa aiMessage che seleziona il primo, secondo e terzo capo
-        let selectedIDs = "\(items[0].id.uuidString);\(items[1].id.uuidString);\(items[2].id.uuidString)"
-        let aiMessage = "\(selectedIDs)|Perfetto per una giornata informale: la felpa blu e le sneakers bianche creano un look rilassato e moderno."
-        
-        NavigationStack {
-            OutfitDescriptionView(
-                allItems: items,
-                aiMessage: aiMessage,
-                onRegenerate: { print("SI") }
-            )
-        }
-    }
-}
-*/
