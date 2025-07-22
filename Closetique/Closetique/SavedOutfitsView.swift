@@ -34,7 +34,7 @@ struct SavedOutfitsView: View {
                             }
                         }
                         .padding(.leading)
-                        .padding(.trailing, 50) 
+                        .padding(.trailing, 50)
                         .padding(.vertical)
                     }
                 }
