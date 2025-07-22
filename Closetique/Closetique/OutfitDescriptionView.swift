@@ -46,7 +46,7 @@ struct OutfitDescriptionView: View {
                 if errorMessage == nil || errorMessage == "" {
                     HStack(spacing: 16) {
                         ForEach(parsed.items) { item in
-                            if let image = UIImage(contentsOfFile: item.imagePath ?? "") {
+                            if let image = imageFromPath(item.imagePath) {
                                 Image(uiImage: image)
                                     .resizable()
                                     .aspectRatio(contentMode: .fit)
@@ -125,3 +125,15 @@ struct OutfitDescriptionView: View {
         .navigationBarTitleDisplayMode(.inline)
     }
 }
+
+    // Cerca l'immagine nella directory Documents, dato solo il nome file
+    private func imageFromPath(_ path: String?) -> UIImage? {
+        guard let fullPath = path else { return nil }
+        let fileName = URL(fileURLWithPath: fullPath).lastPathComponent
+        print("DEBUG: nome immagine caricata \(fileName) ")
+        if let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
+            let fileURL = documentsDirectory.appendingPathComponent(fileName)
+            return UIImage(contentsOfFile: fileURL.path)
+        }
+        return nil
+    }

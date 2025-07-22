@@ -33,7 +33,9 @@ struct SavedOutfitsView: View {
                                 )
                             }
                         }
-                        .padding()
+                        .padding(.leading)
+                        .padding(.trailing, 50) 
+                        .padding(.vertical)
                     }
                 }
             }
@@ -118,7 +120,7 @@ struct OutfitCardView: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack {
                     ForEach(outfit.items) { item in
-                        if let image = UIImage(contentsOfFile: item.imagePath ?? "") {
+                        if let image = imageFromPath(item.imagePath) {
                                 Image(uiImage: image)
                                 .resizable()
                                 .frame(width: 80, height: 100)
@@ -213,6 +215,18 @@ struct OutfitDetailView: View {
         .navigationTitle("Dettagli Outfit")
         .navigationBarTitleDisplayMode(.inline)
     }
+}
+
+// Cerca l'immagine nella directory Documents, dato solo il nome file
+private func imageFromPath(_ path: String?) -> UIImage? {
+    guard let fullPath = path else { return nil }
+    let fileName = URL(fileURLWithPath: fullPath).lastPathComponent
+    print("DEBUG: nome immagine caricata \(fileName) ")
+    if let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
+        let fileURL = documentsDirectory.appendingPathComponent(fileName)
+        return UIImage(contentsOfFile: fileURL.path)
+    }
+    return nil
 }
 
 #if DEBUG
