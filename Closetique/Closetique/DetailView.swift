@@ -2,9 +2,12 @@ import SwiftUI
 
 struct DetailView: View {
     @ObservedObject var item: ClothingItem
+    @Binding var selectedTab: Int
     @State var showDeleteAlert: Bool = false
     @Environment(\.dismiss) var dismiss
     var onDelete: (() -> Void)?
+    
+    
 
     // Carica tutti i capi dal database/local storage
     @State var allItems: [ClothingItem] = UserDefaultsManager.shared.loadItems()
@@ -318,6 +321,7 @@ struct DetailView: View {
 
                 NavigationLink(
                     destination: OutfitGeneratedBySinglePieceView(
+                        selectedTab: $selectedTab,
                         allItems: allItems,
                         aiMessage: generatedOutfit ?? "",
                         onRegenerate: {
@@ -378,27 +382,19 @@ struct DetailView: View {
 
     // Cerca l'immagine nella directory Documents, dato solo il nome file o path assoluto
     private func imageFromPath(_ path: String?) -> UIImage? {
-        guard let path = path, !path.isEmpty else { return nil }
-        
-        // Se è già un path assoluto e il file esiste, usalo
-        if FileManager.default.fileExists(atPath: path) {
-            return UIImage(contentsOfFile: path)
-        }
-        
-        // Se è solo il nome file, cerca in Documents
-        let fileName = URL(fileURLWithPath: path).lastPathComponent
+        guard let fullPath = path else { return nil }
+        let fileName = URL(fileURLWithPath: fullPath).lastPathComponent
+        print("DEBUG: nome immagine caricata \(fileName) ")
         if let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
             let fileURL = documentsDirectory.appendingPathComponent(fileName)
-            if FileManager.default.fileExists(atPath: fileURL.path) {
-                return UIImage(contentsOfFile: fileURL.path)
-            }
+            return UIImage(contentsOfFile: fileURL.path)
         }
-        
         // Fallback: impossibile trovare
         return nil
     }
 }
 
+/*
 #if DEBUG
 struct DetailView_Previews: PreviewProvider {
     struct PreviewWrapper: View {
@@ -417,3 +413,4 @@ struct DetailView_Previews: PreviewProvider {
     }
 }
 #endif
+*/

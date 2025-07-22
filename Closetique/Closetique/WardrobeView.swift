@@ -2,8 +2,10 @@ import SwiftUI
 
 struct WardrobeView: View {
     @Binding var items: [ClothingItem]
+    @Binding var selectedTab: Int
+    
     @State private var selectedCategory: String? = nil
-    @State private var showOnlyFavorites = false // nuovo stato!
+    @State private var showOnlyFavorites = false
     @State private var isSelecting = false
     @State private var selectedItems = Set<UUID>()
     @State var showDeleteAlert: Bool = false
@@ -125,7 +127,7 @@ struct WardrobeView: View {
                                         .animation(.easeInOut, value: selectedItems)
                                     } else {
                                         NavigationLink(
-                                            destination: DetailView(item: items[index], onDelete: {
+                                            destination: DetailView(item: items[index], selectedTab: $selectedTab, onDelete: {
                                                 items.remove(at: index)
                                             })
                                         ) {
@@ -271,6 +273,7 @@ struct WardrobeSelectableItemCell: View {
     }
 }
 
+/*
 #if DEBUG
 struct WardrobeView_Previews: PreviewProvider {
     struct PreviewWrapper: View {
@@ -290,3 +293,4 @@ struct WardrobeView_Previews: PreviewProvider {
     }
 }
 #endif
+*/

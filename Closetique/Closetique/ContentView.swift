@@ -25,7 +25,7 @@ import SwiftUI
                     case 2:
                         CameraView(items: $items)
                     case 3:
-                        WardrobeView(items: $items)
+                        WardrobeView(items: $items, selectedTab: $selectedTab)
                     case 4:
                         ArmocromiaMainView()
                     default:

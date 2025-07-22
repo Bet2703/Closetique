@@ -1,10 +1,15 @@
 import SwiftUI
 
 struct OutfitGeneratedBySinglePieceView: View {
+    @Binding var selectedTab: Int
     let allItems: [ClothingItem]
     let aiMessage: String
     let onRegenerate: () -> Void
-    let errorMessage: String? // <--- AGGIUNTO
+    let errorMessage: String?
+    
+    @State private var isPressedR = false //per il bottone Rigenera
+    @State private var isPressedS = false //per il bottone Salva
+
 
     // Parsing: estrae [ClothingItem] e descrizione dal messaggio AI
     private var parsed: (items: [ClothingItem], description: String) {
@@ -55,7 +60,7 @@ struct OutfitGeneratedBySinglePieceView: View {
                 if errorMessage == nil || errorMessage == "" {
                     HStack(spacing: 16) {
                         ForEach(parsed.items) { item in
-                            if let image = UIImage(contentsOfFile: item.imagePath ?? "") {
+                            if let image = imageFromPath(item.imagePath) {
                                 Image(uiImage: image)
                                     .resizable()
                                     .aspectRatio(contentMode: .fit)
@@ -105,12 +110,25 @@ struct OutfitGeneratedBySinglePieceView: View {
                             .frame(maxWidth: .infinity)
                             .background(Color(red: 246/255, green: 232/255, blue: 234/255).opacity(0.5))
                             .cornerRadius(10)
-                    }
+                            .scaleEffect(isPressedR ? 0.87 : 1.0) // Effetto click
+                            .animation(.spring(response: 0.25, dampingFraction: 0.5), value: isPressedR)
+                        }
+                        .simultaneousGesture(
+                            DragGesture(minimumDistance: 0)
+                                .onChanged { _ in
+                                    if !isPressedR { isPressedR = true }
+                                }
+                                .onEnded { _ in
+                                    isPressedR = false
+                                }
+                        )
                     
                     Button(action:{
                         guard errorMessage == nil else { return }
                         let newOutfit = MatchOutfit(items: parsed.items, description: parsed.description)
                         UserDefaultsManager.shared.saveOutfit(newOutfit)
+                        selectedTab = 1
+                        
                     }){
                         Label("Salva", systemImage: "bookmark")
                             .font(.custom("Poppins-Regular", size: 18))
@@ -119,8 +137,19 @@ struct OutfitGeneratedBySinglePieceView: View {
                             .frame(maxWidth: .infinity)
                             .background(Color(red: 112/255, green: 41/255, blue: 99/255))
                             .cornerRadius(10)
-                    }
-                    .disabled(errorMessage != nil)
+                            .scaleEffect(isPressedS ? 0.87 : 1.0) // Effetto click
+                            .animation(.spring(response: 0.25, dampingFraction: 0.5), value: isPressedS)
+                        }
+                        .simultaneousGesture(
+                            DragGesture(minimumDistance: 0)
+                                .onChanged { _ in
+                                    if !isPressedS { isPressedS = true }
+                                }
+                                .onEnded { _ in
+                                    isPressedS = false
+                                }
+                        )
+                        .disabled(errorMessage != nil)
                 }
                 .padding(.horizontal)
                 .padding(.bottom, 32)
@@ -129,4 +158,16 @@ struct OutfitGeneratedBySinglePieceView: View {
         }
         .navigationBarTitleDisplayMode(.inline)
     }
+}
+
+// Cerca l'immagine nella directory Documents, dato solo il nome file
+private func imageFromPath(_ path: String?) -> UIImage? {
+    guard let fullPath = path else { return nil }
+    let fileName = URL(fileURLWithPath: fullPath).lastPathComponent
+    print("DEBUG: nome immagine caricata \(fileName) ")
+    if let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
+        let fileURL = documentsDirectory.appendingPathComponent(fileName)
+        return UIImage(contentsOfFile: fileURL.path)
+    }
+    return nil
 }

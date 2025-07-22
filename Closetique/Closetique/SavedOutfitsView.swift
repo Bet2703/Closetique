@@ -5,39 +5,44 @@ struct SavedOutfitsView: View {
 
     var body: some View {
         NavigationStack {
-            VStack(alignment: .leading) {
-                // Titolo
-                Text("Outfit Salvati")
-                    .font(.custom("Poppins-Bold", size: 36))
-                    .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
-                    .padding(.horizontal)
-                    .padding(.top)
+            HStack {
+                VStack(alignment: .leading) {
+                    // Titolo
+                    Text("Outfit Salvati")
+                        .font(.custom("Poppins-Bold", size: 36))
+                        .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
+                        .padding(.horizontal)
+                        .padding(.top)
 
-                if savedOutfits.isEmpty {
-                    Spacer()
-                    Text("Nessun outfit salvato")
-                        .foregroundColor(.secondary)
-                        .font(.title3)
-                        .frame(maxWidth: .infinity, alignment: .center)
-                    Spacer()
-                } else {
-                    ScrollView {
-                        VStack(spacing: 20) {
-                            // Swipe to delete implementation
-                            ForEach(savedOutfits.reversed()) { outfit in
-                                SwipeToDeleteOutfitCard(
-                                    outfit: outfit,
-                                    onDelete: {
-                                        deleteOutfit(outfit)
-                                    }
-                                )
+                    if savedOutfits.isEmpty {
+                        Spacer()
+                        Text("Nessun outfit salvato")
+                            .foregroundColor(.secondary)
+                            .font(.title3)
+                            .frame(maxWidth: .infinity, alignment: .center)
+                        Spacer()
+                    } else {
+                        ScrollView {
+                            VStack(spacing: 20) {
+                                // Swipe to delete implementation
+                                ForEach(savedOutfits.reversed()) { outfit in
+                                    SwipeToDeleteOutfitCard(
+                                        outfit: outfit,
+                                        onDelete: {
+                                            deleteOutfit(outfit)
+                                        }
+                                    )
+                                }
                             }
+                            .padding(.leading)
+                            .padding(.trailing, 50)
+                            .padding(.vertical)
                         }
-                        .padding(.leading)
-                        .padding(.trailing, 50)
-                        .padding(.vertical)
                     }
                 }
+                Rectangle()
+                    .fill(Color(.systemGray4))
+                    .frame(width: 20, height: .infinity)
             }
             .background(Color(.systemGroupedBackground))
             .onAppear {

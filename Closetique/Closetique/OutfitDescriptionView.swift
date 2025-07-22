@@ -7,6 +7,9 @@ struct OutfitDescriptionView: View {
     let onRegenerate: () -> Void
     let errorMessage: String?
 
+    @State private var isPressedR = false //per il bottone Rigenera
+    @State private var isPressedS = false //per il bottone Salva
+    
     // Parsing: estrae [ClothingItem] e descrizione dal messaggio AI
     private var parsed: (items: [ClothingItem], description: String) {
         let parts = aiMessage.components(separatedBy: "|")
@@ -99,8 +102,18 @@ struct OutfitDescriptionView: View {
                             .frame(maxWidth: .infinity)
                             .background(Color(red: 246/255, green: 232/255, blue: 234/255).opacity(0.5))
                             .cornerRadius(10)
-                    }
-
+                            .scaleEffect(isPressedR ? 0.87 : 1.0) // Effetto click
+                            .animation(.spring(response: 0.25, dampingFraction: 0.5), value: isPressedR)
+                        }
+                        .simultaneousGesture(
+                            DragGesture(minimumDistance: 0)
+                                .onChanged { _ in
+                                    if !isPressedR { isPressedR = true }
+                                }
+                                .onEnded { _ in
+                                    isPressedR = false
+                                }
+                        )
                     Button(action:{
                         guard errorMessage == nil else { return }
                         let newOutfit = MatchOutfit(items: parsed.items, description: parsed.description)
@@ -114,8 +127,19 @@ struct OutfitDescriptionView: View {
                             .frame(maxWidth: .infinity)
                             .background(Color(red: 112/255, green: 41/255, blue: 99/255))
                             .cornerRadius(10)
-                    }
-                    .disabled(errorMessage != nil)
+                            .scaleEffect(isPressedS ? 0.87 : 1.0) // Effetto click
+                            .animation(.spring(response: 0.25, dampingFraction: 0.5), value: isPressedS)
+                        }
+                        .simultaneousGesture(
+                            DragGesture(minimumDistance: 0)
+                                .onChanged { _ in
+                                    if !isPressedS { isPressedS = true }
+                                }
+                                .onEnded { _ in
+                                    isPressedS = false
+                                }
+                        )
+                        .disabled(errorMessage != nil)
                 }
                 .padding(.horizontal)
                 .padding(.bottom, 32)

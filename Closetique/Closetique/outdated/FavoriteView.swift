@@ -1,4 +1,4 @@
-import SwiftUI
+/*import SwiftUI
 
 struct FavoriteView: View {
     @Binding var items: [ClothingItem]
@@ -104,6 +104,7 @@ struct FavoriteItemCell: View {
     }
 }
 
+/*
 #if DEBUG
 struct FavoriteView_Previews: PreviewProvider {
     struct PreviewWrapper: View {
@@ -123,3 +124,5 @@ struct FavoriteView_Previews: PreviewProvider {
     }
 }
 #endif
+*/
+*/
