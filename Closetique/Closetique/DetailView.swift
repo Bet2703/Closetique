@@ -376,15 +376,25 @@ struct DetailView: View {
         }
     }
 
-    // Cerca l'immagine nella directory Documents, dato solo il nome file
+    // Cerca l'immagine nella directory Documents, dato solo il nome file o path assoluto
     private func imageFromPath(_ path: String?) -> UIImage? {
-        guard let fullPath = path else { return nil }
-        let fileName = URL(fileURLWithPath: fullPath).lastPathComponent
-        print("DEBUG: nome immagine caricata \(fileName) ")
+        guard let path = path, !path.isEmpty else { return nil }
+        
+        // Se è già un path assoluto e il file esiste, usalo
+        if FileManager.default.fileExists(atPath: path) {
+            return UIImage(contentsOfFile: path)
+        }
+        
+        // Se è solo il nome file, cerca in Documents
+        let fileName = URL(fileURLWithPath: path).lastPathComponent
         if let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
             let fileURL = documentsDirectory.appendingPathComponent(fileName)
-            return UIImage(contentsOfFile: fileURL.path)
+            if FileManager.default.fileExists(atPath: fileURL.path) {
+                return UIImage(contentsOfFile: fileURL.path)
+            }
         }
+        
+        // Fallback: impossibile trovare
         return nil
     }
 }
