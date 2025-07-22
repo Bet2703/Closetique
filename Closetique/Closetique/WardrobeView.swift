@@ -218,6 +218,7 @@ struct WardrobeItemCell: View {
 
             Button(action: {
                 item.isFavorite.toggle()
+                UserDefaultsManager.shared.updateItem(item)
             }) {
                 Image(systemName: item.isFavorite ? "heart.fill" : "heart")
                     .foregroundColor(item.isFavorite ? .red : .gray)
