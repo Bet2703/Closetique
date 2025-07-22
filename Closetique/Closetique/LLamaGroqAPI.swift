@@ -5,7 +5,7 @@ class LlamaGroqAPI {
     static let apiKey = APIKeys.LLamaGroq
     static let endpoint = "https://api.groq.com/openai/v1/chat/completions"
     
-    /// Genera una combinazione di capi, restituendo i loro id separati da `;` + descrizione separata da `|`
+    /// Genera una combinazione di capi, restituisce la risposta AI (content) come String. Il parsing va fatto a parte!
     static func generateOutfitCombo(
         from items: [ClothingItem],
         targetStyle: String,
@@ -110,33 +110,31 @@ class LlamaGroqAPI {
             if let response = response as? HTTPURLResponse {
                 print("DEBUG: Codice HTTP: \(response.statusCode)")
             }
-            if let data = data, let raw = String(data: data, encoding: .utf8) {
-                print("DEBUG: Risposta raw dalla API:\n\(raw)")
-            }
             guard let data = data, error == nil else {
                 completion(nil)
                 return
             }
+            // Stampa la risposta raw per debug
+            if let raw = String(data: data, encoding: .utf8) {
+                print("DEBUG: Risposta raw dalla API:\n\(raw)")
+            }
+            // Parsing minimale: restituisce solo il content come String, oppure nil/errore
             do {
-                if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
-                   let choices = json["choices"] as? [[String: Any]],
-                   let message = choices.first?["message"] as? [String: Any],
-                   let content = message["content"] as? String {
-                    let allParsedIds = content.components(separatedBy: "|").first?
-                        .split(separator: ";")
-                        .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) } ?? []
-                    let ids = allParsedIds.filter { id in items.contains(where: { $0.id.uuidString == id }) }
-                    let invalidIds = allParsedIds.filter { id in !items.contains(where: { $0.id.uuidString == id }) }
-                    if !invalidIds.isEmpty {
-                        print("DEBUG: Id non validi scartati: \(invalidIds)")
+                if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] {
+                    if let choices = json["choices"] as? [[String: Any]],
+                       let message = choices.first?["message"] as? [String: Any],
+                       let content = message["content"] as? String {
+                        completion(content.trimmingCharacters(in: .whitespacesAndNewlines))
+                    } else if let error = json["error"] as? [String: Any],
+                              let errorMessage = error["message"] as? String {
+                        print("DEBUG: Errore API: \(errorMessage)")
+                        completion("Errore API: \(errorMessage)")
+                    } else {
+                        print("DEBUG: Risposta inattesa: \(json)")
+                        completion(nil)
                     }
-                    if !isValidOutfit(items: items, ids: ids, userPrompt: userPrompt) {
-                        completion("Outfit non valido secondo le regole.")
-                        return
-                    }
-                    completion(content.trimmingCharacters(in: .whitespacesAndNewlines))
                 } else {
-                    print("DEBUG: Parsing JSON fallito o campo mancante.")
+                    print("DEBUG: Risposta non è un dizionario JSON")
                     completion(nil)
                 }
             } catch {
@@ -145,33 +143,8 @@ class LlamaGroqAPI {
             }
         }.resume()
     }
-    
-    /// Verifica se l'outfit contiene più di una maglia o più di un pantalone (tranne eccezione camicia+maglia in casual/street)
-    private static func isValidOutfit(items: [ClothingItem], ids: [String], userPrompt: String? = nil) -> Bool {
-        let selected = items.filter { ids.contains($0.id.uuidString) }
-        let macroByCat = Dictionary(grouping: selected, by: { $0.macrocategory })
 
-        let maglie = macroByCat["Maglie"] ?? []
-        let pantaloni = macroByCat["Pantaloni"] ?? []
-
-        // Ricava stile dal prompt se disponibile
-        let style = userPrompt?.components(separatedBy: "Lo stile target per l'outfit è: \"").last?.components(separatedBy: "\"").first?.lowercased() ?? ""
-
-        if maglie.count > 1 {
-            let hasMaglia = maglie.contains { $0.category.lowercased().contains("maglia") }
-            let hasCamicia = maglie.contains { $0.category.lowercased().contains("camicia") }
-            // Eccezione: camicia sopra maglia SOLO se stile casual o street
-            if !(hasMaglia && hasCamicia && (style.contains("casual") || style.contains("street"))) {
-                return false
-            }
-        }
-        if pantaloni.count > 1 {
-            return false
-        }
-        return true
-    }
-
-    /// Genera una combinazione di capi includendo SEMPRE il capo indicato, senza stile target
+    /// Genera una combinazione di capi includendo SEMPRE il capo indicato, restituisce la risposta AI (content) come String. Il parsing va fatto a parte!
     static func generateOutfitWithFixedItem(
         fixedItem: ClothingItem,
         otherItems: [ClothingItem],
@@ -228,90 +201,50 @@ class LlamaGroqAPI {
         request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 
-        func isValidOutfit(items: [ClothingItem], ids: [String], userPrompt: String? = nil) -> Bool {
-            let selected = items.filter { ids.contains($0.id.uuidString) }
-            let macroByCat = Dictionary(grouping: selected, by: { $0.macrocategory })
-            let maglie = macroByCat["Maglie"] ?? []
-            let pantaloni = macroByCat["Pantaloni"] ?? []
-            // Ricava stile dal prompt se disponibile
-            let style = userPrompt?.components(separatedBy: "Lo stile target per l'outfit è: \"").last?.components(separatedBy: "\"").first?.lowercased() ?? ""
-            if maglie.count > 1 {
-                let hasMaglia = maglie.contains { $0.category.lowercased().contains("maglia") }
-                let hasCamicia = maglie.contains { $0.category.lowercased().contains("camicia") }
-                // Eccezione: camicia sopra maglia SOLO se stile casual o street
-                if !(hasMaglia && hasCamicia && (style.contains("casual") || style.contains("street"))) {
-                    return false
-                }
-            }
-            if pantaloni.count > 1 {
-                return false
-            }
-            return true
+        do {
+            request.httpBody = try JSONSerialization.data(withJSONObject: payload)
+        } catch {
+            print("DEBUG: Errore serializzazione payload \(error)")
+            completion(nil)
+            return
         }
 
-        func tryRequest(attempt: Int = 1) {
-            URLSession.shared.dataTask(with: request) { data, response, error in
-                if let error = error {
-                    print("DEBUG: Errore di rete: \(error.localizedDescription)")
-                }
-                if let response = response as? HTTPURLResponse {
-                    print("DEBUG: Codice HTTP: \(response.statusCode)")
-                }
-                if let data = data, let raw = String(data: data, encoding: .utf8) {
-                    print("DEBUG: Risposta raw dalla API:\n\(raw)")
-                }
-                guard let data = data, error == nil else {
-                    completion(nil)
-                    return
-                }
-                do {
-                    if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
-                       let choices = json["choices"] as? [[String: Any]],
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                print("DEBUG: Errore di rete: \(error.localizedDescription)")
+            }
+            if let response = response as? HTTPURLResponse {
+                print("DEBUG: Codice HTTP: \(response.statusCode)")
+            }
+            guard let data = data, error == nil else {
+                completion(nil)
+                return
+            }
+            if let raw = String(data: data, encoding: .utf8) {
+                print("DEBUG: Risposta raw dalla API:\n\(raw)")
+            }
+            do {
+                if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] {
+                    if let choices = json["choices"] as? [[String: Any]],
                        let message = choices.first?["message"] as? [String: Any],
                        let content = message["content"] as? String {
-                        let allParsedIds = content.components(separatedBy: "|").first?
-                            .split(separator: ";")
-                            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) } ?? []
-                        let ids = allParsedIds.filter { id in allItems.contains(where: { $0.id.uuidString == id }) }
-                        let invalidIds = allParsedIds.filter { id in !allItems.contains(where: { $0.id.uuidString == id }) }
-                        // Deve includere sempre il capo fisso
-                        if !ids.contains(fixedItem.id.uuidString) {
-                            print("DEBUG: Outfit non include il capo richiesto, rigenero... Tentativo \(attempt)")
-                            if attempt < 20 {
-                                let delay = pow(1.5, Double(attempt))
-                                DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-                                    tryRequest(attempt: attempt + 1)
-                                }
-                            } else {
-                                completion("Non è stato possibile generare un outfit valido dopo diversi tentativi.")
-                            }
-                            return
-                        }
-                        // Validità outfit (regole maglie/pantaloni)
-                        if !isValidOutfit(items: allItems, ids: ids, userPrompt: userPrompt) {
-                            print("DEBUG: Outfit non valido (2 maglie/pantaloni), rigenero... Tentativo \(attempt)")
-                            if attempt < 16 {
-                                let delay = pow(2.0, Double(attempt))
-                                DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-                                    tryRequest(attempt: attempt + 1)
-                                }
-                            } else {
-                                completion("Non è stato possibile generare un outfit valido dopo diversi tentativi.")
-                            }
-                            return
-                        }
                         completion(content.trimmingCharacters(in: .whitespacesAndNewlines))
+                    } else if let error = json["error"] as? [String: Any],
+                              let errorMessage = error["message"] as? String {
+                        print("DEBUG: Errore API: \(errorMessage)")
+                        completion("Errore API: \(errorMessage)")
                     } else {
-                        print("DEBUG: Parsing JSON fallito o campo mancante.")
+                        print("DEBUG: Risposta inattesa: \(json)")
                         completion(nil)
                     }
-                } catch {
-                    print("DEBUG: Errore parsing JSON: \(error)")
+                } else {
+                    print("DEBUG: Risposta non è un dizionario JSON")
                     completion(nil)
                 }
-            }.resume()
-        }
-
-        tryRequest()
+            } catch {
+                print("DEBUG: Errore parsing JSON: \(error)")
+                completion(nil)
+            }
+        }.resume()
     }
 }
