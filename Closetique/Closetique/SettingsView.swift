@@ -6,10 +6,11 @@ import SwiftUI
 
 /// Gestisce la pagina delle impostazioni, dalla quale è possibile visualizzare le informazioni dell'app ed effettuare il reset
 struct SettingsView: View {
-    @State private var showResetAlert = false
     @Binding var items: [ClothingItem]
     @Binding var selectedTab: Int
-
+    @State private var showResetAlert = false
+    @Environment(\.dismiss) var dismiss
+    
     var body: some View {
         NavigationStack {
             VStack(alignment: .leading, spacing: 0){
@@ -39,6 +40,7 @@ struct SettingsView: View {
                     items.removeAll()
                     UserDefaultsManager.shared.reset()
                     selectedTab = 0
+                    dismiss()
                 }
             } message: {
                 Text("Tutti i capi salvati verranno eliminati. L'operazione è irreversibile.")
