@@ -1,5 +1,10 @@
+//
+//  WardrobeView.swift
+//  Closetique
+//
 import SwiftUI
 
+/// Gestione della visualizzaizone dell'armadio
 struct WardrobeView: View {
     @Binding var items: [ClothingItem]
     @Binding var selectedTab: Int
@@ -10,6 +15,7 @@ struct WardrobeView: View {
     @State private var selectedItems = Set<UUID>()
     @State var showDeleteAlert: Bool = false
     
+    // Possibili categorie utili per una visualizzazione filtrata dell'armadio
     let categories = ["Maglie", "Camicie", "Pantaloni", "Gonne", "Abiti", "Giacca", "Giubbino", "Cappotto", "Scarpe", "Accessori", "Extra"]
 
     var filteredItems: [ClothingItem] {
@@ -188,7 +194,7 @@ struct WardrobeView: View {
     }
 }
 
-// Cella normale
+/// Gestisce la visualizzazione della singola cella della griglia di immagini dell'armadio
 struct WardrobeItemCell: View {
     @ObservedObject var item: ClothingItem
 
@@ -232,21 +238,9 @@ struct WardrobeItemCell: View {
             .padding(10)
         }
     }
-
-    // Cerca l'immagine nella directory Documents, dato solo il nome file
-    private func imageFromPath(_ path: String?) -> UIImage? {
-        guard let fullPath = path else { return nil }
-        let fileName = URL(fileURLWithPath: fullPath).lastPathComponent
-        print("DEBUG: nome immagine caricata \(fileName) ")
-        if let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
-            let fileURL = documentsDirectory.appendingPathComponent(fileName)
-            return UIImage(contentsOfFile: fileURL.path)
-        }
-        return nil
-    }
 }
 
-// Cella selezionabile con overlay spunta
+/// Gestisce la visualizzazione della singola cella della griglia di immagini dell'armadio durante la fase di selezione. Mostra un overlay con spunta sulle celle selezionati
 struct WardrobeSelectableItemCell: View {
     @ObservedObject var item: ClothingItem
     var isSelected: Bool
@@ -273,19 +267,22 @@ struct WardrobeSelectableItemCell: View {
     }
 }
 
-/*
 #if DEBUG
+import SwiftUI
+
 struct WardrobeView_Previews: PreviewProvider {
     struct PreviewWrapper: View {
-        @State var exampleItems = [
+        @State var exampleItems: [ClothingItem] = [
             ClothingItem(name: "Felpa", category: "Felpa", macrocategory: "Maglie", imagePath: nil, details: "Stringa di dettagli per prova", style: "Casual", isFavorite: false),
             ClothingItem(name: "Jeans", category: "Jeans", macrocategory: "Pantaloni", imagePath: nil, details: "Stringa di dettagli per prova", style: "Street", isFavorite: true),
             ClothingItem(name: "T-shirt", category: "T-shirt", macrocategory: "Maglie", imagePath: nil, details: "Stringa di dettagli per prova", style: "Sport", isFavorite: false),
             ClothingItem(name: "Cintura", category: "Cintura", macrocategory: "Accessori", imagePath: nil, details: "Stringa di dettagli per prova", style: "Classico", isFavorite: false),
             ClothingItem(name: "Sneakers", category: "Sneakers", macrocategory: "Scarpe", imagePath: nil, details: "Stringa di dettagli per prova", style: "Urban", isFavorite: false)
         ]
+        @State var selectedTab: Int = 2
+        
         var body: some View {
-            WardrobeView(items: $exampleItems)
+            WardrobeView(items: $exampleItems, selectedTab: $selectedTab)
         }
     }
     static var previews: some View {
@@ -293,4 +290,3 @@ struct WardrobeView_Previews: PreviewProvider {
     }
 }
 #endif
-*/

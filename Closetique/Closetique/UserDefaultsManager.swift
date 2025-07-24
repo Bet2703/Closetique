@@ -2,11 +2,10 @@
 //  UserDefaultsManager.swift
 //  Closetique
 //
-//  Created by Studente on 05/07/25.
-//
 
 import Foundation
 
+/// Classe che gestisce la persistenza dei dati
 class UserDefaultsManager {
     static let shared = UserDefaultsManager()
     private let key = "closetItems"
@@ -117,11 +116,14 @@ class UserDefaultsManager {
         all.removeAll { $0.id == outfit.id }
         saveOutfits(all)
     }
-
-    // Salva singolo (append)
+    
+/*
+    // Salva singolo outfit (append)
     func addOutfit(_ outfit: MatchOutfit) {
         var current = loadOutfits()
         current.append(outfit)
         saveOutfits(current)
     }
+ */
+    
 }

@@ -1,5 +1,10 @@
+//
+//  SavedOutfitsView.swift
+//  Closetique
+//
 import SwiftUI
 
+/// Gestisce la visualizzazione degli outfit salvati
 struct SavedOutfitsView: View {
     @State var savedOutfits: [MatchOutfit] = []
 
@@ -24,7 +29,7 @@ struct SavedOutfitsView: View {
                     } else {
                         ScrollView {
                             VStack(spacing: 20) {
-                                // Swipe to delete implementation
+                                // Swipe per eliminare l'item MatchOutfit
                                 ForEach(savedOutfits.reversed()) { outfit in
                                     SwipeToDeleteOutfitCard(
                                         outfit: outfit,
@@ -52,17 +57,16 @@ struct SavedOutfitsView: View {
     }
 
     private func deleteOutfit(_ outfit: MatchOutfit) {
-        // Remove from array
+        // rimuove dall'array
         if let idx = savedOutfits.firstIndex(where: { $0.id == outfit.id }) {
             savedOutfits.remove(at: idx)
         }
-        // Remove from persistent storage
+        // rimuove in maniera persistente
         UserDefaultsManager.shared.deleteOutfit(outfit)
     }
 }
 
-// MARK: - SwipeToDeleteOutfitCard
-
+/// Gestisce l'eliminazione dell'item MatchOutfit attraverso lo swipe
 struct SwipeToDeleteOutfitCard: View {
     let outfit: MatchOutfit
     var onDelete: () -> Void
@@ -117,6 +121,7 @@ struct SwipeToDeleteOutfitCard: View {
     }
 }
 
+/// Gestisce la singola card di visualizzazione dell'outfit
 struct OutfitCardView: View {
     let outfit: MatchOutfit
 
@@ -167,72 +172,22 @@ struct OutfitCardView: View {
     }
 }
 
-struct OutfitDetailView: View {
-    let outfit: MatchOutfit
-
-    var body: some View {
-        ScrollView {
-            VStack(spacing: 20) {
-                Text("Outfit")
-                    .font(.largeTitle)
-                    .bold()
-
-                HStack(spacing: 12) {
-                    ForEach(outfit.items) { item in
-                        if let image = UIImage(contentsOfFile: item.imagePath ?? "") {
-                                Image(uiImage: image)
-                                .resizable()
-                                .frame(width: 100, height: 120)
-                                .cornerRadius(10)
-                        } else {
-                            RoundedRectangle(cornerRadius: 10)
-                                .fill(Color.gray.opacity(0.2))
-                                .frame(width: 100, height: 120)
-                                .overlay(
-                                    VStack(spacing: 2) {
-                                        Text(item.name)
-                                            .font(.caption)
-                                            .foregroundColor(.secondary)
-                                        Text(item.macrocategory)
-                                            .font(.caption2)
-                                            .foregroundColor(.secondary)
-                                    }
-                                )
-                        }
-                    }
-                }
-
-                if let description = outfit.description {
-                    Text(description)
-                        .font(.title3)
-                        .multilineTextAlignment(.center)
-                        .padding(.top, 16)
-                }
-
-                Text("Creato il \(outfit.dateCreated.formatted(date: .long, time: .omitted))")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-
-                Spacer()
-            }
-            .padding()
-        }
-        .navigationTitle("Dettagli Outfit")
-        .navigationBarTitleDisplayMode(.inline)
-    }
-}
-
 #if DEBUG
 struct SavedOutfitsView_Previews: PreviewProvider {
     static var previews: some View {
-        let mockItems = [
-            ClothingItem(name: "Giacca", category: "Giacca", macrocategory: "Giacche", imagePath: nil, domColor: "Nero", details: "Giacca elegante", style: "Elegante", isFavorite: false),
+        let mockItems1 = [
+            ClothingItem(name: "Giacca", category: "Giacca", macrocategory: "Giacca", imagePath: nil, domColor: "Nero", details: "Giacca elegante", style: "Elegante", isFavorite: true),
             ClothingItem(name: "Pantaloni", category: "Pantaloni", macrocategory: "Pantaloni", imagePath: nil, domColor: "Grigio", details: "Slim fit", style: "Elegante", isFavorite: false),
             ClothingItem(name: "Scarpe", category: "Scarpe", macrocategory: "Scarpe", imagePath: nil, domColor: "Nero", details: "Classiche", style: "Elegante", isFavorite: false)
         ]
+        let mockItems2 = [
+            ClothingItem(name: "Maglione", category: "Maglie", macrocategory: "Maglie", imagePath: nil, domColor: "Blu", details: "Maglione di lana", style: "Casual", isFavorite: true),
+            ClothingItem(name: "Jeans", category: "Pantaloni", macrocategory: "Pantaloni", imagePath: nil, domColor: "Blu", details: "Jeans regular", style: "Casual", isFavorite: false),
+            ClothingItem(name: "Sneakers", category: "Scarpe", macrocategory: "Scarpe", imagePath: nil, domColor: "Bianco", details: "Sneakers sportive", style: "Casual", isFavorite: true)
+        ]
 
-        let mockOutfit1 = MatchOutfit(items: mockItems, description: "Outfit elegante per una serata formale.")
-        let mockOutfit2 = MatchOutfit(items: mockItems.reversed(), description: "Alternativa casual elegante.")
+        let mockOutfit1 = MatchOutfit(items: mockItems1, description: "Outfit elegante per una serata formale.")
+        let mockOutfit2 = MatchOutfit(items: mockItems2, description: "Outfit casual per tutti i giorni.")
 
         SavedOutfitsView(savedOutfits: [mockOutfit1, mockOutfit2])
     }

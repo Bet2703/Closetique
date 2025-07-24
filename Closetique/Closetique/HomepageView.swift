@@ -1,11 +1,16 @@
+//
+//  HomepageView.swift
+//  Closetique
+//
 import SwiftUI
 
+/// Gestisce la pagina home, ovvero la prima della tab bar
 struct HomepageView: View {
     @Binding var items: [ClothingItem]
     @Binding var selectedTab: Int
-    @State private var showSettings = false
-    @State private var showOutfitGenerator = false
-    @State private var showWardrobe = false
+    @State private var showSettings = false // Abilita la visualizzazione della view Settings
+    @State private var showOutfitGenerator = false // Abilita la visualizzazione della view OutfitGenerator
+    @State private var showWardrobe = false // Abilita la visualizzazione dell'armadio tramite la preview
 
     var body: some View {
         NavigationStack {
@@ -63,7 +68,7 @@ struct HomepageView: View {
                         } else {
                             ForEach(items.prefix(7), id: \.id) { item in
                                 Button {
-                                    selectedTab = 3 // Assicurati che la tab "Armadio" abbia index 3
+                                    selectedTab = 3 // Indice di "Armadio" nella tab bar
                                 } label: {
                                     WardrobePreviewItemView(item: item)
                                 }
@@ -99,10 +104,11 @@ struct HomepageView: View {
                     })
             }
         }
+        
         // FullScreenCover generatore di outfit
         .fullScreenCover(isPresented: $showOutfitGenerator) {
             NavigationStack {
-                OutfitGeneratorView(selectedTab: $selectedTab) // <--- Passa il binding!
+                OutfitGeneratorView(selectedTab: $selectedTab)
                     .toolbar(content: {
                         ToolbarItem(placement: .navigationBarLeading) {
                             Button("Chiudi") {
@@ -115,10 +121,10 @@ struct HomepageView: View {
     }
 }
 
-// Vista per il singolo capo in preview
+/// Gestisce la visualizzazione di un elemento della preview dell'armadio
 struct WardrobePreviewItemView: View {
     @ObservedObject var item: ClothingItem
-
+    
     var body: some View {
         VStack {
             if let image = imageFromPath(item.imagePath) {
@@ -146,16 +152,54 @@ struct WardrobePreviewItemView: View {
         }
         .frame(width: 90)
     }
+}
 
-    // Cerca l'immagine nella directory Documents, dato solo il nome file
-    private func imageFromPath(_ path: String?) -> UIImage? {
-        guard let fullPath = path else { return nil }
-        let fileName = URL(fileURLWithPath: fullPath).lastPathComponent
-        print("DEBUG: nome immagine caricata \(fileName) ")
-        if let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
-            let fileURL = documentsDirectory.appendingPathComponent(fileName)
-            return UIImage(contentsOfFile: fileURL.path)
+#if DEBUG
+import SwiftUI
+
+struct HomepageView_Previews: PreviewProvider {
+    struct PreviewWrapper: View {
+        @State var items: [ClothingItem] = [
+            ClothingItem(
+                name: "Jeans",
+                category: "Pantaloni",
+                macrocategory: "Pantaloni",
+                imagePath: nil,
+                domColor: "Blu",
+                details: "Jeans classici",
+                style: "Casual",
+                isFavorite: false
+            ),
+            ClothingItem(
+                name: "Giacca",
+                category: "Giubbino",
+                macrocategory: "Giacca",
+                imagePath: nil,
+                domColor: "Nero",
+                details: "Giacca elegante",
+                style: "Elegante",
+                isFavorite: true
+            ),
+            ClothingItem(
+                name: "T-shirt",
+                category: "Maglie",
+                macrocategory: "Maglie",
+                imagePath: nil,
+                domColor: "Bianco",
+                details: "T-shirt semplice",
+                style: "Casual",
+                isFavorite: false
+            )
+        ]
+        @State var selectedTab: Int = 0
+
+        var body: some View {
+            HomepageView(items: $items, selectedTab: $selectedTab)
         }
-        return nil
+    }
+    
+    static var previews: some View {
+        PreviewWrapper()
     }
 }
+#endif
