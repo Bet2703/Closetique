@@ -1,5 +1,10 @@
+//
+//  SettingsView.swift
+//  Closetique
+//
 import SwiftUI
 
+/// Gestisce la pagina delle impostazioni, dalla quale è possibile visualizzare le informazioni dell'app ed effettuare il reset
 struct SettingsView: View {
     @State private var showResetAlert = false
     @Binding var items: [ClothingItem]

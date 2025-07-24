@@ -1,3 +1,7 @@
+//
+//  SavedOutfitsView.swift
+//  Closetique
+//
 import SwiftUI
 
 struct SavedOutfitsView: View {
@@ -24,7 +28,7 @@ struct SavedOutfitsView: View {
                     } else {
                         ScrollView {
                             VStack(spacing: 20) {
-                                // Swipe to delete implementation
+                                // Swipe per eliminare l'item MatchOutfit
                                 ForEach(savedOutfits.reversed()) { outfit in
                                     SwipeToDeleteOutfitCard(
                                         outfit: outfit,
@@ -52,17 +56,16 @@ struct SavedOutfitsView: View {
     }
 
     private func deleteOutfit(_ outfit: MatchOutfit) {
-        // Remove from array
+        // rimuove dall'array
         if let idx = savedOutfits.firstIndex(where: { $0.id == outfit.id }) {
             savedOutfits.remove(at: idx)
         }
-        // Remove from persistent storage
+        // rimuove in maniera persistente
         UserDefaultsManager.shared.deleteOutfit(outfit)
     }
 }
 
-// MARK: - SwipeToDeleteOutfitCard
-
+/// Gestisce l'eliminazione dell'item MatchOutfit attraverso lo swipe
 struct SwipeToDeleteOutfitCard: View {
     let outfit: MatchOutfit
     var onDelete: () -> Void
@@ -164,61 +167,6 @@ struct OutfitCardView: View {
         .background(Color.white)
         .cornerRadius(16)
         .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
-    }
-}
-
-struct OutfitDetailView: View {
-    let outfit: MatchOutfit
-
-    var body: some View {
-        ScrollView {
-            VStack(spacing: 20) {
-                Text("Outfit")
-                    .font(.largeTitle)
-                    .bold()
-
-                HStack(spacing: 12) {
-                    ForEach(outfit.items) { item in
-                        if let image = UIImage(contentsOfFile: item.imagePath ?? "") {
-                                Image(uiImage: image)
-                                .resizable()
-                                .frame(width: 100, height: 120)
-                                .cornerRadius(10)
-                        } else {
-                            RoundedRectangle(cornerRadius: 10)
-                                .fill(Color.gray.opacity(0.2))
-                                .frame(width: 100, height: 120)
-                                .overlay(
-                                    VStack(spacing: 2) {
-                                        Text(item.name)
-                                            .font(.caption)
-                                            .foregroundColor(.secondary)
-                                        Text(item.macrocategory)
-                                            .font(.caption2)
-                                            .foregroundColor(.secondary)
-                                    }
-                                )
-                        }
-                    }
-                }
-
-                if let description = outfit.description {
-                    Text(description)
-                        .font(.title3)
-                        .multilineTextAlignment(.center)
-                        .padding(.top, 16)
-                }
-
-                Text("Creato il \(outfit.dateCreated.formatted(date: .long, time: .omitted))")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-
-                Spacer()
-            }
-            .padding()
-        }
-        .navigationTitle("Dettagli Outfit")
-        .navigationBarTitleDisplayMode(.inline)
     }
 }
 
