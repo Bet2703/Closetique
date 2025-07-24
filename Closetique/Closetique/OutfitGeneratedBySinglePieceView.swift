@@ -1,5 +1,10 @@
+//
+//  OutfitGeneratedBySinglePieceView.swift
+//  Closetique
+//
 import SwiftUI
 
+/// Gestisce la visualizzazione dell'outfit generato a partire da un particolare capo
 struct OutfitGeneratedBySinglePieceView: View {
     @Binding var selectedTab: Int
     let allItems: [ClothingItem]

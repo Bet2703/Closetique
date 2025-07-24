@@ -1,6 +1,10 @@
+//
+//  ImageClassifier.swift
+//  Closetique
+//
 import UIKit
 
-
+/// Gestisce il riempimento dei parametri dei capi durante il parsing di GeminiVisionAnalyzer
 class ImageClassifier {
     static let shared = ImageClassifier()
 

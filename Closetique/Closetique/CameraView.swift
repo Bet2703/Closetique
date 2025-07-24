@@ -1,3 +1,7 @@
+//
+//  CameraView.swift
+//  Closetique
+//
 import SwiftUI
 import UIKit
 

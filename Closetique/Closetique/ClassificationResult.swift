@@ -1,3 +1,7 @@
+//
+//  ClassificationResult.swift
+//  Closetique
+//
 import Foundation
 
 /// Rappresenta il risultato della classificazione di un capo (categoria, macro, stile, colore dominante, dettagli, colore HEX)

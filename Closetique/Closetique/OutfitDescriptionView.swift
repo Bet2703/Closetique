@@ -1,5 +1,10 @@
+//
+//  OutfitDescriptionView.swift
+//  Closetique
+//
 import SwiftUI
 
+/// Gestisce la visualizzazione dell'outfit generato
 struct OutfitDescriptionView: View {
     @Binding var selectedTab: Int
     let allItems: [ClothingItem]

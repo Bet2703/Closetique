@@ -1,5 +1,10 @@
+//
+//  OutfitGeneratorView.swift
+//  Closetique
+//
 import SwiftUI
 
+/// Gestisce la visualizzazione di selezione dello stile e di generazione dell'outfit con chiamata all'API
 struct OutfitGeneratorView: View {
     @Binding var selectedTab: Int
     @State private var selectedStyle: String = "Casual"

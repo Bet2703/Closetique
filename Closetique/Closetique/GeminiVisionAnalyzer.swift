@@ -1,3 +1,7 @@
+//
+//  GeminiVisionAnalyzer.swift
+//  Closetique
+//
 import UIKit
 
 extension UIImage {

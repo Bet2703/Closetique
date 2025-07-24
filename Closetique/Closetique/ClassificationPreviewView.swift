@@ -1,3 +1,7 @@
+//
+//  ClassificationPreviewView.swift
+//  Closetique
+//
 import SwiftUI
 
 /// Mostra l'immagine classificata e permette di modificare i dati prima di confermare l'aggiunta
@@ -7,7 +11,7 @@ struct ClassificationPreviewView: View {
     let onConfirm: (ClassificationResult) -> Void
     let onRetake: () -> Void
 
-    /// Lista delle macro-categorie disponibili per il picker
+    // Lista delle macro-categorie disponibili per il picker
     let availableCategories: [String] = ["Maglie", "Camicie", "Pantaloni", "Gonne", "Abiti", "Giacca", "Giubbino", "Cappotto", "Scarpe", "Accessori", "Extra"]
 
     // Stati per le modifiche ai campi
@@ -19,7 +23,7 @@ struct ClassificationPreviewView: View {
     @State private var editingField: EditingField? = nil
     @State private var isSaving = false
 
-    /// Enum per gestire quale campo è in editing
+    // Enum per gestire quale campo è in editing
     enum EditingField { case category, macrocategory, style, domColor, details }
 
     var body: some View {

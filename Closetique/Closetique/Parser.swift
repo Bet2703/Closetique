@@ -1,4 +1,9 @@
+//
+//  Parser.swift
+//  Closetique
+//
 import Foundation
+
 
 struct OutfitParser {
     /// Parsing che rispetta l'ordine degli id AI (ordine di presentazione nella risposta AI)
