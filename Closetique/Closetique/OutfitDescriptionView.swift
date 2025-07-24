@@ -7,6 +7,8 @@ struct OutfitDescriptionView: View {
     let onRegenerate: () -> Void
     let errorMessage: String?
 
+    @State private var isRegenerateDisabled = false //per disabilitare il bottone Rigenera in caso di errore
+    
     @State private var isPressedR = false //per il bottone Rigenera
     @State private var isPressedS = false //per il bottone Salva
 
@@ -25,7 +27,7 @@ struct OutfitDescriptionView: View {
                         Image(systemName: "exclamationmark.triangle.fill")
                             .foregroundColor(.red)
                             .font(.system(size: 28))
-                        Text(error)
+                        Text("Errore nella generazione dell'outfit. Riprova tra poco.")
                             .foregroundColor(.red)
                             .font(.custom("Poppins-Bold", size: 18))
                     }
@@ -79,19 +81,19 @@ struct OutfitDescriptionView: View {
                     .padding(.bottom, 16)
                 }
 
-                //Bottoni rigenera e salva (anche se errore, puoi rigenerare)
+                //Bottoni rigenera e salva
                 HStack(spacing: 24){
                     Button(action: {
                         onRegenerate()
                     }) {
                         Label("Rigenera", systemImage: "arrow.triangle.2.circlepath")
                             .font(.custom("Poppins-Regular", size: 18))
-                            .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
+                            .foregroundColor(isRegenerateDisabled ? .black : Color(red: 112/255, green: 41/255, blue: 99/255))
                             .padding(.vertical, 10)
                             .frame(maxWidth: .infinity)
-                            .background(Color(red: 246/255, green: 232/255, blue: 234/255).opacity(0.5))
+                            .background(isRegenerateDisabled ? Color(.systemGray4) : Color(red: 246/255, green: 232/255, blue: 234/255).opacity(0.5))
                             .cornerRadius(10)
-                            .scaleEffect(isPressedR ? 0.87 : 1.0) // Effetto click
+                            .scaleEffect(isPressedR ? 0.87 : 1.0)
                             .animation(.spring(response: 0.25, dampingFraction: 0.5), value: isPressedR)
                         }
                         .simultaneousGesture(
@@ -103,11 +105,13 @@ struct OutfitDescriptionView: View {
                                     isPressedR = false
                                 }
                         )
+                        .disabled(!(errorMessage != nil && !errorMessage!.isEmpty) ? false : isRegenerateDisabled)
+                    
                     Button(action:{
                         guard errorMessage == nil else { return }
                         let newOutfit = MatchOutfit(items: parsed.items, description: parsed.description)
                         UserDefaultsManager.shared.saveOutfit(newOutfit)
-                        selectedTab = 1 // Cambia questo valore se la tab Armadio ha un altro indice!
+                        selectedTab = 1
                     }){
                         Label("Salva", systemImage: "bookmark")
                             .font(.custom("Poppins-Regular", size: 18))
@@ -136,6 +140,14 @@ struct OutfitDescriptionView: View {
             .padding(.horizontal)
         }
         .navigationBarTitleDisplayMode(.inline)
+        // Quando compare errore, parte subito il timer per disabilitare il bottone Rigenera
+        .onChange(of: errorMessage) { newValue in
+            if newValue != nil && !newValue!.isEmpty {
+                isRegenerateDisabled = true
+                DispatchQueue.main.asyncAfter(deadline: .now() + 12) {
+                    isRegenerateDisabled = false
+                }
+            }
+        }
     }
-    
 }

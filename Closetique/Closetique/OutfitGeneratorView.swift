@@ -102,12 +102,16 @@ struct OutfitGeneratorView: View {
             }
             .padding(.top)
             .background(Color(.systemGroupedBackground))
-            .alert(isPresented: Binding<Bool>(
+            /*
+             
+             .alert(isPresented: Binding<Bool>(
                 get: { generationError != nil },
                 set: { _ in generationError = nil }
             )) {
                 Alert(title: Text("Errore"), message: Text(generationError ?? ""), dismissButton: .default(Text("OK")))
             }
+             */
+             
             .alert("Palette non selezionata", isPresented: $showPaletteAlert) {
                 Button("Vai al test") {
                     goToPaletteView = true
