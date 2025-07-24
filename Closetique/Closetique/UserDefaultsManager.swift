@@ -2,11 +2,10 @@
 //  UserDefaultsManager.swift
 //  Closetique
 //
-//  Created by Studente on 05/07/25.
-//
 
 import Foundation
 
+/// Classe che gestisce la persistenza dei dati
 class UserDefaultsManager {
     static let shared = UserDefaultsManager()
     private let key = "closetItems"

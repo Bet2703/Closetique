@@ -1,6 +1,11 @@
+//
+//  MatchOutfit.swift
+//  Closetique
+//
 import Foundation
 import Combine
 
+/// Classe per la gesitone degli outfit con funzioni di codifica, decodifica e confronto
 class MatchOutfit: Identifiable, ObservableObject, Codable, Equatable {
     var id: UUID
     var items: [ClothingItem]

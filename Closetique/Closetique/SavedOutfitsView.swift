@@ -4,6 +4,7 @@
 //
 import SwiftUI
 
+/// Gestisce la visualizzazione degli outfit salvati
 struct SavedOutfitsView: View {
     @State var savedOutfits: [MatchOutfit] = []
 
@@ -120,6 +121,7 @@ struct SwipeToDeleteOutfitCard: View {
     }
 }
 
+/// Gestisce la singola card di visualizzazione dell'outfit
 struct OutfitCardView: View {
     let outfit: MatchOutfit
 
@@ -173,14 +175,19 @@ struct OutfitCardView: View {
 #if DEBUG
 struct SavedOutfitsView_Previews: PreviewProvider {
     static var previews: some View {
-        let mockItems = [
-            ClothingItem(name: "Giacca", category: "Giacca", macrocategory: "Giacche", imagePath: nil, domColor: "Nero", details: "Giacca elegante", style: "Elegante", isFavorite: false),
+        let mockItems1 = [
+            ClothingItem(name: "Giacca", category: "Giacca", macrocategory: "Giacca", imagePath: nil, domColor: "Nero", details: "Giacca elegante", style: "Elegante", isFavorite: true),
             ClothingItem(name: "Pantaloni", category: "Pantaloni", macrocategory: "Pantaloni", imagePath: nil, domColor: "Grigio", details: "Slim fit", style: "Elegante", isFavorite: false),
             ClothingItem(name: "Scarpe", category: "Scarpe", macrocategory: "Scarpe", imagePath: nil, domColor: "Nero", details: "Classiche", style: "Elegante", isFavorite: false)
         ]
+        let mockItems2 = [
+            ClothingItem(name: "Maglione", category: "Maglie", macrocategory: "Maglie", imagePath: nil, domColor: "Blu", details: "Maglione di lana", style: "Casual", isFavorite: true),
+            ClothingItem(name: "Jeans", category: "Pantaloni", macrocategory: "Pantaloni", imagePath: nil, domColor: "Blu", details: "Jeans regular", style: "Casual", isFavorite: false),
+            ClothingItem(name: "Sneakers", category: "Scarpe", macrocategory: "Scarpe", imagePath: nil, domColor: "Bianco", details: "Sneakers sportive", style: "Casual", isFavorite: true)
+        ]
 
-        let mockOutfit1 = MatchOutfit(items: mockItems, description: "Outfit elegante per una serata formale.")
-        let mockOutfit2 = MatchOutfit(items: mockItems.reversed(), description: "Alternativa casual elegante.")
+        let mockOutfit1 = MatchOutfit(items: mockItems1, description: "Outfit elegante per una serata formale.")
+        let mockOutfit2 = MatchOutfit(items: mockItems2, description: "Outfit casual per tutti i giorni.")
 
         SavedOutfitsView(savedOutfits: [mockOutfit1, mockOutfit2])
     }
