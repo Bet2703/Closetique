@@ -294,22 +294,28 @@ struct DetailView: View {
                         ) { result in
                             DispatchQueue.main.async {
                                 if let output = result {
-                                    if output.starts(with: "Outfit non valido") || output.starts(with: "Non è stato possibile") {
+                                    // Riconosci anche errori di rete/API generici
+                                    if output.starts(with: "Outfit non valido")
+                                        || output.starts(with: "Non è stato possibile")
+                                        || output.starts(with: "Errore API:")
+                                        || output.starts(with: "Errore di rete")
+                                        || output.starts(with: "Errore:")
+                                    {
                                         self.outfitGenerationError = output
                                         self.generatedOutfit = ""
-                                        self.showOutfitView = true
                                     } else {
                                         self.generatedOutfit = output
                                         self.outfitGenerationError = nil
-                                        self.showOutfitView = true
                                     }
                                 } else {
-                                    self.outfitGenerationError = "Errore nella generazione dell'outfit."
+                                    // Non dovrebbe mai capitare, ma gestisci comunque
+                                    self.outfitGenerationError = "Errore sconosciuto: nessuna risposta dalla API!"
                                     self.generatedOutfit = ""
-                                    self.showOutfitView = true
                                 }
+                                self.showOutfitView = true
                             }
                         }
+                        
                     }) {
                         ZStack {
                             Circle()
@@ -339,7 +345,12 @@ struct DetailView: View {
                             ) { result in
                                 DispatchQueue.main.async {
                                     if let output = result {
-                                        if output.starts(with: "Outfit non valido") || output.starts(with: "Non è stato possibile") {
+                                        if output.starts(with: "Outfit non valido")
+                                            || output.starts(with: "Non è stato possibile")
+                                            || output.starts(with: "Errore API:")
+                                            || output.starts(with: "Errore di rete")
+                                            || output.starts(with: "Errore:")
+                                        {
                                             self.outfitGenerationError = output
                                             self.generatedOutfit = ""
                                         } else {
@@ -347,7 +358,7 @@ struct DetailView: View {
                                             self.outfitGenerationError = nil
                                         }
                                     } else {
-                                        self.outfitGenerationError = "Errore nella generazione dell'outfit."
+                                        self.outfitGenerationError = "Errore sconosciuto: nessuna risposta dalla API!"
                                         self.generatedOutfit = ""
                                     }
                                 }

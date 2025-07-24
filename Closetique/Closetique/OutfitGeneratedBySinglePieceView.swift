@@ -7,9 +7,8 @@ struct OutfitGeneratedBySinglePieceView: View {
     let onRegenerate: () -> Void
     let errorMessage: String?
     
-    @State private var isPressedR = false //per il bottone Rigenera
-    @State private var isPressedS = false //per il bottone Salva
-
+    @State private var isPressedR = false // per il bottone Rigenera
+    @State private var isPressedS = false // per il bottone Salva
 
     // Parsing: estrae [ClothingItem] e descrizione dal messaggio AI
     private var parsed: (items: [ClothingItem], description: String) {
@@ -22,14 +21,6 @@ struct OutfitGeneratedBySinglePieceView: View {
             allItems.first(where: { $0.id.uuidString == id })
         }
         let description = parts[1].trimmingCharacters(in: .whitespacesAndNewlines)
-        print("DEBUG: Parsed ids: \(ids)")
-        for id in ids {
-            if let found = allItems.first(where: { $0.id.uuidString == id }) {
-                print("DEBUG: Match id \(id) -> \(found.name)")
-            } else {
-                print("DEBUG: NO MATCH for id: \(id)")
-            }
-        }
         return (selected, description)
     }
 
@@ -41,7 +32,48 @@ struct OutfitGeneratedBySinglePieceView: View {
                     .foregroundColor(Color(red: 112/255, green: 41/255, blue: 99/255))
                     .padding(.top, 10)
 
-                // MESSAGGIO DI ERRORE
+                // Mostra SEMPRE outfit anche se c'è errore!
+                HStack(spacing: 16) {
+                    ForEach(parsed.items) { item in
+                        if let image = imageFromPath(item.imagePath) {
+                            Image(uiImage: image)
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(width: 110, height: 120)
+                                .cornerRadius(12)
+                        } else {
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color(red: 246/255, green: 232/255, blue: 234/255))
+                                .frame(width: 110, height: 120)
+                                .overlay(
+                                    Text(item.name.prefix(1))
+                                        .font(.largeTitle)
+                                        .foregroundColor(.gray)
+                                )
+                        }
+                    }
+                }
+                .padding(.vertical, 10)
+                
+                VStack(alignment: .leading, spacing: 8) {
+                    ForEach(parsed.items) { item in
+                        Text("\(item.name) • \(item.macrocategory) • \(item.category) • \(item.domColor ?? "-") • \(item.style)")
+                            .font(.custom("Poppins-Light", size: 16))
+                    }
+                }
+
+                Spacer(minLength: 50)
+
+                VStack(spacing: 10) {
+                    Divider()
+                    Text(parsed.description)
+                        .font(.custom("Poppins-Italic", size: 18))
+                        .multilineTextAlignment(.center)
+                        .padding(.top, 12)
+                }
+                .padding(.bottom, 16)
+
+                // Mostra errore SEMPRE se presente
                 if let error = errorMessage, !error.isEmpty {
                     HStack(alignment: .top, spacing: 12) {
                         Image(systemName: "exclamationmark.triangle.fill")
@@ -55,49 +87,6 @@ struct OutfitGeneratedBySinglePieceView: View {
                     .background(Color(red:1, green:0.95, blue:0.95))
                     .cornerRadius(12)
                 }
-
-                // Solo se NON c'è errore mostriamo il resto
-                if errorMessage == nil || errorMessage == "" {
-                    HStack(spacing: 16) {
-                        ForEach(parsed.items) { item in
-                            if let image = imageFromPath(item.imagePath) {
-                                Image(uiImage: image)
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fit)
-                                    .frame(width: 110, height: 120)
-                                    .cornerRadius(12)
-                            } else {
-                                RoundedRectangle(cornerRadius: 12)
-                                    .fill(Color(red: 246/255, green: 232/255, blue: 234/255))
-                                    .frame(width: 110, height: 120)
-                                    .overlay(
-                                        Text(item.name.prefix(1))
-                                            .font(.largeTitle)
-                                            .foregroundColor(.gray)
-                                    )
-                            }
-                        }
-                    }
-                    .padding(.vertical, 10)
-                    
-                    VStack(alignment: .leading, spacing: 8) {
-                        ForEach(parsed.items) { item in
-                            Text("\(item.name) • \(item.macrocategory) • \(item.category) • \(item.domColor ?? "-") • \(item.style)")
-                                .font(.custom("Poppins-Light", size: 16))
-                        }
-                    }
-
-                    Spacer(minLength: 50)
-
-                    VStack(spacing: 10) {
-                        Divider()
-                        Text(parsed.description)
-                            .font(.custom("Poppins-Italic", size: 18))
-                            .multilineTextAlignment(.center)
-                            .padding(.top, 12)
-                    }
-                    .padding(.bottom, 16)
-                }
                 
                 HStack(spacing: 24){
                     Button(action: {
@@ -110,25 +99,25 @@ struct OutfitGeneratedBySinglePieceView: View {
                             .frame(maxWidth: .infinity)
                             .background(Color(red: 246/255, green: 232/255, blue: 234/255).opacity(0.5))
                             .cornerRadius(10)
-                            .scaleEffect(isPressedR ? 0.87 : 1.0) // Effetto click
+                            .scaleEffect(isPressedR ? 0.87 : 1.0)
                             .animation(.spring(response: 0.25, dampingFraction: 0.5), value: isPressedR)
-                        }
-                        .simultaneousGesture(
-                            DragGesture(minimumDistance: 0)
-                                .onChanged { _ in
-                                    if !isPressedR { isPressedR = true }
-                                }
-                                .onEnded { _ in
-                                    isPressedR = false
-                                }
-                        )
+                    }
+                    .simultaneousGesture(
+                        DragGesture(minimumDistance: 0)
+                            .onChanged { _ in
+                                if !isPressedR { isPressedR = true }
+                            }
+                            .onEnded { _ in
+                                isPressedR = false
+                            }
+                    )
                     
                     Button(action:{
-                        guard errorMessage == nil else { return }
+                        // Salva outfit solo se ci sono items, anche se c'è errore
+                        guard !parsed.items.isEmpty else { return }
                         let newOutfit = MatchOutfit(items: parsed.items, description: parsed.description)
                         UserDefaultsManager.shared.saveOutfit(newOutfit)
                         selectedTab = 1
-                        
                     }){
                         Label("Salva", systemImage: "bookmark")
                             .font(.custom("Poppins-Regular", size: 18))
@@ -137,19 +126,20 @@ struct OutfitGeneratedBySinglePieceView: View {
                             .frame(maxWidth: .infinity)
                             .background(Color(red: 112/255, green: 41/255, blue: 99/255))
                             .cornerRadius(10)
-                            .scaleEffect(isPressedS ? 0.87 : 1.0) // Effetto click
+                            .scaleEffect(isPressedS ? 0.87 : 1.0)
                             .animation(.spring(response: 0.25, dampingFraction: 0.5), value: isPressedS)
-                        }
-                        .simultaneousGesture(
-                            DragGesture(minimumDistance: 0)
-                                .onChanged { _ in
-                                    if !isPressedS { isPressedS = true }
-                                }
-                                .onEnded { _ in
-                                    isPressedS = false
-                                }
-                        )
-                        .disabled(errorMessage != nil)
+                    }
+                    .simultaneousGesture(
+                        DragGesture(minimumDistance: 0)
+                            .onChanged { _ in
+                                if !isPressedS { isPressedS = true }
+                            }
+                            .onEnded { _ in
+                                isPressedS = false
+                            }
+                    )
+                    // Disabilita salva solo se NON ci sono items!
+                    .disabled(parsed.items.isEmpty)
                 }
                 .padding(.horizontal)
                 .padding(.bottom, 32)
@@ -159,3 +149,4 @@ struct OutfitGeneratedBySinglePieceView: View {
         .navigationBarTitleDisplayMode(.inline)
     }
 }
+

@@ -10,7 +10,8 @@ class LlamaGroqAPI {
         from items: [ClothingItem],
         targetStyle: String,
         includePalette: Bool,
-        completion: @escaping (String?) -> Void
+        completion: @escaping (String?) -> Void,
+        retryCount: Int = 0
     ) {
         let selectedSeason = UserDefaults.standard.string(forKey: "selectedSeason") ?? "N/A"
         let itemDescriptions = items.map {
@@ -87,7 +88,7 @@ class LlamaGroqAPI {
 
         guard let url = URL(string: endpoint) else {
             print("DEBUG: Endpoint URL non valida.")
-            completion(nil)
+            completion("Errore di rete: endpoint API non valido.")
             return
         }
         var request = URLRequest(url: url)
@@ -99,7 +100,7 @@ class LlamaGroqAPI {
             request.httpBody = try JSONSerialization.data(withJSONObject: payload)
         } catch {
             print("DEBUG: Errore serializzazione payload \(error)")
-            completion(nil)
+            completion("Errore: impossibile serializzare i dati da inviare all'API.")
             return
         }
 
@@ -111,44 +112,65 @@ class LlamaGroqAPI {
                 print("DEBUG: Codice HTTP: \(response.statusCode)")
             }
             guard let data = data, error == nil else {
-                completion(nil)
+                completion("Errore di rete: nessuna risposta dai server.")
                 return
             }
-            // Stampa la risposta raw per debug
             if let raw = String(data: data, encoding: .utf8) {
                 print("DEBUG: Risposta raw dalla API:\n\(raw)")
             }
-            // Parsing minimale: restituisce solo il content come String, oppure nil/errore
             do {
                 if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] {
                     if let choices = json["choices"] as? [[String: Any]],
                        let message = choices.first?["message"] as? [String: Any],
                        let content = message["content"] as? String {
-                        completion(content.trimmingCharacters(in: .whitespacesAndNewlines))
+                        let trimmedContent = content.trimmingCharacters(in: .whitespacesAndNewlines)
+                        let parsed = OutfitParser.parseOrdered(aiMessage: trimmedContent, allItems: items)
+                        // ERRORE SE NON GENERATO O VUOTO
+                        if parsed.items.isEmpty {
+                            print("DEBUG: Nessun outfit valido generato dall'AI, errore!")
+                            completion("Errore: Non è stato possibile generare un outfit valido.")
+                            return
+                        }
+                        // CONTROLLO MACRO-CATEGORIE
+                        let macros = parsed.items.map { $0.macrocategory }
+                        let uniqueMacros = Set(macros)
+                        if uniqueMacros.count < parsed.items.count {
+                            print("DEBUG: Macro-categorie duplicate, rigenero... (\(macros))")
+                            if retryCount < 3 {
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                                    generateOutfitCombo(from: items, targetStyle: targetStyle, includePalette: includePalette, completion: completion, retryCount: retryCount + 1)
+                                }
+                            } else {
+                                completion(trimmedContent)
+                            }
+                        } else {
+                            print("DEBUG: Tutti i capi hanno macro-categorie diverse. \(macros)")
+                            completion(trimmedContent)
+                        }
                     } else if let error = json["error"] as? [String: Any],
                               let errorMessage = error["message"] as? String {
                         print("DEBUG: Errore API: \(errorMessage)")
                         completion("Errore API: \(errorMessage)")
                     } else {
                         print("DEBUG: Risposta inattesa: \(json)")
-                        completion(nil)
+                        completion("Errore di rete: risposta inattesa dalla API.")
                     }
                 } else {
                     print("DEBUG: Risposta non è un dizionario JSON")
-                    completion(nil)
+                    completion("Errore di rete: la risposta non è in formato JSON valido.")
                 }
             } catch {
                 print("DEBUG: Errore parsing JSON: \(error)")
-                completion(nil)
+                completion("Errore: impossibile interpretare la risposta dal server.")
             }
         }.resume()
     }
 
-    /// Genera una combinazione di capi includendo SEMPRE il capo indicato, restituisce la risposta AI (content) come String. Il parsing va fatto a parte!
     static func generateOutfitWithFixedItem(
         fixedItem: ClothingItem,
         otherItems: [ClothingItem],
-        completion: @escaping (String?) -> Void
+        completion: @escaping (String?) -> Void,
+        retryCount: Int = 0
     ) {
         let allItems = [fixedItem] + otherItems
         let itemDescriptions = allItems.map {
@@ -193,7 +215,7 @@ class LlamaGroqAPI {
 
         guard let url = URL(string: endpoint) else {
             print("DEBUG: Endpoint URL non valida.")
-            completion(nil)
+            completion("Errore di rete: endpoint API non valido.")
             return
         }
         var request = URLRequest(url: url)
@@ -205,7 +227,7 @@ class LlamaGroqAPI {
             request.httpBody = try JSONSerialization.data(withJSONObject: payload)
         } catch {
             print("DEBUG: Errore serializzazione payload \(error)")
-            completion(nil)
+            completion("Errore: impossibile serializzare i dati da inviare all'API.")
             return
         }
 
@@ -217,7 +239,7 @@ class LlamaGroqAPI {
                 print("DEBUG: Codice HTTP: \(response.statusCode)")
             }
             guard let data = data, error == nil else {
-                completion(nil)
+                completion("Errore di rete: nessuna risposta dai server.")
                 return
             }
             if let raw = String(data: data, encoding: .utf8) {
@@ -228,22 +250,45 @@ class LlamaGroqAPI {
                     if let choices = json["choices"] as? [[String: Any]],
                        let message = choices.first?["message"] as? [String: Any],
                        let content = message["content"] as? String {
-                        completion(content.trimmingCharacters(in: .whitespacesAndNewlines))
+                        let trimmedContent = content.trimmingCharacters(in: .whitespacesAndNewlines)
+                        let parsed = OutfitParser.parseOrdered(aiMessage: trimmedContent, allItems: allItems)
+                        // ERRORE SE NON GENERATO O VUOTO
+                        if parsed.items.isEmpty {
+                            print("DEBUG: Nessun outfit valido generato dall'AI, errore!")
+                            completion("Errore: Non è stato possibile generare un outfit valido.")
+                            return
+                        }
+                        // CONTROLLO MACRO-CATEGORIE
+                        let macros = parsed.items.map { $0.macrocategory }
+                        let uniqueMacros = Set(macros)
+                        if uniqueMacros.count < parsed.items.count {
+                            print("DEBUG: Macro-categorie duplicate, rigenero... (\(macros))")
+                            if retryCount < 3 {
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                                    generateOutfitWithFixedItem(fixedItem: fixedItem, otherItems: otherItems, completion: completion, retryCount: retryCount + 1)
+                                }
+                            } else {
+                                completion(trimmedContent)
+                            }
+                        } else {
+                            print("DEBUG: Tutti i capi hanno macro-categorie diverse. \(macros)")
+                            completion(trimmedContent)
+                        }
                     } else if let error = json["error"] as? [String: Any],
                               let errorMessage = error["message"] as? String {
                         print("DEBUG: Errore API: \(errorMessage)")
                         completion("Errore API: \(errorMessage)")
                     } else {
                         print("DEBUG: Risposta inattesa: \(json)")
-                        completion(nil)
+                        completion("Errore di rete: risposta inattesa dalla API.")
                     }
                 } else {
                     print("DEBUG: Risposta non è un dizionario JSON")
-                    completion(nil)
+                    completion("Errore di rete: la risposta non è in formato JSON valido.")
                 }
             } catch {
                 print("DEBUG: Errore parsing JSON: \(error)")
-                completion(nil)
+                completion("Errore: impossibile interpretare la risposta dal server.")
             }
         }.resume()
     }

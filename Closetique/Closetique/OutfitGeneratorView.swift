@@ -11,7 +11,6 @@ struct OutfitGeneratorView: View {
     @AppStorage("selectedSeason") private var selectedSeason: String?
     @State private var showPaletteAlert = false
     @State private var goToPaletteView = false
-
     @State private var insertStyle = ""
     
     let styles = ["Casual", "Elegante", "Sportivo", "Streetwear"]
@@ -92,7 +91,7 @@ struct OutfitGeneratorView: View {
                         onRegenerate: {
                             generateOutfitWithGroq(for: selectedStyle)
                         },
-                        errorMessage: generationError // <-- AGGIUNTO QUI
+                        errorMessage: generationError
                     ),
                     isActive: $navigateToDescription
                 ) { EmptyView() }
@@ -131,7 +130,12 @@ struct OutfitGeneratorView: View {
             DispatchQueue.main.async {
                 isGenerating = false
                 if let output = result {
-                    if output.starts(with: "Outfit non valido") || output.starts(with: "Non è stato possibile") {
+                    if output.starts(with: "Outfit non valido")
+                        || output.starts(with: "Non è stato possibile")
+                        || output.starts(with: "Errore API:")
+                        || output.starts(with: "Errore di rete")
+                        || output.starts(with: "Errore:")
+                    {
                         self.generationError = output
                         self.aiMessage = ""
                         self.navigateToDescription = true
@@ -141,7 +145,9 @@ struct OutfitGeneratorView: View {
                         self.navigateToDescription = true
                     }
                 } else {
-                    self.generationError = "Errore nella generazione dell'outfit."
+                    self.generationError = "Errore sconosciuto: nessuna risposta dalla API!"
+                    self.aiMessage = ""
+                    self.navigateToDescription = true
                 }
             }
         }

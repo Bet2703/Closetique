@@ -9,20 +9,9 @@ struct OutfitDescriptionView: View {
 
     @State private var isPressedR = false //per il bottone Rigenera
     @State private var isPressedS = false //per il bottone Salva
-    
-    // Parsing: estrae [ClothingItem] e descrizione dal messaggio AI
-    private var parsed: (items: [ClothingItem], description: String) {
-        let parts = aiMessage.components(separatedBy: "|")
-        guard parts.count == 2 else { return ([], "") }
-        let ids = parts[0]
-            .split(separator: ";")
-            .map { String($0).trimmingCharacters(in: .whitespacesAndNewlines) }
-        let selected = allItems.filter { ids.contains($0.id.uuidString) }
-        let description = parts[1].trimmingCharacters(in: .whitespacesAndNewlines)
-        return (selected, description)
-    }
 
     var body: some View {
+        let parsed = OutfitParser.parseOrdered(aiMessage: aiMessage, allItems: allItems)
         ScrollView {
             VStack(spacing: 24) {
                 Text("Outfit Generato")
@@ -148,4 +137,5 @@ struct OutfitDescriptionView: View {
         }
         .navigationBarTitleDisplayMode(.inline)
     }
+    
 }
