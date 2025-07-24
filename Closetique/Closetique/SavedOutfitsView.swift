@@ -222,18 +222,6 @@ struct OutfitDetailView: View {
     }
 }
 
-// Cerca l'immagine nella directory Documents, dato solo il nome file
-private func imageFromPath(_ path: String?) -> UIImage? {
-    guard let fullPath = path else { return nil }
-    let fileName = URL(fileURLWithPath: fullPath).lastPathComponent
-    print("DEBUG: nome immagine caricata \(fileName) ")
-    if let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
-        let fileURL = documentsDirectory.appendingPathComponent(fileName)
-        return UIImage(contentsOfFile: fileURL.path)
-    }
-    return nil
-}
-
 #if DEBUG
 struct SavedOutfitsView_Previews: PreviewProvider {
     static var previews: some View {

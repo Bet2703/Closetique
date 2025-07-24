@@ -4,6 +4,7 @@
 //
 import Foundation
 import Combine
+import UIKit
 
 /// Classe per la gesitone dei singoli capi con funzioni di codifica, decodifica e confronto
 class ClothingItem: Identifiable, ObservableObject, Codable, Equatable {
@@ -93,4 +94,17 @@ class ClothingItem: Identifiable, ObservableObject, Codable, Equatable {
         //print("DEBUG: Confronto ClothingItem: \(lhs.name) == \(rhs.name)? \(eq)")
         return eq
     }
+}
+
+// Funzione che cerca l'immagine nella directory Documents, dato solo il nome
+func imageFromPath(_ path: String?) -> UIImage? {
+    guard let fullPath = path else { return nil }
+    let fileName = URL(fileURLWithPath: fullPath).lastPathComponent
+    print("DEBUG: nome immagine caricata \(fileName) ")
+    if let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
+        let fileURL = documentsDirectory.appendingPathComponent(fileName)
+        return UIImage(contentsOfFile: fileURL.path)
+    }
+    // Fallback: impossibile trovare
+    return nil
 }
