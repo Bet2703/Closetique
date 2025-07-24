@@ -1,20 +1,25 @@
 import SwiftUI
 import UIKit
 
+/// Vista principale che gestisce flusso: foto, classificazione, preview, salvataggio
 struct CameraView: View {
     @Binding var items: [ClothingItem]
     @Environment(\.dismiss) private var dismiss
 
+    // Stato per picker
     @State private var showImagePicker = false
     @State private var imageSource: UIImagePickerController.SourceType = .camera
     @State private var pickedImage: UIImage?
+    // Stato per classificazione
     @State private var isClassifying: Bool = false
     @State private var classificationResult: ClassificationResult?
     @State private var showPreview: Bool = false
+    // Stato per scelta sorgente
     @State private var showActionSheet = false
 
     var body: some View {
         VStack {
+            // Se c'è preview con risultato, mostra la ClassificationPreviewView
             if let image = pickedImage, let result = classificationResult, showPreview {
                 ClassificationPreviewView(
                     image: image,
@@ -30,6 +35,7 @@ struct CameraView: View {
                 )
             } else {
                 Spacer()
+                // Se classificazione in corso, mostra progress
                 if let image = pickedImage, isClassifying {
                     Image(uiImage: image)
                         .resizable()
@@ -39,14 +45,18 @@ struct CameraView: View {
                         .padding()
                     ProgressView("Analisi in corso...")
                         .padding()
-                } else if let image = pickedImage {
+                }
+                // Se solo immagine, mostra preview base
+                else if let image = pickedImage {
                     Image(uiImage: image)
                         .resizable()
                         .scaledToFit()
                         .frame(maxHeight: 320)
                         .cornerRadius(16)
                         .padding()
-                } else {
+                }
+                // Se nulla, mostra bottone aggiungi foto
+                else {
                     Button {
                         showActionSheet = true
                     } label: {
@@ -65,6 +75,7 @@ struct CameraView: View {
             }
         }
         .navigationTitle("Nuovo capo")
+        // Dialog per scelta sorgente foto
         .confirmationDialog("Scegli sorgente", isPresented: $showActionSheet) {
             Button("Scatta foto") {
                 imageSource = .camera
@@ -76,6 +87,7 @@ struct CameraView: View {
             }
             Button("Annulla", role: .cancel) { }
         }
+        // Sheet con ImagePicker
         .sheet(isPresented: $showImagePicker) {
             ImagePicker(sourceType: imageSource, selectedImage: $pickedImage, onDismiss: {
                 if let img = pickedImage {
@@ -85,6 +97,7 @@ struct CameraView: View {
         }
     }
 
+    /// Chiamata alla classificazione AI
     private func classify(image: UIImage) {
         isClassifying = true
         classificationResult = nil
@@ -97,6 +110,7 @@ struct CameraView: View {
         }
     }
     
+    /// Salva il capo classificato e l'immagine su disco
     private func saveItem(image: UIImage, result: ClassificationResult) {
         let id = UUID()
         let filename = "\(id).jpg"
@@ -130,6 +144,7 @@ struct CameraView: View {
         }
     }
 
+    /// Reset dello stato per ripetere la classificazione
     private func reset() {
         pickedImage = nil
         classificationResult = nil

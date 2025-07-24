@@ -1,13 +1,16 @@
 import SwiftUI
 
+/// Mostra l'immagine classificata e permette di modificare i dati prima di confermare l'aggiunta
 struct ClassificationPreviewView: View {
     let image: UIImage
     let result: ClassificationResult
     let onConfirm: (ClassificationResult) -> Void
     let onRetake: () -> Void
+
+    /// Lista delle macro-categorie disponibili per il picker
     let availableCategories: [String] = ["Maglie", "Camicie", "Pantaloni", "Gonne", "Abiti", "Giacca", "Giubbino", "Cappotto", "Scarpe", "Accessori", "Extra"]
 
-    // Editing states
+    // Stati per le modifiche ai campi
     @State private var editedCategory: String = ""
     @State private var editedMacrocategory: String = ""
     @State private var editedStyle: String = ""
@@ -16,16 +19,19 @@ struct ClassificationPreviewView: View {
     @State private var editingField: EditingField? = nil
     @State private var isSaving = false
 
+    /// Enum per gestire quale campo è in editing
     enum EditingField { case category, macrocategory, style, domColor, details }
 
     var body: some View {
         VStack(spacing: 24) {
+            // Mostra immagine capo
             Image(uiImage: image)
                 .resizable()
                 .scaledToFit()
                 .frame(maxHeight: 320)
                 .cornerRadius(16)
                 .padding()
+            // Campi editabili
             VStack(spacing: 12) {
                 // Categoria
                 HStack {
@@ -93,7 +99,7 @@ struct ClassificationPreviewView: View {
                         }
                     }
                 }
-                // Colore
+                // Colore dominante nel cerchio
                 HStack {
                     Text("Colore:").font(.custom("Poppins-Regular", size: 16))
                     Spacer()
@@ -129,6 +135,7 @@ struct ClassificationPreviewView: View {
             .padding()
             .background(Color(.systemGroupedBackground))
             .cornerRadius(12)
+            // Bottoni conferma/annulla
             HStack(spacing: 32) {
                 Button("Ripeti") { onRetake() }
                     .foregroundColor(.red)
