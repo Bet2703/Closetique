@@ -1,6 +1,11 @@
+//
+//  ClothingItem.swift
+//  Closetique
+//
 import Foundation
 import Combine
 
+/// Classe per la gesitone dei singoli capi con funzioni di codifica, decodifica e confronto
 class ClothingItem: Identifiable, ObservableObject, Codable, Equatable {
     var id: UUID
     var name: String
