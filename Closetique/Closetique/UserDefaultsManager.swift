@@ -117,11 +117,14 @@ class UserDefaultsManager {
         all.removeAll { $0.id == outfit.id }
         saveOutfits(all)
     }
-
-    // Salva singolo (append)
+    
+/*
+    // Salva singolo outfit (append)
     func addOutfit(_ outfit: MatchOutfit) {
         var current = loadOutfits()
         current.append(outfit)
         saveOutfits(current)
     }
+ */
+    
 }
