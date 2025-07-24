@@ -2,8 +2,6 @@
 //  AboutView.swift
 //  Closetique
 //
-//  Created by Studente on 07/07/25.
-//
 import SwiftUI
 
 struct AboutView: View {

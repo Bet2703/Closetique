@@ -1,10 +1,18 @@
+//
+//  ArmocromiaMainView.swift
+//  Closetique
+//
 import SwiftUI
 
+/// Pagina principale della sezione Armocromia. Inizialmente mostra due pulsanti ("Inserisci la tua stazione", "Avvia test). Poi mostra la palette dell'utente
 struct ArmocromiaMainView: View {
     let seasons = ["Spring", "Summer", "Autumn", "Winter"]
+    
     @AppStorage("selectedSeason") private var selectedSeason: String?
-    @State private var showSeasonPicker = false
-    @State private var showTest: Bool = false
+    // Salva nello UserDefaults con chiave "selectedSeason" la stagione selezionata o calcolata
+    
+    @State private var showSeasonPicker = false // Abilita la visualizzazione del menu picker
+    @State private var showTest: Bool = false // Avvia il test
 
     var body: some View {
         NavigationStack {
@@ -76,10 +84,12 @@ struct ArmocromiaMainView: View {
     }
 }
 
+/// Struct che gestisce il menu picker per la selezione manuale della stagione
 struct SeasonPickerView: View {
-    let seasons: [String]
-    @Binding var selectedSeason: String?
-    @Environment(\.dismiss) private var dismiss
+    let seasons: [String] // Costante passata da ArmocromiaMainView
+    @Binding var selectedSeason: String? //Variabile in binding che aggiorna il valore di selectedSeason anche in ArmocromiaMainView
+    
+    @Environment(\.dismiss) private var dismiss // Permette di chiudere la sheet del SeasonPicker e di tornare ad ArmocromiaMainView
 
     var body: some View {
         NavigationStack {
@@ -111,6 +121,7 @@ struct SeasonPickerView: View {
     }
 }
 
+/// Gestisce la visualizzazione in griglia dei colori della palette dell'utente
 struct PaletteGridView: View {
     var season: String
     @State private var selectedColor: PaletteColor? = nil
@@ -185,8 +196,9 @@ struct PaletteGridView: View {
     }
 }
 
+/// Gestisce la visualizzazione del popup che mostra il riquadro del colore con il suo nome esteso
 struct PaletteColorPopup: View {
-    let color: PaletteColor
+    let color: PaletteColor // Colore passato da PaletteGridView
 
     var body: some View {
         VStack(spacing: 24) {
@@ -208,143 +220,6 @@ struct PaletteColorPopup: View {
         .padding()
         .presentationDetents([.fraction(0.35), .medium])
     }
-}
-
-
-struct PaletteColor {
-    let color: Color
-    let name: String
-}
-
-struct Palette {
-    static let spring: [PaletteColor] = [
-        PaletteColor(color: Color(red: 0.39, green: 0.22, blue: 0.20), name: "Marrone caldo"),
-        PaletteColor(color: Color(red: 0.23, green: 0.43, blue: 0.48), name: "Ottanio"),
-        PaletteColor(color: Color(red: 0.13, green: 0.29, blue: 0.44), name: "Blu profondo"),
-        PaletteColor(color: Color(red: 0.84, green: 0.33, blue: 0.34), name: "Corallo"),
-        PaletteColor(color: Color(red: 0.85, green: 0.32, blue: 0.41), name: "Rosa vivace"),
-        PaletteColor(color: Color(red: 0.47, green: 0.41, blue: 0.56), name: "Viola soft"),
-        PaletteColor(color: Color(red: 0.49, green: 0.26, blue: 0.23), name: "Terracotta"),
-        PaletteColor(color: Color(red: 0.30, green: 0.56, blue: 0.50), name: "Verde menta"),
-        PaletteColor(color: Color(red: 0.20, green: 0.40, blue: 0.62), name: "Azzurro vivace"),
-        PaletteColor(color: Color(red: 0.92, green: 0.56, blue: 0.45), name: "Aragosta"),
-        PaletteColor(color: Color(red: 0.90, green: 0.46, blue: 0.60), name: "Rosa pesca"),
-        PaletteColor(color: Color(red: 0.38, green: 0.34, blue: 0.53), name: "Indaco"),
-        PaletteColor(color: Color(red: 0.61, green: 0.52, blue: 0.34), name: "Senape"),
-        PaletteColor(color: Color(red: 0.23, green: 0.60, blue: 0.41), name: "Verde prato"),
-        PaletteColor(color: Color(red: 0.38, green: 0.48, blue: 0.71), name: "Blu denim"),
-        PaletteColor(color: Color(red: 0.93, green: 0.70, blue: 0.66), name: "Albiccocca"),
-        PaletteColor(color: Color(red: 0.92, green: 0.60, blue: 0.70), name: "Rosa antico"),
-        PaletteColor(color: Color(red: 0.54, green: 0.51, blue: 0.74), name: "Lavanda"),
-        PaletteColor(color: Color(red: 0.88, green: 0.62, blue: 0.48), name: "Cammello"),
-        PaletteColor(color: Color(red: 0.51, green: 0.76, blue: 0.45), name: "Verde lime"),
-        PaletteColor(color: Color(red: 0.38, green: 0.63, blue: 0.72), name: "Turchese"),
-        PaletteColor(color: Color(red: 0.97, green: 0.77, blue: 0.45), name: "Giallo sole"),
-        PaletteColor(color: Color(red: 0.97, green: 0.65, blue: 0.77), name: "Rosa bubblegum"),
-        PaletteColor(color: Color(red: 0.73, green: 0.67, blue: 0.83), name: "Lilla"),
-        PaletteColor(color: Color(red: 0.92, green: 0.75, blue: 0.62), name: "Crema"),
-        PaletteColor(color: Color(red: 0.71, green: 0.88, blue: 0.62), name: "Verde chiaro"),
-        PaletteColor(color: Color(red: 0.51, green: 0.82, blue: 0.84), name: "Azzurro polvere"),
-        PaletteColor(color: Color(red: 0.97, green: 0.89, blue: 0.61), name: "Giallo chiaro"),
-        PaletteColor(color: Color(red: 0.96, green: 0.77, blue: 0.81), name: "Pesca"),
-        PaletteColor(color: Color(red: 0.77, green: 0.76, blue: 0.87), name: "Lavanda chiara"),
-    ]
-    static let summer: [PaletteColor] = [
-        PaletteColor(color: Color(red: 0.11, green: 0.11, blue: 0.14), name: "Antracite"),
-        PaletteColor(color: Color(red: 0.21, green: 0.22, blue: 0.30), name: "Blu notte"),
-        PaletteColor(color: Color(red: 0.22, green: 0.39, blue: 0.41), name: "Azzurro polvere"),
-        PaletteColor(color: Color(red: 0.73, green: 0.41, blue: 0.66), name: "Malva"),
-        PaletteColor(color: Color(red: 0.50, green: 0.20, blue: 0.33), name: "Borgogna"),
-        PaletteColor(color: Color(red: 0.29, green: 0.23, blue: 0.37), name: "Viola"),
-        PaletteColor(color: Color(red: 0.27, green: 0.24, blue: 0.29), name: "Grigio fumo"),
-        PaletteColor(color: Color(red: 0.26, green: 0.30, blue: 0.43), name: "Blu polvere"),
-        PaletteColor(color: Color(red: 0.32, green: 0.49, blue: 0.50), name: "Verde acqua"),
-        PaletteColor(color: Color(red: 0.94, green: 0.56, blue: 0.80), name: "Rosa cipria"),
-        PaletteColor(color: Color(red: 0.64, green: 0.22, blue: 0.36), name: "Ciclamino"),
-        PaletteColor(color: Color(red: 0.43, green: 0.36, blue: 0.52), name: "Viola pastello"),
-        PaletteColor(color: Color(red: 0.53, green: 0.53, blue: 0.53), name: "Grigio medio"),
-        PaletteColor(color: Color(red: 0.36, green: 0.45, blue: 0.71), name: "Blu carta da zucchero"),
-        PaletteColor(color: Color(red: 0.40, green: 0.62, blue: 0.61), name: "Verde salvia"),
-        PaletteColor(color: Color(red: 0.97, green: 0.75, blue: 0.89), name: "Rosa pallido"),
-        PaletteColor(color: Color(red: 0.84, green: 0.42, blue: 0.57), name: "Rosa chiaro"),
-        PaletteColor(color: Color(red: 0.49, green: 0.44, blue: 0.61), name: "Lilla scuro"),
-        PaletteColor(color: Color(red: 0.80, green: 0.86, blue: 0.83), name: "Verde menta chiaro"),
-        PaletteColor(color: Color(red: 0.54, green: 0.71, blue: 0.86), name: "Celeste"),
-        PaletteColor(color: Color(red: 0.54, green: 0.80, blue: 0.69), name: "Verde acqua chiaro"),
-        PaletteColor(color: Color(red: 0.98, green: 0.91, blue: 0.62), name: "Giallo pastello"),
-        PaletteColor(color: Color(red: 0.93, green: 0.53, blue: 0.64), name: "Rosa barbie"),
-        PaletteColor(color: Color(red: 0.56, green: 0.42, blue: 0.62), name: "Viola lavanda"),
-        PaletteColor(color: Color(red: 0.96, green: 0.97, blue: 0.97), name: "Bianco ghiaccio"),
-        PaletteColor(color: Color(red: 0.68, green: 0.85, blue: 0.98), name: "Azzurro cielo"),
-        PaletteColor(color: Color(red: 0.78, green: 0.93, blue: 0.92), name: "Verde acqua pastello"),
-        PaletteColor(color: Color(red: 1.00, green: 0.97, blue: 0.73), name: "Giallo crema"),
-        PaletteColor(color: Color(red: 0.76, green: 0.39, blue: 0.59), name: "Rosa malva"),
-        PaletteColor(color: Color(red: 0.45, green: 0.44, blue: 0.76), name: "Blu lavanda")
-    ]
-    static let autumn: [PaletteColor] = [
-        PaletteColor(color: Color(red: 0.43, green: 0.22, blue: 0.24), name: "Mattone"),
-        PaletteColor(color: Color(red: 0.89, green: 0.44, blue: 0.31), name: "Arancio bruciato"),
-        PaletteColor(color: Color(red: 0.15, green: 0.23, blue: 0.14), name: "Verde bosco"),
-        PaletteColor(color: Color(red: 0.29, green: 0.27, blue: 0.13), name: "Oliva"),
-        PaletteColor(color: Color(red: 0.39, green: 0.20, blue: 0.23), name: "Bordeaux"),
-        PaletteColor(color: Color(red: 0.48, green: 0.27, blue: 0.39), name: "Prugna"),
-        PaletteColor(color: Color(red: 0.37, green: 0.22, blue: 0.23), name: "Marrone scuro"),
-        PaletteColor(color: Color(red: 0.94, green: 0.70, blue: 0.27), name: "Ocra"),
-        PaletteColor(color: Color(red: 0.22, green: 0.44, blue: 0.22), name: "Verde foresta"),
-        PaletteColor(color: Color(red: 0.53, green: 0.25, blue: 0.19), name: "Castagna"),
-        PaletteColor(color: Color(red: 0.80, green: 0.29, blue: 0.23), name: "Rosso ruggine"),
-        PaletteColor(color: Color(red: 0.62, green: 0.42, blue: 0.48), name: "Malva scuro"),
-        PaletteColor(color: Color(red: 0.60, green: 0.27, blue: 0.23), name: "Mattone scuro"),
-        PaletteColor(color: Color(red: 0.98, green: 0.75, blue: 0.19), name: "Giallo oro"),
-        PaletteColor(color: Color(red: 0.47, green: 0.70, blue: 0.44), name: "Verde oliva chiaro"),
-        PaletteColor(color: Color(red: 0.92, green: 0.41, blue: 0.39), name: "Rosso corallo"),
-        PaletteColor(color: Color(red: 0.66, green: 0.44, blue: 0.36), name: "Beige medio"),
-        PaletteColor(color: Color(red: 0.44, green: 0.29, blue: 0.29), name: "Caffè"),
-        PaletteColor(color: Color(red: 0.83, green: 0.58, blue: 0.44), name: "Crema scuro"),
-        PaletteColor(color: Color(red: 0.97, green: 0.77, blue: 0.46), name: "Giallo zucca"),
-        PaletteColor(color: Color(red: 0.60, green: 0.56, blue: 0.17), name: "Verde senape"),
-        PaletteColor(color: Color(red: 0.96, green: 0.46, blue: 0.32), name: "Arancione acceso"),
-        PaletteColor(color: Color(red: 0.95, green: 0.55, blue: 0.54), name: "Rosa antico"),
-        PaletteColor(color: Color(red: 0.72, green: 0.37, blue: 0.33), name: "Mattone chiaro"),
-        PaletteColor(color: Color(red: 0.76, green: 0.66, blue: 0.46), name: "Beige dorato"),
-        PaletteColor(color: Color(red: 0.97, green: 0.78, blue: 0.63), name: "Crema"),
-        PaletteColor(color: Color(red: 0.84, green: 0.78, blue: 0.30), name: "Verde oro"),
-        PaletteColor(color: Color(red: 0.89, green: 0.34, blue: 0.17), name: "Ruggine"),
-        PaletteColor(color: Color(red: 0.90, green: 0.52, blue: 0.30), name: "Arancione scuro"),
-        PaletteColor(color: Color(red: 0.89, green: 0.63, blue: 0.54), name: "Beige rosato")
-    ]
-    static let winter: [PaletteColor] = [
-        PaletteColor(color: Color(red: 0.00, green: 0.00, blue: 0.00), name: "Nero puro"),
-        PaletteColor(color: Color(red: 1.00, green: 1.00, blue: 1.00), name: "Bianco puro"),
-        PaletteColor(color: Color(red: 0.94, green: 0.97, blue: 1.00), name: "Bianco ghiaccio"),
-        PaletteColor(color: Color(red: 0.69, green: 0.88, blue: 0.90), name: "Azzurro polare"),
-        PaletteColor(color: Color(red: 0.68, green: 0.85, blue: 0.90), name: "Azzurro pastello"),
-        PaletteColor(color: Color(red: 0.27, green: 0.51, blue: 0.71), name: "Blu acciaio"),
-        PaletteColor(color: Color(red: 0.00, green: 0.00, blue: 0.50), name: "Blu navy"),
-        PaletteColor(color: Color(red: 0.00, green: 0.20, blue: 0.40), name: "Blu notte profondo"),
-        PaletteColor(color: Color(red: 0.12, green: 0.23, blue: 0.37), name: "Blu scuro intenso"),
-        PaletteColor(color: Color(red: 0.00, green: 0.39, blue: 0.00), name: "Verde smeraldo"),
-        PaletteColor(color: Color(red: 0.00, green: 0.54, blue: 0.54), name: "Verde acqua profondo"),
-        PaletteColor(color: Color(red: 0.18, green: 0.54, blue: 0.34), name: "Verde bosco freddo"),
-        PaletteColor(color: Color(red: 0.29, green: 0.00, blue: 0.51), name: "Indaco freddo"),
-        PaletteColor(color: Color(red: 0.50, green: 0.00, blue: 0.50), name: "Viola intenso"),
-        PaletteColor(color: Color(red: 0.29, green: 0.04, blue: 0.15), name: "Viola prugna scuro"),
-        PaletteColor(color: Color(red: 0.54, green: 0.00, blue: 0.00), name: "Rosso scuro freddo"),
-        PaletteColor(color: Color(red: 0.70, green: 0.13, blue: 0.13), name: "Rosso bacca"),
-        PaletteColor(color: Color(red: 1.00, green: 0.08, blue: 0.58), name: "Fucsia brillante"),
-        PaletteColor(color: Color(red: 0.78, green: 0.08, blue: 0.52), name: "Rosa rubino"),
-        PaletteColor(color: Color(red: 0.86, green: 0.08, blue: 0.24), name: "Rosso ciliegia intenso"),
-        PaletteColor(color: Color(red: 0.54, green: 0.00, blue: 0.54), name: "Magenta profondo"),
-        PaletteColor(color: Color(red: 0.85, green: 0.44, blue: 0.84), name: "Lavanda chiara fredda"),
-        PaletteColor(color: Color(red: 1.00, green: 0.41, blue: 0.71), name: "Rosa baby freddo"),
-        PaletteColor(color: Color(red: 0.27, green: 0.51, blue: 0.71), name: "Blu acciaio (accento)"),
-        PaletteColor(color: Color(red: 0.44, green: 0.50, blue: 0.56), name: "Grigio ardesia freddo"),
-        PaletteColor(color: Color(red: 0.18, green: 0.31, blue: 0.31), name: "Grigio antracite scuro"),
-        PaletteColor(color: Color(red: 0.66, green: 0.66, blue: 0.66), name: "Grigio medio neutro"),
-        PaletteColor(color: Color(red: 0.41, green: 0.41, blue: 0.41), name: "Grigio carbone"),
-        PaletteColor(color: Color(red: 0.96, green: 0.96, blue: 0.96), name: "Grafite chiarissimo"),
-        PaletteColor(color: Color(red: 0.69, green: 0.77, blue: 0.87), name: "Azzurro polvere freddo")
-    ]
 }
 
 #Preview {

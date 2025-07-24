@@ -2,19 +2,26 @@
 //  ArmocromiaTestView.swift
 //  Closetique
 //
-//  Created by Studente on 15/07/25.
-//
-
 import SwiftUI
 
+/// Struttura che gestisce la domanda da porre all'utente con il relativo array di alternative di risposta
+struct Question {
+    var text: String
+    var options: [String]
+}
+
+/// Gestione del test di armocromia
 struct ArmocromiaTestView: View {
-    @Environment(\.dismiss) var dismiss
-    @State private var currentQuestionIndex = 0
-    @State private var answers: [String] = []
-    @State private var resultSeason: String? = nil
+
+    @Environment(\.dismiss) var dismiss // Gestisce il ritorno ad ArmocromiaMainView al termine del test cliccando sul bottone "Fine"
+    
+    @State private var currentQuestionIndex = 0 // Tiene traccia delle domande
+    @State private var answers: [String] = [] // Tiene traccia delle risposte
+    @State private var resultSeason: String? = nil // Memorizza la stagione calcolata con il test
 
     let onResult: (String) -> Void
 
+    // Array di domande
     let questions: [Question] = [
         //sottotono caldo o freddo
         Question(text: "Come reagisce la tua pelle al sole?", options: ["Mi scotto facilmente", "Mi abbronzo facilmente"]),
@@ -65,7 +72,7 @@ struct ArmocromiaTestView: View {
                         }) {
                             Text(option)
                                 .foregroundColor(.black)
-                                .frame(width: 300, height: 50)
+                                .frame(width: 320, height: 70)
                                 .background(Color(red: 250/255, green: 232/255, blue: 234/255))
                                 .cornerRadius(10)
                         }
@@ -85,7 +92,8 @@ struct ArmocromiaTestView: View {
             resultSeason = result
         }
     }
-
+    
+    // Funzione che assegna un punto alla relativa stagione, in base alla risposte date dall'utente
     func evaluateSeason(from answers: [String]) -> String {
         var scores: [String: Int] = [
             "Spring": 0,
@@ -129,11 +137,6 @@ struct ArmocromiaTestView: View {
         }
 
         return scores.max(by: { $0.value < $1.value })?.key ?? "Summer"
-    }
-
-    struct Question {
-        var text: String
-        var options: [String]
     }
 }
 
