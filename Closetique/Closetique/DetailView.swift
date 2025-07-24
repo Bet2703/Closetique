@@ -1,21 +1,27 @@
+//
+//  DetailView.swift
+//  Closetique
+//
+
 import SwiftUI
 
+/// Gestisce la visualizzazione della pagina dei dettagli del singolo capo mostrando immagine, toggle dei preferiti, nome, categoria, macrocategoria, stile, colore e una breve descrizione
 struct DetailView: View {
-    @ObservedObject var item: ClothingItem
-    @Binding var selectedTab: Int
-    @State var showDeleteAlert: Bool = false
-    @Environment(\.dismiss) var dismiss
+    
+    @ObservedObject var item: ClothingItem // Mantiene riferimento al capo,riflettendo tutti i cambiamenti
+    @Binding var selectedTab: Int // Tiene traccia dello stato della TabBar
+    @State var showDeleteAlert: Bool = false // Abilita la visualizzazione dell'alert
+    @Environment(\.dismiss) var dismiss // Permette di tornare alla view precedente
     var onDelete: (() -> Void)?
     
+    @State var allItems: [ClothingItem] = UserDefaultsManager.shared.loadItems() // Carica tutti i capi dal database/local storage
     
-
-    // Carica tutti i capi dal database/local storage
-    @State var allItems: [ClothingItem] = UserDefaultsManager.shared.loadItems()
-    @State var generatedOutfit: String? = nil
-    @State var showOutfitView: Bool = false
-    @State var outfitGenerationError: String? = nil // <-- Stato per l'errore
-
     let availableCategories: [String] = ["Maglie", "Camicie", "Pantaloni", "Gonne", "Abiti", "Giacca", "Giubbino", "Cappotto", "Scarpe", "Accessori", "Extra"]
+    
+    // Per la generazione dell'outfit a partire dal capo visualizzato
+    @State var generatedOutfit: String? = nil // Gestisce la generazione dell'outfit a partire dal capo mostrato
+    @State var showOutfitView: Bool = false // Gestisce la visualizzazione dell'outfit generato
+    @State var outfitGenerationError: String? = nil // Gestisce gli errori di generazione dell'outfit
 
     // Stati per editing per ogni campo
     @State private var isEditingNome = false
@@ -347,7 +353,7 @@ struct DetailView: View {
                                 }
                             }
                         },
-                        errorMessage: outfitGenerationError // <-- Passaggio errore qui!
+                        errorMessage: outfitGenerationError
                     ),
                     isActive: $showOutfitView
                 ) {
@@ -379,33 +385,39 @@ struct DetailView: View {
             Text("Questa azione non può essere annullata.")
         }
     }
-
-    // Cerca l'immagine nella directory Documents, dato solo il nome file o path assoluto
-    private func imageFromPath(_ path: String?) -> UIImage? {
-        guard let fullPath = path else { return nil }
-        let fileName = URL(fileURLWithPath: fullPath).lastPathComponent
-        print("DEBUG: nome immagine caricata \(fileName) ")
-        if let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
-            let fileURL = documentsDirectory.appendingPathComponent(fileName)
-            return UIImage(contentsOfFile: fileURL.path)
-        }
-        // Fallback: impossibile trovare
-        return nil
-    }
 }
 
-/*
 #if DEBUG
 struct DetailView_Previews: PreviewProvider {
     struct PreviewWrapper: View {
-        @State var exampleItems = [
+        // Simulazione di un item osservabile
+        @StateObject var previewItem = ClothingItem(
+            name: "Pinocchietto",
+            category: "Pantaloncino",
+            macrocategory: "Pantaloni",
+            imagePath: nil,
+            domColor: "Borgogna",
+            details: "Un pinocchietto di lana corto lungo bianco verde rosso giallo di cotone ah no di lana",
+            style: "Casual",
+            isFavorite: false
+        )
+        @State var selectedTab: Int = 0
+        @State var allItems: [ClothingItem] = [
             ClothingItem(name: "Pinocchietto", category: "Pantaloncino", macrocategory: "Pantaloni", imagePath: nil, domColor: "Borgogna", details: "Un pinocchietto di lana corto lungo bianco verde rosso giallo di cotone ah no di lana", style: "Casual", isFavorite: false),
-            ClothingItem(name: "Cappello", category: "Cappello", macrocategory: "Accessori", imagePath: nil, details: nil, style: "Boh", isFavorite: false),
-            ClothingItem(name: "Maglia dal gusto discutibile", category: "Maglia dal gusto discutibile", macrocategory: "Maglie", imagePath: nil, details: nil, style: "Casual", isFavorite: false),
-            ClothingItem(name: "Maglia", category: "Maglia", macrocategory: "Maglie", imagePath: nil, details: nil, style: "casual", isFavorite: false)
+            ClothingItem(name: "Cappello", category: "Cappello", macrocategory: "Accessori", imagePath: nil, details: nil, style: "Boh", isFavorite: false)
         ]
+        
         var body: some View {
-            DetailView(item: exampleItems[0], allItems: exampleItems)
+            NavigationView {
+                DetailView(
+                    item: previewItem,
+                    selectedTab: $selectedTab,
+                    onDelete: {
+                        print("Item eliminato in preview")
+                    },
+                    allItems: allItems
+                )
+            }
         }
     }
     static var previews: some View {
@@ -413,4 +425,3 @@ struct DetailView_Previews: PreviewProvider {
     }
 }
 #endif
-*/
