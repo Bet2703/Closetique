@@ -1,0 +1,54 @@
+# Suddivisione Repository Closetique in 3 Macrosezioni per Conferenza
+
+Creato il: 2025-07-17 13:11:50 UTC
+Autore: Andrehahaha
+
+## Dettagli della suddivisione:
+
+### 🎨 SEZIONE 1: USER INTERFACE & NAVIGAZIONE
+**Frontend e Esperienza Utente**
+
+UI Components (7 files):
+- ContentView.swift - Sistema di navigazione tab-based
+- HomepageView.swift - Dashboard principale con preview armadio  
+- AboutView.swift - Presentazione app e informazioni
+- SettingsView.swift - Configurazioni e gestione app
+- AnimatedPulsingCircle.swift - Sistema animazioni avanzate
+- ColorHex.swift - Gestione colori e palette UI
+- CameraView.swift - Interfaccia acquisizione foto
+
+Focus: Design patterns SwiftUI, navigazione, animazioni, UX
+
+### 🤖 SEZIONE 2: INTELLIGENZA ARTIFICIALE & DATA
+**AI, Computer Vision e Persistenza**
+
+AI & Data Layer (7 files):
+- LLamaGroqAPI.swift - API Groq per generazione outfit intelligente
+- GeminiVisionAnalyzer.swift - Computer vision con Gemini AI
+- ImageClassifier.swift - Classificazione automatica capi
+- UserDefaultsManager.swift - Persistence layer completo
+- ClothingItem.swift - Modello dati principale capi
+- MatchOutfit.swift - Modello dati outfit generati
+- ArmocromiaTestView.swift - AI per test cromatico
+
+Focus: Machine learning, computer vision, data persistence, API integration
+
+### 👕 SEZIONE 3: BUSINESS LOGIC FASHION
+**Funzionalità Core del Dominio**
+
+Fashion Features (7 files):
+- WardrobeView.swift - Gestione armadio digitale completo
+- DetailView.swift - Editing dettagliato capi
+- OutfitGeneratorView.swift - Generazione outfit con selezione stili
+- OutfitDescriptionView.swift - Presentazione risultati outfit
+- OutfitGeneratedBySinglePieceView.swift - Outfit da singolo capo
+- SavedOutfitsView.swift - Storico e gestione outfit salvati
+- ArmocromiaMainView.swift - Analisi stagione cromatica
+
+Focus: Domain expertise fashion, workflow styling, business rules
+
+## Caratteristiche della suddivisione:
+- 7 file Swift per sezione
+- 21 file totali - solo codice principale
+- Uguale peso tecnico e funzionale  
+- Responsabilità distinte e bilanciate
